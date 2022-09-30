@@ -1,0 +1,25 @@
+{
+  "events": [
+    {
+      "id": "",
+      "startTime": "2012-02-27",
+      "endTime": "2012-02-27",
+      "eventData": {
+        "title": "Description",
+        "description": "Description",
+        "period": [
+          {
+            "startTime": "09:45",
+            "endTime": "10:30"
+          }
+        ],
+        "color": "fff123",
+        "documents": [
+          {
+            "documentName": "doc1.pdf"
+          }
+        ]
+      }
+    }
+  ]
+}
