@@ -1,5 +1,6 @@
 import 'package:edgar_planner_calendar_flutter/core/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/term_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_event_state.dart';
 import 'package:edgar_planner_calendar_flutter/generated/l10n.dart';
@@ -10,7 +11,8 @@ import 'package:flutter_calendar/flutter_calendar.dart';
 ///right strip for the tablet view
 class RightStrip extends StatelessWidget {
   /// initialize the constructor
-  const RightStrip({Key? key, this.width = 48, this.height = 60})
+  const RightStrip(
+      {required this.termModel, Key? key, this.width = 48, this.height = 60})
       : super(key: key);
 
   ///const double width
@@ -18,6 +20,9 @@ class RightStrip extends StatelessWidget {
 
   ///const double height
   final double height;
+
+  ///Term Model
+  final TermModel termModel;
 
   @override
   Widget build(BuildContext context) => SizedBox(
@@ -67,16 +72,16 @@ class RightStrip extends StatelessWidget {
                     child: RightSideButton(
                   title: S.of(context).term1,
                   selected: viewType == CalendarViewType.termView &&
-                      startDate.month == 1,
+                      startDate.month ==
+                          termModel.terms.term1Date.startDate.month,
                   onTap: () {
                     if (viewType != CalendarViewType.termView) {
                       BlocProvider.of<TimeTableCubit>(context)
                           .changeViewType(CalendarViewType.termView);
                     }
-                    final DateTime e = DateTime.now();
-                    final DateTime firstDate = DateTime(e.year);
-                    final DateTime lastDate =
-                        DateTime(e.year, 4).subtract(const Duration(days: 1));
+                    final Term term = termModel.terms.term1Date;
+                    final DateTime firstDate = term.startDate;
+                    final DateTime lastDate = term.endDate;
 
                     BlocProvider.of<TimeTableCubit>(context)
                         .changeDate(firstDate, lastDate);
@@ -85,17 +90,17 @@ class RightStrip extends StatelessWidget {
                 Expanded(
                     child: RightSideButton(
                   selected: viewType == CalendarViewType.termView &&
-                      startDate.month == 4,
+                      startDate.month ==
+                          termModel.terms.term2Date.startDate.month,
                   title: S.of(context).term2,
                   onTap: () {
                     if (viewType != CalendarViewType.termView) {
                       BlocProvider.of<TimeTableCubit>(context)
                           .changeViewType(CalendarViewType.termView);
                     }
-                    final DateTime e = DateTime.now();
-                    final DateTime firstDate = DateTime(e.year, 4);
-                    final DateTime lastDate =
-                        DateTime(e.year, 7).subtract(const Duration(days: 1));
+                    final Term term = termModel.terms.term2Date;
+                    final DateTime firstDate = term.startDate;
+                    final DateTime lastDate = term.endDate;
 
                     BlocProvider.of<TimeTableCubit>(context)
                         .changeDate(firstDate, lastDate);
@@ -105,16 +110,16 @@ class RightStrip extends StatelessWidget {
                     child: RightSideButton(
                   title: S.of(context).term3,
                   selected: viewType == CalendarViewType.termView &&
-                      startDate.month == 7,
+                      startDate.month ==
+                          termModel.terms.term3Date.startDate.month,
                   onTap: () {
                     if (viewType != CalendarViewType.termView) {
                       BlocProvider.of<TimeTableCubit>(context)
                           .changeViewType(CalendarViewType.termView);
                     }
-                    final DateTime e = DateTime.now();
-                    final DateTime firstDate = DateTime(e.year, 7);
-                    final DateTime lastDate =
-                        DateTime(e.year, 10).subtract(const Duration(days: 1));
+                    final Term term = termModel.terms.term3Date;
+                    final DateTime firstDate = term.startDate;
+                    final DateTime lastDate = term.endDate;
 
                     BlocProvider.of<TimeTableCubit>(context)
                         .changeDate(firstDate, lastDate);
@@ -124,15 +129,16 @@ class RightStrip extends StatelessWidget {
                     child: RightSideButton(
                   title: S.of(context).term4,
                   selected: viewType == CalendarViewType.termView &&
-                      startDate.month == 10,
+                      startDate.month ==
+                          termModel.terms.term4Date.startDate.month,
                   onTap: () {
                     if (viewType != CalendarViewType.termView) {
                       BlocProvider.of<TimeTableCubit>(context)
                           .changeViewType(CalendarViewType.termView);
                     }
-                    final DateTime e = DateTime.now();
-                    final DateTime firstDate = DateTime(e.year, 10);
-                    final DateTime lastDate = DateTime(e.year, 12, 31);
+                    final Term term = termModel.terms.term4Date;
+                    final DateTime firstDate = term.startDate;
+                    final DateTime lastDate = term.endDate;
 
                     BlocProvider.of<TimeTableCubit>(context)
                         .changeDate(firstDate, lastDate);

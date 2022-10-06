@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_calendar/src/core/constants.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:flutter_calendar/src/widgets/cell.dart';
@@ -129,9 +130,9 @@ class SlWeekView<T> extends StatefulWidget {
 }
 
 class _SlWeekViewState<T> extends State<SlWeekView<T>> {
-  final ScrollController _dayScrollController = ScrollController();
+  final ScrollController dayScrollController = ScrollController();
   final ScrollController _dayHeadingScrollController = ScrollController();
-  final ScrollController _timeScrollController = ScrollController();
+  final ScrollController timeScrollController = ScrollController();
   double columnWidth = 50;
   TimetableController controller = TimetableController();
   final GlobalKey<State<StatefulWidget>> _key = GlobalKey();
@@ -214,9 +215,9 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
     if (_listenerId != null) {
       controller.removeListener(_listenerId!);
     }
-    _dayScrollController.dispose();
+    dayScrollController.dispose();
     _dayHeadingScrollController.dispose();
-    _timeScrollController.dispose();
+    timeScrollController.dispose();
     super.dispose();
   }
 
@@ -277,7 +278,9 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
 
     for (final Period element in periods) {
       h = h +
-          (element.isBreak ? controller.breakHeight : controller.cellHeight);
+          (element.isCustomeSlot
+              ? controller.breakHeight
+              : controller.cellHeight);
     }
     return h;
   }
@@ -352,7 +355,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                               return true;
                             }
                             _isHeaderScrolling = true;
-                            _dayScrollController.jumpTo(
+                            dayScrollController.jumpTo(
                                 _dayHeadingScrollController.position.pixels);
                             return false;
                           },
@@ -380,7 +383,8 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                 ),
                 Expanded(
                   child: SingleChildScrollView(
-                    controller: _timeScrollController,
+                    controller: timeScrollController,
+                    physics: const AlwaysScrollableScrollPhysics(),
                     child: Builder(builder: (BuildContext context) {
                       final double height = getTimelineHeight(widget.timelines,
                           controller.cellHeight, controller.breakHeight);
@@ -400,7 +404,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                             }
                             _isTableScrolling = true;
                             _dayHeadingScrollController
-                                .jumpTo(_dayScrollController.position.pixels);
+                                .jumpTo(dayScrollController.position.pixels);
                             return true;
                           },
                           child: Row(
@@ -428,7 +432,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
 
                                   itemCount: dateRange.length,
                                   itemExtent: columnWidth,
-                                  controller: _dayScrollController,
+                                  controller: dayScrollController,
                                   itemBuilder:
                                       (BuildContext context, int index) {
                                     final DateTime date = dateRange[index];
@@ -665,8 +669,8 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
     _isSnapping = true;
     await Future<dynamic>.microtask(() => null);
     final double snapPosition =
-        ((_dayScrollController.offset) / columnWidth).round() * columnWidth;
-    await _dayScrollController.animateTo(
+        ((dayScrollController.offset) / columnWidth).round() * columnWidth;
+    await dayScrollController.animateTo(
       snapPosition,
       duration: _animationDuration,
       curve: _animationCurve,
@@ -692,19 +696,25 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
   Future<dynamic> _jumpTo(DateTime date) async {
     final double datePosition =
         (date.difference(controller.start).inDays) * columnWidth;
-    final double hourPosition =
-        ((date.hour) * controller.cellHeight) - (controller.cellHeight / 2);
-    await Future.wait<void>(<Future<void>>[
-      _dayScrollController.animateTo(
-        datePosition,
-        duration: _animationDuration,
-        curve: _animationCurve,
-      ),
-      _timeScrollController.animateTo(
-        hourPosition,
-        duration: _animationDuration,
-        curve: _animationCurve,
-      ),
-    ]);
+    final double hourPosition = getTimeIndicatorFromTop(
+            widget.timelines, controller.cellHeight, controller.breakHeight) -
+        timeScrollController.offset;
+    final double height = getTimelineHeight(
+        widget.timelines, controller.cellHeight, controller.breakHeight);
+
+    final double maxScroll = timeScrollController.position.maxScrollExtent;
+
+    log('height $height hour $hourPosition max $maxScroll');
+    await dayScrollController
+        .animateTo(
+          datePosition,
+          duration: animationDuration,
+          curve: animationCurve,
+        )
+        .then((dynamic value) => timeScrollController.animateTo(
+              hourPosition,
+              duration: animationDuration,
+              curve: animationCurve,
+            ));
   }
 }

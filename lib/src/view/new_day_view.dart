@@ -243,7 +243,9 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
 
     for (final Period element in periods) {
       h = h +
-          (element.isBreak ? controller.breakHeight : controller.cellHeight);
+          (element.isCustomeSlot
+              ? controller.breakHeight
+              : controller.cellHeight);
     }
     return h;
   }
@@ -369,7 +371,8 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
                                                 columnWidth: size.width,
                                                 cellBuilder: widget.cellBuilder,
                                                 period: period,
-                                                isDragEnable: !period.isBreak,
+                                                isDragEnable:
+                                                    !period.isCustomeSlot,
                                                 breakHeight:
                                                     controller.breakHeight,
                                                 cellHeight:

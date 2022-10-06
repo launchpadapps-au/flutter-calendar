@@ -7,7 +7,9 @@ import 'package:edgar_planner_calendar_flutter/core/static.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/change_view_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/date_change_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_periods_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/loading_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/term_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/callbacks.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/method_name.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_event_state.dart';
@@ -21,7 +23,8 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   /// initialized timetable cubit
   TimeTableCubit() : super(InitialState()) {
     nativeCallBack.initializeChannel('com.example.demo/data');
-    getDummyEvents();
+    getDummyEvents(addDummyEvent: false);
+
     setListener();
   }
 
@@ -38,10 +41,17 @@ class TimeTableCubit extends Cubit<TimeTableState> {
       DateTime(now.year, now.month + 1).subtract(const Duration(days: 1));
 
   ///view of the calendar
-  CalendarViewType viewType = CalendarViewType.dayView;
+  CalendarViewType viewType = CalendarViewType.weekView;
 
   ///list of the periods of the timetable
-  List<Period> periods = customStaticPeriods;
+  List<PeriodModel> periods = customStaticPeriods;
+  // List<PeriodModel> periods = dummyPeriods;
+
+  ///this model hold the data related to terms of the s
+  TermModel termModel = defaultTermModel;
+
+  ///true if calendar is in loading mode
+  bool isLoading = false;
 
   /// set method handler to receive data from flutter
   static const MethodChannel platform = MethodChannel('com.example.demo/data');
@@ -62,6 +72,15 @@ class TimeTableCubit extends Cubit<TimeTableState> {
           await updateId(call.arguments);
           break;
 
+        case ReceiveMethods.setLoading:
+          debugPrint('setLoading received from native app');
+          final LoadingModel loadingModel =
+              loadingModelFromJson(jsonEncode(call.arguments));
+          isLoading = loadingModel.isLoading;
+          emit(LoadingUpdated(periods, _events, viewType, termModel,
+              isLoading: isLoading));
+          break;
+
         ///receive data change command from ios
         ///handle data change
         case ReceiveMethods.setDates:
@@ -70,7 +89,8 @@ class TimeTableCubit extends Cubit<TimeTableState> {
               DateChange.fromJson(jsonDecode(call.arguments));
           startDate = dateChange.startTime;
           endDate = dateChange.endTime;
-          emit(DateUpdated(endDate, startDate, _events, viewType, periods));
+          emit(DateUpdated(
+              endDate, startDate, _events, viewType, periods, termModel));
           break;
 
         ///handle view change
@@ -84,10 +104,30 @@ class TimeTableCubit extends Cubit<TimeTableState> {
         ///handle set periods method
         case ReceiveMethods.setPeriods:
           debugPrint('set periods received from native app');
-          final GetPeriods changePeriods =
-              GetPeriods.fromJson(jsonDecode(call.arguments));
-          periods = changePeriods.periods;
-          emit(PeriodsUpdated(periods, _events, viewType));
+
+          final List<PeriodModel> newPeriods =
+              periodModelFromJson(jsonEncode(call.arguments));
+          emit(PeriodsUpdated(periods, _events, viewType, termModel));
+          debugPrint('\n');
+          if (newPeriods.isEmpty) {
+            debugPrint('Received empty slots,no changes made');
+          } else {
+            periods = newPeriods;
+            debugPrint('Received  slots,perios updated');
+            for (final PeriodModel element in periods) {
+              debugPrint(element.toMap.toString());
+              debugPrint('\n');
+            }
+          }
+
+          break;
+
+        ///handle set Terms method when data recieve from native app
+        case ReceiveMethods.setTerms:
+          debugPrint('set Terms recived from native app');
+          termModel = termModelFromJson(jsonEncode(call.arguments));
+          debugPrint(termModel.toJson().toString());
+          emit(TermsUpdated(periods, _events, viewType, termModel));
           break;
 
         ///handle setEvents methods
@@ -95,9 +135,9 @@ class TimeTableCubit extends Cubit<TimeTableState> {
           debugPrint('set events received from native app');
           final GetEvents getEvents =
               GetEvents.fromJson(jsonDecode(call.arguments));
-
           _events = getEvents.events;
-          emit(EventsAdded(periods, _events, viewType, getEvents.events));
+          emit(EventsAdded(
+              periods, _events, viewType, getEvents.events, termModel));
           break;
 
         ///handle addEvent method
@@ -105,9 +145,8 @@ class TimeTableCubit extends Cubit<TimeTableState> {
           debugPrint('add events received from native app');
           final GetEvents getEvents =
               GetEvents.fromJson(jsonDecode(call.arguments));
-
           _events.addAll(getEvents.events);
-          emit(LoadedState(_events, viewType, periods));
+          emit(LoadedState(_events, viewType, periods, termModel));
           break;
 
         ///handle update event methods
@@ -119,7 +158,8 @@ class TimeTableCubit extends Cubit<TimeTableState> {
             _events.removeWhere((PlannerEvent element) => element.id == e.id);
           }
           _events.addAll(getEvents.events);
-          emit(EventsUpdated(periods, _events, viewType, getEvents.events));
+          emit(EventsUpdated(
+              periods, _events, viewType, getEvents.events, termModel));
           break;
 
         ///handle delete Event method
@@ -131,7 +171,8 @@ class TimeTableCubit extends Cubit<TimeTableState> {
             _events.removeWhere((PlannerEvent element) => element.id == e.id);
           }
 
-          emit(DeletedEvents(periods, _events, viewType, getEvents.events));
+          emit(DeletedEvents(
+              periods, _events, viewType, getEvents.events, termModel));
           break;
         default:
           debugPrint('Data receive from flutter:No handler');
@@ -154,7 +195,8 @@ class TimeTableCubit extends Cubit<TimeTableState> {
     endDate = end;
     startDate = first;
     nativeCallBack.sendDateChangeToNativeApp(first, end);
-    emit(DateUpdated(endDate, startDate, _events, viewType, periods));
+    emit(
+        DateUpdated(endDate, startDate, _events, viewType, periods, termModel));
     return true;
   }
 
@@ -163,17 +205,19 @@ class TimeTableCubit extends Cubit<TimeTableState> {
     final Map<String, dynamic> jData = await jsonDecode(data);
 
     id = jData['id'].toString();
-    emit(LoadedState(_events, viewType, periods));
+    emit(LoadedState(_events, viewType, periods, termModel));
   }
 
   ///get dummy events
-  Future<void> getDummyEvents() async {
+  Future<void> getDummyEvents({bool addDummyEvent = true}) async {
     try {
       emit(LoadingState());
       await Future<dynamic>.delayed(const Duration(seconds: 3));
-      _events = dummyEventData;
+      if (addDummyEvent) {
+        _events = dummyEventData;
+      }
 
-      emit(LoadedState(_events, viewType, periods));
+      emit(LoadedState(_events, viewType, periods, termModel));
     } on Exception catch (e) {
       debugPrint(e.toString());
       emit(ErrorState());
@@ -188,7 +232,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
 
     if (state is LoadedState) {}
     _events.add(value);
-    emit(LoadedState(_events, viewType, periods));
+    emit(LoadedState(_events, viewType, periods, termModel));
   }
 
   ///remove pld event and add new event
@@ -205,7 +249,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
         startTime: newEvent.startTime,
         endTime: newEvent.endTime,
         eventData: newEvent.eventData));
-    emit(LoadedState(_events, viewType, periods));
+    emit(LoadedState(_events, viewType, periods, termModel));
     log('added${newEvent.toMap}');
     return true;
   }
@@ -248,7 +292,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   void changeViewType(CalendarViewType viewType) {
     this.viewType = viewType;
     nativeCallBack.sendViewChangedToNativeApp(viewType);
-    emit(ViewUpdated(events, viewType, periods));
+    emit(ViewUpdated(events, viewType, periods, termModel));
   }
 
   ///this function changed
@@ -256,7 +300,8 @@ class TimeTableCubit extends Cubit<TimeTableState> {
     final DateTime now = DateTime.now();
 
     if (startDate.isBefore(now) && endDate.isAfter(now)) {
-      emit(ChangeToCurrentDate(periods, events, viewType, <PlannerEvent>[]));
+      emit(ChangeToCurrentDate(
+          periods, events, viewType, <PlannerEvent>[], termModel));
     }
     {
       startDate = DateTime(now.year, now.month);
@@ -267,7 +312,8 @@ class TimeTableCubit extends Cubit<TimeTableState> {
         viewType = CalendarViewType.weekView;
         isViewChanged = true;
       }
-      emit(ChangeToCurrentDate(periods, events, viewType, <PlannerEvent>[],
+      emit(ChangeToCurrentDate(
+          periods, events, viewType, <PlannerEvent>[], termModel,
           isDateChanged: true, isViewChanged: isViewChanged));
     }
   }

@@ -94,7 +94,7 @@ class TimeTableCell<T> extends StatelessWidget {
             //     .withOpacity(1.0),
             // color: Colors.blue,
             width: columnWidth,
-            height: period.isBreak ? breakHeight : cellHeight,
+            height: period.isCustomeSlot ? breakHeight : cellHeight,
             child: Center(
               child: cellBuilder != null
                   ? cellBuilder!(period)

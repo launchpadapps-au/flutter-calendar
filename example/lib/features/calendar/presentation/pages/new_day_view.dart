@@ -211,7 +211,7 @@ class _NewDayPlannerState extends State<NewDayPlanner> {
 
                       final TimeOfDay end = period.endTime;
                       return Container(
-                        child: period.isBreak
+                        child: period.isCustomeSlot
                             ? Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
@@ -241,14 +241,14 @@ class _NewDayPlannerState extends State<NewDayPlanner> {
                     },
                     controller: simpleController,
                     isCellDraggable: (CalendarEvent<EventData> event) {
-                      if (event.eventData!.period.isBreak) {
+                      if (event.eventData!.period.isCustomeSlot) {
                         return false;
                       } else {
                         return true;
                       }
                     },
                     initialHeight: (CalendarEvent<EventData> event) =>
-                        event.eventData!.period.isBreak
+                        event.eventData!.period.isCustomeSlot
                             ? simpleController.breakHeight
                             : simpleController.cellHeight,
                     itemBuilder: (CalendarEvent<EventData> item) =>
@@ -263,13 +263,13 @@ class _NewDayPlannerState extends State<NewDayPlanner> {
                     cellBuilder: (Period period) => CellBorder(
                         borderWidth: 1,
                         borderRadius: 0,
-                        color: period.isBreak
+                        color: period.isCustomeSlot
                             ? isMobile
                                 ? lightGrey
                                 : grey
                             : Colors.transparent,
                         borderColor: grey,
-                        border: !period.isBreak
+                        border: !period.isCustomeSlot
                             ? null
                             : Border(
                                 left: isMobile
@@ -289,7 +289,7 @@ class _NewDayPlannerState extends State<NewDayPlanner> {
                                 bottom: const BorderSide(
                                   color: grey,
                                 )),
-                        cellHeight: period.isBreak
+                        cellHeight: period.isCustomeSlot
                             ? simpleController.breakHeight
                             : simpleController.cellHeight),
                   ),

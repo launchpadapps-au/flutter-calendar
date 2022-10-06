@@ -28,7 +28,7 @@ double getTopMargin(DateTime startTime, List<Period> timelines,
                 hour: startTime.hour,
                 minute: startTime.minute,
               )) &&
-          element.isBreak == false)
+          element.isCustomeSlot == false)
       .toList()
       .length;
 
@@ -40,7 +40,7 @@ double getTopMargin(DateTime startTime, List<Period> timelines,
                 hour: startTime.hour,
                 minute: startTime.minute,
               )) &&
-          element.isBreak == true)
+          element.isCustomeSlot == true)
       .toList()
       .length;
   appLog('ts $ts breaks $breaks');
@@ -60,7 +60,7 @@ double getBottomMargin(DateTime startTime, List<Period> timelines,
                 hour: startTime.hour,
                 minute: startTime.minute,
               )) &&
-          element.isBreak == false)
+          element.isCustomeSlot == false)
       .toList()
       .length;
 
@@ -72,7 +72,7 @@ double getBottomMargin(DateTime startTime, List<Period> timelines,
                 hour: startTime.hour,
                 minute: startTime.minute,
               )) &&
-          element.isBreak == true)
+          element.isCustomeSlot == true)
       .toList()
       .length;
   appLog('ts $ts breaks $breaks');
@@ -84,7 +84,7 @@ double getTimelineHeight(
     List<Period> timelines, double cellHeight, double breakHeight) {
   double h = 0;
   for (final Period timeline in timelines) {
-    if (timeline.isBreak) {
+    if (timeline.isCustomeSlot) {
       h = h + breakHeight;
     } else {
       h = h + cellHeight;
@@ -114,7 +114,7 @@ double getTimeIndicatorFromTop(
   appLog('No  of periods before current time:${ts.length}');
   double total = 0;
   for (final Period item in ts) {
-    total = total + (item.isBreak ? breakHeight : cellHeight);
+    total = total + (item.isCustomeSlot ? breakHeight : cellHeight);
   }
   final List<Period> times = t
       .where((Period element) => isDateBeetWeen(
@@ -133,8 +133,9 @@ double getTimeIndicatorFromTop(
     final Duration d = diffTime(time.endTime, time.startTime);
 
     appLog('Duration of the period:${d.inMinutes}');
-    final double rm =
-        time.isBreak ? (breakHeight / d.inMinutes) : (cellHeight / d.inMinutes);
+    final double rm = time.isCustomeSlot
+        ? (breakHeight / d.inMinutes)
+        : (cellHeight / d.inMinutes);
     appLog('size of the minute:$rm');
     final Duration duration = now.difference(DateTime(now.year, now.month,
         now.day, time.startTime.hour, time.startTime.minute));
@@ -166,7 +167,7 @@ double getEventMarginFromTop(List<Period> timelines, double cellHeight,
   appLog('No  of periods before current time:${ts.length}');
   double total = 0;
   for (final Period item in ts) {
-    total = total + (item.isBreak ? breakHeight : cellHeight);
+    total = total + (item.isCustomeSlot ? breakHeight : cellHeight);
   }
   final List<Period> times = t
       .where((Period element) => isDateBeetWeen(
@@ -185,8 +186,9 @@ double getEventMarginFromTop(List<Period> timelines, double cellHeight,
     final Duration d = diffTime(time.endTime, time.startTime);
 
     appLog('Duration of the period:${d.inMinutes}');
-    final double rm =
-        time.isBreak ? (breakHeight / d.inMinutes) : (cellHeight / d.inMinutes);
+    final double rm = time.isCustomeSlot
+        ? (breakHeight / d.inMinutes)
+        : (cellHeight / d.inMinutes);
     appLog('size of the minute:$rm');
     final Duration duration = start.difference(DateTime(start.year, start.month,
         start.day, time.startTime.hour, time.startTime.minute));
@@ -204,7 +206,7 @@ double getEventMarginFromBottom(List<Period> timelines, double cellHeight,
   double totalHeightOfThePlanner = 0;
   for (final Period p in timelines) {
     totalHeightOfThePlanner =
-        totalHeightOfThePlanner + (p.isBreak ? breakHeight : cellHeight);
+        totalHeightOfThePlanner + (p.isCustomeSlot ? breakHeight : cellHeight);
   }
   final List<Period> t = timelines;
   final List<Period> myTs = t
@@ -223,7 +225,7 @@ double getEventMarginFromBottom(List<Period> timelines, double cellHeight,
   appLog('No  of periods before current time:${myTs.length}');
   double totalHeight = 0;
   for (final Period item in myTs) {
-    totalHeight = totalHeight + (item.isBreak ? breakHeight : cellHeight);
+    totalHeight = totalHeight + (item.isCustomeSlot ? breakHeight : cellHeight);
   }
   final List<Period> times = t
       .where((Period element) => isDateBeetWeen(
@@ -242,8 +244,9 @@ double getEventMarginFromBottom(List<Period> timelines, double cellHeight,
     final Duration d = diffTime(time.endTime, time.startTime);
 
     appLog('Duration of the period:${d.inMinutes}');
-    final double rm =
-        time.isBreak ? (breakHeight / d.inMinutes) : (cellHeight / d.inMinutes);
+    final double rm = time.isCustomeSlot
+        ? (breakHeight / d.inMinutes)
+        : (cellHeight / d.inMinutes);
     appLog('size of the minute:$rm');
     final Duration duration = end.difference(DateTime(end.year, end.month,
         end.day, time.startTime.hour, time.startTime.minute));
@@ -520,7 +523,7 @@ Future<ResizeModel> getResizeDetails(List<Period> timelines, double cellHeight,
   double totalHeightOfThePlanner = 0;
   for (final Period p in timelines) {
     totalHeightOfThePlanner =
-        totalHeightOfThePlanner + (p.isBreak ? breakHeight : cellHeight);
+        totalHeightOfThePlanner + (p.isCustomeSlot ? breakHeight : cellHeight);
   }
   final List<Period> times = timelines
       .where((Period element) => isDateBeetWeen(
@@ -539,8 +542,9 @@ Future<ResizeModel> getResizeDetails(List<Period> timelines, double cellHeight,
     final Duration d = diffTime(time.endTime, time.startTime);
 
     appLog('Duration of the period:${d.inMinutes}');
-    final double rm =
-        time.isBreak ? (breakHeight / d.inMinutes) : (cellHeight / d.inMinutes);
+    final double rm = time.isCustomeSlot
+        ? (breakHeight / d.inMinutes)
+        : (cellHeight / d.inMinutes);
     appLog('size of the minute:$rm');
     final Duration duration = start.difference(DateTime(start.year, start.month,
         start.day, time.startTime.hour, time.startTime.minute));
@@ -570,7 +574,7 @@ Future<ResizeModel> getResizeDetails(List<Period> timelines, double cellHeight,
   appLog('No  of periods before current time:${ts.length}');
   double total1 = 0;
   for (final Period item in ts) {
-    total1 = total1 + (item.isBreak ? breakHeight : cellHeight);
+    total1 = total1 + (item.isCustomeSlot ? breakHeight : cellHeight);
   }
   final List<Period> times1 = timelines
       .where((Period element) => isDateBeetWeen(
@@ -589,8 +593,9 @@ Future<ResizeModel> getResizeDetails(List<Period> timelines, double cellHeight,
     final Duration d = diffTime(time.endTime, time.startTime);
 
     appLog('Duration of the period:${d.inMinutes}');
-    final double rm =
-        time.isBreak ? (breakHeight / d.inMinutes) : (cellHeight / d.inMinutes);
+    final double rm = time.isCustomeSlot
+        ? (breakHeight / d.inMinutes)
+        : (cellHeight / d.inMinutes);
     appLog('size of the minute:$rm');
     final Duration duration = start.difference(DateTime(start.year, start.month,
         start.day, time.startTime.hour, time.startTime.minute));
@@ -616,7 +621,7 @@ Future<ResizeModel> getParameterForResize(List<Period> timelines,
   double totalHeightOfThePlanner = 0;
   for (final Period p in timelines) {
     totalHeightOfThePlanner =
-        totalHeightOfThePlanner + (p.isBreak ? breakHeight : cellHeight);
+        totalHeightOfThePlanner + (p.isCustomeSlot ? breakHeight : cellHeight);
   }
   final List<Period> t = timelines;
   final List<Period> ts = t
@@ -635,7 +640,7 @@ Future<ResizeModel> getParameterForResize(List<Period> timelines,
   appLog('No  of periods before current time:${ts.length}');
   double total = 0;
   for (final Period item in ts) {
-    total = total + (item.isBreak ? breakHeight : cellHeight);
+    total = total + (item.isCustomeSlot ? breakHeight : cellHeight);
   }
   final List<Period> times = t
       .where((Period element) => isDateBeetWeen(
@@ -654,8 +659,9 @@ Future<ResizeModel> getParameterForResize(List<Period> timelines,
     final Duration d = diffTime(time.endTime, time.startTime);
 
     appLog('Duration of the period:${d.inMinutes}');
-    final double rm =
-        time.isBreak ? (breakHeight / d.inMinutes) : (cellHeight / d.inMinutes);
+    final double rm = time.isCustomeSlot
+        ? (breakHeight / d.inMinutes)
+        : (cellHeight / d.inMinutes);
     appLog('size of the minute:$rm');
     final Duration duration = start.difference(DateTime(start.year, start.month,
         start.day, time.startTime.hour, time.startTime.minute));
@@ -684,7 +690,7 @@ Future<ResizeModel> getParameterForResize(List<Period> timelines,
   appLog('No  of periods before current time:${myTs.length}');
   double totalHeight = 0;
   for (final Period item in myTs) {
-    totalHeight = totalHeight + (item.isBreak ? breakHeight : cellHeight);
+    totalHeight = totalHeight + (item.isCustomeSlot ? breakHeight : cellHeight);
   }
   final List<Period> times1 = t2
       .where((Period element) => isDateBeetWeen(
@@ -703,8 +709,9 @@ Future<ResizeModel> getParameterForResize(List<Period> timelines,
     final Duration d = diffTime(time.endTime, time.startTime);
 
     appLog('Duration of the period:${d.inMinutes}');
-    final double rm =
-        time.isBreak ? (breakHeight / d.inMinutes) : (cellHeight / d.inMinutes);
+    final double rm = time.isCustomeSlot
+        ? (breakHeight / d.inMinutes)
+        : (cellHeight / d.inMinutes);
     appLog('size of the minute:$rm');
     final Duration duration = end.difference(DateTime(end.year, end.month,
         end.day, time.startTime.hour, time.startTime.minute));
@@ -742,7 +749,7 @@ Future<ResizeModel> getParameterForResize(List<Period> timelines,
     } else {}
   } else {
     if (ts.length == 1) {
-      if (ts.first.isBreak) {
+      if (ts.first.isCustomeSlot) {
         resizeModel
           ..isPreviousPeriodAvl = false
           ..minDragOffset = 0;
@@ -754,7 +761,7 @@ Future<ResizeModel> getParameterForResize(List<Period> timelines,
       }
     } else {
       final Period lastPeriod = ts.last;
-      if (lastPeriod.isBreak) {
+      if (lastPeriod.isCustomeSlot) {
         resizeModel
           ..isPreviousPeriodAvl = false
           ..minDragOffset = 0;
@@ -771,7 +778,7 @@ Future<ResizeModel> getParameterForResize(List<Period> timelines,
       resizeModel.isNextPeriodAvl = false;
     } else {
       if (forAfter.length == 1) {
-        if (forAfter.first.isBreak) {
+        if (forAfter.first.isCustomeSlot) {
           resizeModel
             ..isNextPeriodAvl = false
             ..maxDargOffset = 0;
@@ -783,7 +790,7 @@ Future<ResizeModel> getParameterForResize(List<Period> timelines,
         }
       } else {
         final Period lastPeriod = forAfter.first;
-        if (lastPeriod.isBreak) {
+        if (lastPeriod.isCustomeSlot) {
           resizeModel
             ..isNextPeriodAvl = false
             ..maxDargOffset = 0;

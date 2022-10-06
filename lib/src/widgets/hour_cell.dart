@@ -38,7 +38,9 @@ class HourCell extends StatelessWidget {
     );
     return Container(
         color: backgroundColor,
-        height: period.isBreak ? controller.breakHeight : controller.cellHeight,
+        height: period.isCustomeSlot
+            ? controller.breakHeight
+            : controller.cellHeight,
         child: Center(
             child: hourLabelBuilder != null
                 ? hourLabelBuilder!(period)

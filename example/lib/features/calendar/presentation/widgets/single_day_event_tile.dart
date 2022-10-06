@@ -51,14 +51,15 @@ class SingleDayEventTile extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(6),
           child: Container(
-            padding: EdgeInsets.all(item.eventData!.period.isBreak ? 0 : 8),
+            padding:
+                EdgeInsets.all(item.eventData!.period.isCustomeSlot ? 0 : 8),
             // height: item.eventData!.period.isBreak ? breakHeight :
             // cellHeight,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(6),
                 border: border,
                 color: item.eventData!.color),
-            child: item.eventData!.period.isBreak
+            child: item.eventData!.period.isCustomeSlot
                 ? SizedBox(
                     height: breakHeight,
                     child: Center(

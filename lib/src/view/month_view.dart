@@ -242,7 +242,9 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
 
     for (final Period element in periods) {
       h = h +
-          (element.isBreak ? controller.breakHeight : controller.cellHeight);
+          (element.isCustomeSlot
+              ? controller.breakHeight
+              : controller.cellHeight);
     }
     return h;
   }

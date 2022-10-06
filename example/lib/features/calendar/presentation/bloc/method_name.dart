@@ -6,6 +6,9 @@ class ReceiveMethods {
   ///data from native app to flutter
   static const String sendToFlutter = 'sendToFlutter';
 
+  ///method using to show loading indcator from the ui
+  static const String setLoading = 'setLoading';
+
   ///date from native app to flutter
   static const String setDates = 'setDates';
 
@@ -14,6 +17,10 @@ class ReceiveMethods {
 
   ///setPeriods called from native aoo
   static const String setPeriods = 'setPeriods';
+
+  ///setTerms called when we recived custom term from the native app fro the
+  ///term view
+  static const String setTerms = 'setTerms';
 
   ///set events called from native ios
   static const String setEvents = 'setEvents';

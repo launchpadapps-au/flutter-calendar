@@ -133,7 +133,7 @@ class Preview {
                           final TimeOfDay end = period.endTime;
                           return Container(
                             color: white,
-                            child: period.isBreak
+                            child: period.isCustomeSlot
                                 ? Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
@@ -157,7 +157,7 @@ class Preview {
                           );
                         },
                         isCellDraggable: (CalendarEvent<EventData> event) {
-                          if (event.eventData!.period.isBreak) {
+                          if (event.eventData!.period.isCustomeSlot) {
                             return false;
                           } else {
                             return true;
@@ -170,13 +170,13 @@ class Preview {
                           margin: const EdgeInsets.all(4),
                           child: Container(
                               padding: const EdgeInsets.all(6),
-                              height: item.eventData!.period.isBreak
+                              height: item.eventData!.period.isCustomeSlot
                                   ? simpleController.breakHeight
                                   : simpleController.cellHeight,
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(6),
                                   color: item.eventData!.color),
-                              child: item.eventData!.period.isBreak
+                              child: item.eventData!.period.isCustomeSlot
                                   ? SizedBox(
                                       height: simpleController.breakHeight,
                                       child: Center(
@@ -187,19 +187,20 @@ class Preview {
                                     )
                                   : EventTile(
                                       item: item,
-                                      height: item.eventData!.period.isBreak
-                                          ? simpleController.breakHeight
-                                          : simpleController.cellHeight,
+                                      height:
+                                          item.eventData!.period.isCustomeSlot
+                                              ? simpleController.breakHeight
+                                              : simpleController.cellHeight,
                                       width: width,
                                     )),
                         ),
                         cellBuilder: (Period period) => Container(
-                          height: period.isBreak
+                          height: period.isCustomeSlot
                               ? simpleController.breakHeight
                               : simpleController.cellHeight,
                           decoration: BoxDecoration(
                               border: Border.all(color: grey),
-                              color: period.isBreak
+                              color: period.isCustomeSlot
                                   ? lightGrey
                                   : Colors.transparent),
                         ),

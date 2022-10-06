@@ -142,7 +142,7 @@ class _GlSchedulePlannerState extends State<GlSchedulePlanner> {
 
                     final TimeOfDay end = period.endTime;
                     return Container(
-                      child: period.isBreak
+                      child: period.isCustomeSlot
                           ? Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
@@ -165,7 +165,7 @@ class _GlSchedulePlannerState extends State<GlSchedulePlanner> {
                     );
                   },
                   isCellDraggable: (CalendarEvent<EventData> event) {
-                    if (event.eventData!.period.isBreak) {
+                    if (event.eventData!.period.isCustomeSlot) {
                       return false;
                     } else {
                       return true;
