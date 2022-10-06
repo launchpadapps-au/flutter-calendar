@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:edgar_planner_calendar_flutter/core/constants.dart';
 import 'package:edgar_planner_calendar_flutter/core/static.dart';
+import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/term_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
@@ -9,7 +10,8 @@ import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bl
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/day_planner.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/gl_schedule_view.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/month_planner.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/new_day_view.dart'; 
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/new_day_view.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/preview.dart'; 
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/schedule_planner.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/setting_dialog.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/term_planner.dart';
@@ -18,7 +20,8 @@ import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/wi
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/right_strip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart'; 
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart'; 
 import 'package:screenshot/screenshot.dart';
 import 'package:flutter_calendar/flutter_calendar.dart'; 
 
@@ -66,92 +69,92 @@ class _PlannerState extends State<Planner> {
   @override
   Widget build(BuildContext context) => Scaffold(
       key: scaffoldKey,
-      // appBar: AppBar(
-      //   backgroundColor: Colors.transparent,
-      //   elevation: 0,
-      //   systemOverlayStyle: SystemUiOverlayStyle.dark,
-      //   centerTitle: true,
-      //   title: ValueListenableBuilder<DateTime>(
-      //       valueListenable: headerDateNotifier,
-      //       builder: (BuildContext context, DateTime value, Widget? child) =>
-      //           GestureDetector(
-      //             onTap: () {
-      //               // DatePicker.showPicker(context,
-      //               //         pickerModel: CustomMonthPicker(
-      //               //             minTime: DateTime(
-      //               //               2020,
-      //               //             ),
-      //               //             maxTime: DateTime.now(),
-      //               //             currentTime: dateTime))
-      //               //     .then((DateTime? value) {
-      //               //   if (value != null) {
-      //               //     log(dateTime.toString());
-      //               //     dateTime = value;
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        centerTitle: true,
+        title: ValueListenableBuilder<DateTime>(
+            valueListenable: headerDateNotifier,
+            builder: (BuildContext context, DateTime value, Widget? child) =>
+                GestureDetector(
+                  onTap: () {
+                    // DatePicker.showPicker(context,
+                    //         pickerModel: CustomMonthPicker(
+                    //             minTime: DateTime(
+                    //               2020,
+                    //             ),
+                    //             maxTime: DateTime.now(),
+                    //             currentTime: dateTime))
+                    //     .then((DateTime? value) {
+                    //   if (value != null) {
+                    //     log(dateTime.toString());
+                    //     dateTime = value;
 
-      //               //     setState(() {});
-      //               //     simpleController.changeDate(
-      //               //         DateTime(dateTime.year, dateTime.month),
-      //               //         dateTime.lastDayOfMonth);
-      //               //   }
-      //               // });
-      //             },
-      //             child: Text(
-      //               DateFormat('dd-MMMM-y').format(dateTime),
-      //               style: context.termPlannerTitle,
-      //             ),
-      //           )),
-      //   leading: IconButton(
-      //     icon: const Icon(
-      //       Icons.menu,
-      //       color: Colors.black,
-      //     ),
-      //     onPressed: () {
-      //       // BlocProvider.of<TimeTableCubit>(context).jumpToCurrentDate();
-      //       timeTableController.jumpTo(DateTime.now());
-      //     },
-      //   ),
-      //   actions: <Widget>[
-      //     IconButton(
-      //       icon: const Icon(
-      //         Icons.download,
-      //         color: Colors.black,
-      //       ),
-      //       onPressed: () async {
-      //         final TimeTableCubit cubit =
-      //             BlocProvider.of<TimeTableCubit>(context);
+                    //     setState(() {});
+                    //     simpleController.changeDate(
+                    //         DateTime(dateTime.year, dateTime.month),
+                    //         dateTime.lastDayOfMonth);
+                    //   }
+                    // });
+                  },
+                  child: Text(
+                    DateFormat('dd-MMMM-y').format(dateTime),
+                    style: context.termPlannerTitle,
+                  ),
+                )),
+        leading: IconButton(
+          icon: const Icon(
+            Icons.menu,
+            color: Colors.black,
+          ),
+          onPressed: () {
+            // BlocProvider.of<TimeTableCubit>(context).jumpToCurrentDate();
+            timeTableController.jumpTo(DateTime.now());
+          },
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(
+              Icons.download,
+              color: Colors.black,
+            ),
+            onPressed: () async {
+              final TimeTableCubit cubit =
+                  BlocProvider.of<TimeTableCubit>(context);
 
-      //         await Preview.exportWeekView(DateTime(2022, 9),
-      //            DateTime(2022, 10, 3), cubit.periods, cubit.events, context,
-      //             saveImage: false);
-      //       },
-      //     ),
-      //     IconButton(
-      //       icon: const Icon(
-      //         Icons.search,
-      //         color: Colors.black,
-      //       ),
-      //       onPressed: () async {
-      //         setState(() {
-      //           if (index < 5) {
-      //             index++;
-      //           } else {
-      //             index = 0;
-      //           }
-      //         });
-      //       },
-      //     ),
-      //     IconButton(
-      //       icon: const Icon(
-      //         Icons.calendar_month,
-      //         color: Colors.black,
-      //       ),
-      //       onPressed: () {
-      //         scaffoldKey.currentState!.openEndDrawer();
-      //         return;
-      //       },
-      //     ),
-      //   ],
-      // ),
+              await Preview.exportWeekView(DateTime(2022, 9),
+                 DateTime(2022, 10, 3), cubit.periods, cubit.events, context,
+                  saveImage: false);
+            },
+          ),
+          IconButton(
+            icon: const Icon(
+              Icons.search,
+              color: Colors.black,
+            ),
+            onPressed: () async {
+              setState(() {
+                if (index < 5) {
+                  index++;
+                } else {
+                  index = 0;
+                }
+              });
+            },
+          ),
+          IconButton(
+            icon: const Icon(
+              Icons.calendar_month,
+              color: Colors.black,
+            ),
+            onPressed: () {
+              scaffoldKey.currentState!.openEndDrawer();
+              return;
+            },
+          ),
+        ],
+      ),
       endDrawer: SettingDrawer(
         startDate: startDate,
         isMobile: isMobile,

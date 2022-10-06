@@ -23,7 +23,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   /// initialized timetable cubit
   TimeTableCubit() : super(InitialState()) {
     nativeCallBack.initializeChannel('com.example.demo/data');
-    getDummyEvents(addDummyEvent: false);
+    getDummyEvents();
 
     setListener();
   }
@@ -51,7 +51,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   TermModel termModel = defaultTermModel;
 
   ///true if calendar is in loading mode
-  bool isLoading = false;
+  bool isLoading = true;
 
   /// set method handler to receive data from flutter
   static const MethodChannel platform = MethodChannel('com.example.demo/data');

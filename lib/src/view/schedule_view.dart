@@ -280,68 +280,65 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
                           .where((CalendarEvent<T> event) =>
                               DateUtils.isSameDay(date, event.startTime))
                           .toList();
-                      return SizedBox(
-                        height: 65,
-                        child: ListTile(
-                          onTap: () {
-                            if (widget.onTap != null) {
-                              widget.onTap!(date, events);
-                            }
-                          },
-                          leading: widget.headerCellBuilder!(date),
-                          title: events.isEmpty
-                              ? DragTarget<CalendarEvent<T>>(
-                                  onWillAccept: (CalendarEvent<T>? data) =>
-                                      widget.onWillAccept(data),
-                                  onAcceptWithDetails:
-                                      (DragTargetDetails<CalendarEvent<T>>
-                                          details) {
-                                    final CalendarEvent<T> event = details.data;
-                                    final DateTime newStartTime = DateTime(
-                                        date.year,
-                                        date.month,
-                                        date.day,
-                                        event.startTime.hour,
-                                        event.startTime.minute);
-                                    final DateTime newEndTime = DateTime(
-                                        date.year,
-                                        date.month,
-                                        date.day,
-                                        event.endTime.hour,
-                                        event.endTime.minute);
+                      return ListTile(
+                        onTap: () {
+                          if (widget.onTap != null) {
+                            widget.onTap!(date, events);
+                          }
+                        },
+                        leading: widget.headerCellBuilder!(date),
+                        title: events.isEmpty
+                            ? DragTarget<CalendarEvent<T>>(
+                                onWillAccept: (CalendarEvent<T>? data) =>
+                                    widget.onWillAccept(data),
+                                onAcceptWithDetails:
+                                    (DragTargetDetails<CalendarEvent<T>>
+                                        details) {
+                                  final CalendarEvent<T> event = details.data;
+                                  final DateTime newStartTime = DateTime(
+                                      date.year,
+                                      date.month,
+                                      date.day,
+                                      event.startTime.hour,
+                                      event.startTime.minute);
+                                  final DateTime newEndTime = DateTime(
+                                      date.year,
+                                      date.month,
+                                      date.day,
+                                      event.endTime.hour,
+                                      event.endTime.minute);
 
-                                    final CalendarEvent<T> newEvent =
-                                        CalendarEvent<T>(
-                                            startTime: newStartTime,
-                                            endTime: newEndTime,
-                                            eventData: event.eventData);
+                                  final CalendarEvent<T> newEvent =
+                                      CalendarEvent<T>(
+                                          startTime: newStartTime,
+                                          endTime: newEndTime,
+                                          eventData: event.eventData);
 
-                                    widget.onEventDragged!(
-                                        details.data, newEvent);
-                                  },
-                                  builder: (BuildContext content,
-                                          List<Object?> obj,
-                                          List<dynamic> data) =>
-                                      widget.cellBuilder(date))
-                              : Column(
-                                  children: events
-                                      .map((CalendarEvent<T> e) => Draggable<
-                                              CalendarEvent<T>>(
-                                          ignoringFeedbackSemantics: false,
-                                          data: e,
-                                          maxSimultaneousDrags:
-                                              widget.isCellDraggable == null
-                                                  ? 1
-                                                  : widget.isCellDraggable!(e)
-                                                      ? 1
-                                                      : 0,
-                                          childWhenDragging:
-                                              widget.cellBuilder(date),
-                                          feedback: Material(
-                                              child: widget.itemBuilder!(e)),
-                                          child: widget.itemBuilder!(e)))
-                                      .toList()),
-                        ),
+                                  widget.onEventDragged!(
+                                      details.data, newEvent);
+                                },
+                                builder: (BuildContext content,
+                                        List<Object?> obj,
+                                        List<dynamic> data) =>
+                                    widget.cellBuilder(date))
+                            : Column(
+                                children: events
+                                    .map((CalendarEvent<T> e) => Draggable<
+                                            CalendarEvent<T>>(
+                                        ignoringFeedbackSemantics: false,
+                                        data: e,
+                                        maxSimultaneousDrags:
+                                            widget.isCellDraggable == null
+                                                ? 1
+                                                : widget.isCellDraggable!(e)
+                                                    ? 1
+                                                    : 0,
+                                        childWhenDragging:
+                                            widget.cellBuilder(date),
+                                        feedback: Material(
+                                            child: widget.itemBuilder!(e)),
+                                        child: widget.itemBuilder!(e)))
+                                    .toList()),
                       );
                     }),
               ),

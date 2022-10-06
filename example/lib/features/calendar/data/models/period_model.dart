@@ -10,8 +10,7 @@ import 'package:flutter_calendar/flutter_calendar.dart';
 ///create lsit of object from the json encoded string
 
 List<PeriodModel> periodModelFromJson(String str) => List<PeriodModel>.from(
-    // ignore: always_specify_types
-    json.decode(str).map((Map<String, dynamic> x) => PeriodModel.fromJson(x)));
+    json.decode(str).map((dynamic x) => PeriodModel.fromJson(x)));
 
 ///create json encoded string from the list of the object
 String periodModelToJson(List<PeriodModel> data) =>
