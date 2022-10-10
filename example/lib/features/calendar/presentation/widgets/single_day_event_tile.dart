@@ -106,7 +106,7 @@ class SingleDayEventTile extends StatelessWidget {
                               ? const SizedBox.shrink()
                               : Flexible(
                                   child: Text(
-                                    item.eventData!.description,
+                                    item.eventData!.location??'',
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 1,
                                     style: context.eventTitle,
@@ -117,12 +117,12 @@ class SingleDayEventTile extends StatelessWidget {
                       const Spacer(),
                       item.eventData!.freeTime
                           ? const SizedBox.shrink()
-                          : item.eventData!.documents.isNotEmpty
+                          : item.eventData!.googleDriveFiles.isNotEmpty
                               ? Wrap(
                                   runSpacing: 8,
                                   spacing: 8,
-                                  children: item.eventData!.documents
-                                      .map((Document e) => Container(
+                                  children: item.eventData!.googleDriveFiles
+                                      .map((dynamic e) => Container(
                                           width:
                                               MediaQuery.of(context).size.width,
                                           height: 18,
@@ -133,7 +133,7 @@ class SingleDayEventTile extends StatelessWidget {
                                               borderRadius:
                                                   BorderRadius.circular(20)),
                                           child: Center(
-                                            child: Text(e.documentName,
+                                            child: Text(e.toString(),
                                                 style: context.eventTitle),
                                           )))
                                       .toList())

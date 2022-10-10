@@ -1,11 +1,10 @@
 import 'dart:developer';
 
-import 'package:edgar_planner_calendar_flutter/core/constants.dart';
-import 'package:edgar_planner_calendar_flutter/core/date_extension.dart';
+import 'package:edgar_planner_calendar_flutter/core/constants.dart'; 
 import 'package:edgar_planner_calendar_flutter/core/static.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart'; 
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/day_name.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/dead_cell.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/small_event.dart';
@@ -20,7 +19,6 @@ class TermPlanner extends StatefulWidget {
   const TermPlanner({
     required this.timetableController,
     required this.onMonthChanged,
-    this.events = const <PlannerEvent>[],
     Key? key,
     this.id,
   }) : super(key: key);
@@ -29,13 +27,10 @@ class TermPlanner extends StatefulWidget {
   final String? id;
 
   ///timetable controller
-  final TimetableController timetableController;
+  final TimetableController<EventData> timetableController;
 
   ///return current month when user swipe and month changed
   final Function(Month) onMonthChanged;
-
-  ///list of the events for the planner
-  final List<PlannerEvent> events;
 
   @override
   State<TermPlanner> createState() => _TermPlannerState();
@@ -45,25 +40,16 @@ class TermPlanner extends StatefulWidget {
 DateTime now = DateTime.now();
 
 class _TermPlannerState extends State<TermPlanner> {
-  TimetableController simpleController = TimetableController(
-      start:
-          DateUtils.dateOnly(DateTime.now()).subtract(const Duration(days: 1)),
-      end: dateTime.lastDayOfMonth,
-      timelineWidth: 60,
-      breakHeight: 35,
-      cellHeight: 120);
+ 
   static DateTime dateTime = DateTime.now();
 
   @override
   void initState() {
-    super.initState();
-    simpleController = widget.timetableController;
+    super.initState(); 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      currentMonth = simpleController.visibleDateStart;
+      currentMonth = widget.timetableController.visibleDateStart;
       setState(() {});
-      Future<dynamic>.delayed(const Duration(milliseconds: 100), () {
-        simpleController.jumpTo(now);
-      });
+ 
     });
   }
 
@@ -142,7 +128,6 @@ class _TermPlannerState extends State<TermPlanner> {
           },
           nowIndicatorColor: Colors.red,
           fullWeek: true,
-          items: widget.events,
           onTap: (DateTime date) {
             final TimeTableCubit provider =
                 BlocProvider.of<TimeTableCubit>(context);
@@ -151,10 +136,10 @@ class _TermPlannerState extends State<TermPlanner> {
           },
           headerHeight: isMobile ? 38 : 40,
           headerCellBuilder: (int index) => SizedBox(
-            height: simpleController.headerHeight,
+            height: widget.timetableController.headerHeight,
             child: DayName(index: index),
           ),
-          controller: simpleController,
+          controller: widget.timetableController,
           itemBuilder: (List<CalendarEvent<EventData>> item, Size size,
                   DateTime dateTime) =>
               item.isEmpty
@@ -211,8 +196,8 @@ class _TermPlannerState extends State<TermPlanner> {
                       )),
           cellBuilder: (Period period) => Container(
             height: period.isCustomeSlot
-                ? simpleController.breakHeight
-                : simpleController.cellHeight,
+                ? widget.timetableController.breakHeight
+                : widget.timetableController.cellHeight,
             decoration: BoxDecoration(
                 border:
                     Border.all(color: Colors.grey.withOpacity(0.5), width: 0.5),

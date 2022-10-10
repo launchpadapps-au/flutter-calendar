@@ -102,15 +102,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.8.2"
-  screenshot:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: HEAD
-      resolved-ref: df14c5ccd52fcb5ccb568a0043419c9850438257
-      url: "https://github.com/SachinGanesh/screenshot"
-    source: git
-    version: "1.2.3"
   sky_engine:
     dependency: transitive
     description: flutter

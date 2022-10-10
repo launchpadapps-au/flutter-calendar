@@ -18,11 +18,23 @@ class LoadingState extends TimeTableState {
   List<Object> get props => <Object>[];
 }
 
+/// jumto date state
+class JumpToDateState extends TimeTableState {
+  ///initilize the state
+  JumpToDateState(this.dateTime);
+
+  ///DateTime date
+  final DateTime dateTime;
+  @override
+  List<Object> get props => <Object>[dateTime];
+}
+
 ///loaded state
 class LoadedState extends TimeTableState {
   ///
   LoadedState(this.events, this.viewType, this.periods, this.termModel);
 
+  ///list of events
   ///list of events
   final List<PlannerEvent> events;
 
@@ -38,25 +50,58 @@ class LoadedState extends TimeTableState {
   List<Object> get props => <Object>[events, viewType, periods, termModel];
 }
 
+///loaded state
+class EventUpdatedState extends TimeTableState {
+  ///
+  EventUpdatedState(
+    this.events,
+    this.oldEvent,
+    this.newEvent,
+    this.viewType,
+    this.periods,
+    this.termModel,
+  );
+
+  ///list of events
+  ///list of events
+  final List<PlannerEvent> events;
+
+  /// old event
+  final PlannerEvent oldEvent;
+
+  ///new event
+  final PlannerEvent newEvent;
+
+  /// view type of the calendar
+  final CalendarViewType viewType;
+
+  ///list of the period
+  final List<Period> periods;
+
+  ///terms model
+  final TermModel termModel;
+  @override
+  List<Object> get props =>
+      <Object>[events, oldEvent, newEvent, viewType, periods, termModel];
+}
+
 ///View updated state
-class ViewUpdated implements LoadedState {
+class ViewUpdated implements TimeTableState {
   ///
   ViewUpdated(this.events, this.viewType, this.periods, this.termModel);
 
   ///list of events
-  @override
   final List<PlannerEvent> events;
 
   /// view type of the calendar
-  @override
   final CalendarViewType viewType;
 
   ///list of the period
-  @override
+
   final List<Period> periods;
 
   ///terms model
-  @override
+
   final TermModel termModel;
   @override
   List<Object> get props => <Object>[events, viewType, periods, termModel];
@@ -87,15 +132,15 @@ class UpdatingEvent extends TimeTableState {
 }
 
 ///date update event state
-class DateUpdated implements LoadedState {
+class DateUpdated implements TimeTableState {
   ///initialize start
   DateUpdated(this.endDate, this.startDate, this.events, this.viewType,
       this.periods, this.termModel);
 
-  @override
+  ///list of events
   final List<PlannerEvent> events;
 
-  @override
+  /// view type of the calendar
   final CalendarViewType viewType;
 
   ///start date
@@ -105,11 +150,11 @@ class DateUpdated implements LoadedState {
   final DateTime endDate;
 
   ///list of the period
-  @override
+
   final List<Period> periods;
 
   ///terms model
-  @override
+
   final TermModel termModel;
 
   @override
@@ -121,22 +166,22 @@ class DateUpdated implements LoadedState {
 }
 
 ///PeriodsUpdated event state
-class PeriodsUpdated implements LoadedState {
+class PeriodsUpdated implements TimeTableState {
   ///initialize start
   PeriodsUpdated(this.periods, this.events, this.viewType, this.termModel);
 
-  @override
+  ///list of events
   final List<PlannerEvent> events;
 
-  @override
+  /// view type of the calendar
   final CalendarViewType viewType;
 
   ///list of the period
-  @override
+
   final List<Period> periods;
 
   ///terms model
-  @override
+
   final TermModel termModel;
   @override
   List<Object> get props => <Object>[periods, viewType, events, termModel];
@@ -146,22 +191,22 @@ class PeriodsUpdated implements LoadedState {
 }
 
 ///TermsUpdated event state
-class TermsUpdated implements LoadedState {
+class TermsUpdated implements TimeTableState {
   ///initialize start
   TermsUpdated(this.periods, this.events, this.viewType, this.termModel);
 
-  @override
+  ///list of events
   final List<PlannerEvent> events;
 
-  @override
+  /// view type of the calendar
   final CalendarViewType viewType;
 
   ///list of the period
-  @override
+
   final List<Period> periods;
 
   ///terms model
-  @override
+
   final TermModel termModel;
 
   @override
@@ -172,23 +217,23 @@ class TermsUpdated implements LoadedState {
 }
 
 ///LoadingUpdated event state
-class LoadingUpdated implements LoadedState {
+class LoadingUpdated implements TimeTableState {
   ///initialize start
   LoadingUpdated(this.periods, this.events, this.viewType, this.termModel,
       {this.isLoading = false});
 
-  @override
+  ///list of events
   final List<PlannerEvent> events;
 
-  @override
+  /// view type of the calendar
   final CalendarViewType viewType;
 
   ///list of the period
-  @override
+
   final List<Period> periods;
 
   ///terms model
-  @override
+
   final TermModel termModel;
 
   ///true if loading indicator
@@ -203,26 +248,26 @@ class LoadingUpdated implements LoadedState {
 }
 
 ///EventsAdded event state
-class EventsAdded implements LoadedState {
+class EventsAdded implements TimeTableState {
   ///initialize start
   EventsAdded(this.periods, this.events, this.viewType, this.addedEvents,
       this.termModel);
 
-  @override
+  ///list of events
   final List<PlannerEvent> events;
 
   ///added events
   final List<PlannerEvent> addedEvents;
 
-  @override
+  /// view type of the calendar
   final CalendarViewType viewType;
 
   ///list of the period
-  @override
+
   final List<Period> periods;
 
   ///terms model
-  @override
+
   final TermModel termModel;
 
   @override
@@ -234,25 +279,26 @@ class EventsAdded implements LoadedState {
 }
 
 ///EventsUpdated event state
-class EventsUpdated implements LoadedState {
+class EventsUpdated implements TimeTableState {
   ///initialize start
   EventsUpdated(this.periods, this.events, this.viewType, this.updatedEvents,
       this.termModel);
 
-  @override
+  ///list of events
   final List<PlannerEvent> events;
 
   ///updated events
   final List<PlannerEvent> updatedEvents;
-  @override
+
+  /// view type of the calendar
   final CalendarViewType viewType;
 
   ///list of the period
-  @override
+
   final List<Period> periods;
 
   ///terms model
-  @override
+
   final TermModel termModel;
   @override
   List<Object> get props =>
@@ -263,25 +309,26 @@ class EventsUpdated implements LoadedState {
 }
 
 ///EventsUpdated event state
-class DeletedEvents implements LoadedState {
+class DeletedEvents implements TimeTableState {
   ///initialize start
   DeletedEvents(this.periods, this.events, this.viewType, this.deletedEvents,
       this.termModel);
 
-  @override
+  ///list of events
   final List<PlannerEvent> events;
 
   ///deleted events
   final List<PlannerEvent> deletedEvents;
-  @override
+
+  /// view type of the calendar
   final CalendarViewType viewType;
 
   ///list of the period
-  @override
+
   final List<Period> periods;
 
   ///terms model
-  @override
+
   final TermModel termModel;
   @override
   List<Object> get props =>
@@ -292,22 +339,23 @@ class DeletedEvents implements LoadedState {
 }
 
 ///ChangeToCurrentDate event state
-class ChangeToCurrentDate implements LoadedState {
+class ChangeToCurrentDate implements TimeTableState {
   ///initialize ChangeToCurrentDate
   ChangeToCurrentDate(this.periods, this.events, this.viewType,
       this.deletedEvents, this.termModel,
       {this.isDateChanged = false, this.isViewChanged = false});
 
-  @override
+  ///list of events
   final List<PlannerEvent> events;
 
   ///deleted events
   final List<PlannerEvent> deletedEvents;
-  @override
+
+  /// view type of the calendar
   final CalendarViewType viewType;
 
   ///list of the period
-  @override
+
   final List<Period> periods;
 
   ///bool isDateChanged
@@ -317,7 +365,7 @@ class ChangeToCurrentDate implements LoadedState {
   final bool isViewChanged;
 
   ///terms model
-  @override
+
   final TermModel termModel;
   @override
   List<Object> get props => <Object>[

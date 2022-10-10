@@ -100,12 +100,12 @@ class _SettingDrawerState extends State<SettingDrawer> {
                                 .changeViewType(CalendarViewType.termView);
                           },
                         ),
-                  ElevatedButton(
-                      child: const Text('Gl Schedule view'),
-                      onPressed: () {
-                        BlocProvider.of<TimeTableCubit>(context)
-                            .changeViewType(CalendarViewType.glScheduleView);
-                      }),
+                  // ElevatedButton(
+                  //     child: const Text('Gl Schedule view'),
+                  //     onPressed: () {
+                  //       BlocProvider.of<TimeTableCubit>(context)
+                  //           .changeViewType(CalendarViewType.glScheduleView);
+                  //     }),
                 ],
               ),
               const SizedBox(

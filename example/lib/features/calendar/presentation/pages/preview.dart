@@ -53,12 +53,13 @@ class Preview {
       final Iterable<CalendarDay> myDateRange = dates.skip(skip).take(7);
       final DateTime first = myDateRange.first.dateTime;
       final DateTime last = myDateRange.last.dateTime;
-      final TimetableController simpleController = TimetableController(
-          start: first,
-          end: last,
-          timelineWidth: timeLineWidth,
-          breakHeight: bw,
-          cellHeight: ch);
+      final TimetableController<EventData> simpleController =
+          TimetableController<EventData>(
+              start: first,
+              end: last,
+              timelineWidth: timeLineWidth,
+              breakHeight: bw,
+              cellHeight: ch);
 
       log('startDate: $first and endDate: $last');
       await ScreenshotController()
@@ -76,7 +77,6 @@ class Preview {
                         size: size,
                         columnWidth: 130,
                         showNowIndicator: false,
-                        onImageCapture: (Uint8List data) {},
                         fullWeek: true,
                         timelines: timelines,
                         onEventDragged: (CalendarEvent<EventData> old,
@@ -89,7 +89,6 @@ class Preview {
                         cornerBuilder: (DateTime current) => Container(
                           color: white,
                         ),
-                        items: event,
                         onTap: (DateTime date, Period period,
                             CalendarEvent<EventData>? event) {},
                         headerHeight: 40,

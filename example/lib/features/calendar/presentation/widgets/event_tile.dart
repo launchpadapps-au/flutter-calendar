@@ -49,23 +49,26 @@ class EventTile extends StatelessWidget {
                 ? const SizedBox.shrink()
                 : Flexible(
                     child: Text(
-                      item.eventData!.description,
+                      item.eventData!.location ?? '',
                       overflow: TextOverflow.ellipsis,
                       style: context.subtitle,
                     ),
                   ),
             item.eventData!.freeTime ? const SizedBox.shrink() : const Spacer(),
-            Container(
-                width: MediaQuery.of(context).size.width,
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20)),
-                child: Text(
-                  item.eventData!.documents.first.documentName,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.subtitle,
-                ))
+            item.eventData!.eventLinks == null
+                ? const SizedBox.shrink()
+                : Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20)),
+                    child: Text(
+                      item.eventData!.eventLinks.toString(),
+                      overflow: TextOverflow.ellipsis,
+                      style: context.subtitle,
+                    ))
 
             // item.eventData!.freeTime
             //     ? const SizedBox.shrink()

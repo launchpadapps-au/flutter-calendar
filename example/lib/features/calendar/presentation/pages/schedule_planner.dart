@@ -1,10 +1,9 @@
-import 'package:edgar_planner_calendar_flutter/core/colors.dart';
-import 'package:edgar_planner_calendar_flutter/core/date_extension.dart';
+import 'package:edgar_planner_calendar_flutter/core/colors.dart'; 
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart'; 
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/schedule_view_event_tile.dart';
-import 'package:flutter/foundation.dart';
+ 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -16,8 +15,6 @@ class SchedulePlanner extends StatefulWidget {
   const SchedulePlanner({
     required this.timetableController,
     required this.customPeriods,
-    required this.onImageCapture,
-    this.events = const <PlannerEvent>[],
     Key? key,
     this.id,
     this.isMobile = true,
@@ -32,38 +29,24 @@ class SchedulePlanner extends StatefulWidget {
   ///bool isMobile
   final bool isMobile;
 
-  ///list of the events for the planner
-  final List<PlannerEvent> events;
-
   ///timetable controller for the calendar
-  final TimetableController timetableController;
+  final TimetableController<EventData> timetableController;
 
-  ///function return unit8List when user ask for screenshot
-
-  final Function(Uint8List) onImageCapture;
   @override
   State<SchedulePlanner> createState() => _SchedulePlannerState();
 }
 
 class _SchedulePlannerState extends State<SchedulePlanner> {
-  TimetableController simpleController = TimetableController(
-      start:
-          DateUtils.dateOnly(DateTime.now()).subtract(const Duration(days: 1)),
-      end: dateTime.lastDayOfMonth,
-      timelineWidth: 60,
-      breakHeight: 35,
-      cellHeight: 120);
   static DateTime dateTime = DateTime.now();
 
   @override
   void initState() {
-    simpleController = widget.timetableController;
     setState(() {});
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      currentMonth = simpleController.visibleDateStart;
+      currentMonth = widget.timetableController.visibleDateStart;
       setState(() {});
       Future<dynamic>.delayed(const Duration(milliseconds: 100), () {
-        simpleController.jumpTo(dateTime);
+        widget.timetableController.jumpTo(dateTime);
       });
     });
     super.initState();
@@ -80,12 +63,6 @@ class _SchedulePlannerState extends State<SchedulePlanner> {
         backgroundColor: white,
         timelines: widget.customPeriods,
         cellHeight: cellHeight,
-        onImageCapture: (Uint8List data) {
-          if (BlocProvider.of<TimeTableCubit>(context).viewType ==
-              CalendarViewType.scheduleView) {
-            widget.onImageCapture(data);
-          }
-        },
         onEventDragged:
             (CalendarEvent<EventData> old, CalendarEvent<EventData> newEvent) {
           BlocProvider.of<TimeTableCubit>(context)
@@ -95,7 +72,6 @@ class _SchedulePlannerState extends State<SchedulePlanner> {
         nowIndicatorColor: Colors.red,
         fullWeek: true,
         cornerBuilder: (DateTime current) => const SizedBox.shrink(),
-        items: widget.events,
         onTap: (DateTime dateTime, List<CalendarEvent<EventData>>? p1) {
           final TimeTableCubit provider =
               BlocProvider.of<TimeTableCubit>(context);
@@ -165,7 +141,7 @@ class _SchedulePlannerState extends State<SchedulePlanner> {
             return true;
           }
         },
-        controller: simpleController,
+        controller: widget.timetableController,
         itemBuilder: (CalendarEvent<EventData> item) => ScheduleViewEventTile(
           item: item,
           cellHeight: cellHeight,

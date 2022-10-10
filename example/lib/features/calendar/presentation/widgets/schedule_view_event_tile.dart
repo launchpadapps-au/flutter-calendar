@@ -71,10 +71,11 @@ class ScheduleViewEventTile extends StatelessWidget {
                 )
               ],
             ),
-            item.eventData!.freeTime ? const SizedBox.shrink() : const Spacer(),
+            // item.eventData!.freeTime ? const SizedBox.shrink() :
+            //const Spacer(),
             Flexible(
               child: Text(
-                item.eventData!.description,
+                item.eventData!.location ?? '',
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                     height: 1.2, fontSize: 10, fontWeight: FontWeight.w500),

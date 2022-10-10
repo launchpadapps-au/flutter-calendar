@@ -1,4 +1,4 @@
-import 'dart:developer';
+import 'dart:async';
 
 import 'package:edgar_planner_calendar_flutter/core/constants.dart';
 import 'package:edgar_planner_calendar_flutter/core/static.dart';
@@ -7,11 +7,9 @@ import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/term_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_event_state.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/day_planner.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/gl_schedule_view.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/month_planner.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/new_day_view.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/preview.dart'; 
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/day_planner.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/preview.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/schedule_planner.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/setting_dialog.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/term_planner.dart';
@@ -21,9 +19,8 @@ import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/wi
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart'; 
-import 'package:screenshot/screenshot.dart';
-import 'package:flutter_calendar/flutter_calendar.dart'; 
+import 'package:intl/intl.dart';
+import 'package:flutter_calendar/flutter_calendar.dart';
 
 ///planner
 class Planner extends StatefulWidget {
@@ -40,18 +37,16 @@ class Planner extends StatefulWidget {
 ///current date time
 DateTime now = DateTime.now().subtract(const Duration(days: 1));
 
-///screenshot controller
-ScreenshotController screenshotController = ScreenshotController();
-
 class _PlannerState extends State<Planner> {
   static DateTime startDate = DateTime(2022, 9);
   static DateTime endDate = DateTime(2022, 12, 31);
-  TimetableController timeTableController = TimetableController(
-      start: startDate,
-      end: endDate,
-      timelineWidth: 60,
-      breakHeight: 35,
-      cellHeight: 110);
+  TimetableController<EventData> timeTableController =
+      TimetableController<EventData>(
+          start: startDate,
+          end: endDate,
+          timelineWidth: 60,
+          breakHeight: 35,
+          cellHeight: 110);
 
   /// Used to display the current month in the app bar.
   DateTime dateTime = DateTime.now();
@@ -60,116 +55,161 @@ class _PlannerState extends State<Planner> {
 
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
-  ScreenshotController screenshotController = ScreenshotController();
-
   static DateTime dateForHeader = DateTime.now();
   ValueNotifier<DateTime> headerDateNotifier =
       ValueNotifier<DateTime>(dateForHeader);
   int index = 0;
+
+  @override
+  void initState() {
+    BlocProvider.of<TimeTableCubit>(context)
+        .stream
+        .listen((TimeTableState event) {
+      if (event is DateUpdated) {
+        timeTableController.changeDate(event.startDate, event.endDate);
+      } else if (event is ViewUpdated) {
+        viewTypeNotifer.value = event.viewType;
+      } else if (event is JumpToDateState) {
+        timeTableController.jumpTo(event.dateTime);
+      } else if (event is LoadedState) {
+        timeTableController.addEvent(event.events, replace: false);
+      } else if (event is EventUpdatedState) {
+        timeTableController.updateEvent(event.oldEvent, event.newEvent);
+      }
+    });
+    super.initState();
+  }
+
+  ValueNotifier<CalendarViewType> viewTypeNotifer =
+      ValueNotifier<CalendarViewType>(CalendarViewType.weekView);
   @override
   Widget build(BuildContext context) => Scaffold(
-      key: scaffoldKey,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        systemOverlayStyle: SystemUiOverlayStyle.dark,
-        centerTitle: true,
-        title: ValueListenableBuilder<DateTime>(
-            valueListenable: headerDateNotifier,
-            builder: (BuildContext context, DateTime value, Widget? child) =>
-                GestureDetector(
-                  onTap: () {
-                    // DatePicker.showPicker(context,
-                    //         pickerModel: CustomMonthPicker(
-                    //             minTime: DateTime(
-                    //               2020,
-                    //             ),
-                    //             maxTime: DateTime.now(),
-                    //             currentTime: dateTime))
-                    //     .then((DateTime? value) {
-                    //   if (value != null) {
-                    //     log(dateTime.toString());
-                    //     dateTime = value;
+        key: scaffoldKey,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
+          centerTitle: true,
+          title: ValueListenableBuilder<DateTime>(
+              valueListenable: headerDateNotifier,
+              builder: (BuildContext context, DateTime value, Widget? child) =>
+                  GestureDetector(
+                    onTap: () {
+                      // DatePicker.showPicker(context,
+                      //         pickerModel: CustomMonthPicker(
+                      //             minTime: DateTime(
+                      //               2020,
+                      //             ),
+                      //             maxTime: DateTime.now(),
+                      //             currentTime: dateTime))
+                      //     .then((DateTime? value) {
+                      //   if (value != null) {
+                      //     log(dateTime.toString());
+                      //     dateTime = value;
 
-                    //     setState(() {});
-                    //     simpleController.changeDate(
-                    //         DateTime(dateTime.year, dateTime.month),
-                    //         dateTime.lastDayOfMonth);
-                    //   }
-                    // });
-                  },
-                  child: Text(
-                    DateFormat('dd-MMMM-y').format(dateTime),
-                    style: context.termPlannerTitle,
-                  ),
-                )),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.menu,
-            color: Colors.black,
-          ),
-          onPressed: () {
-            // BlocProvider.of<TimeTableCubit>(context).jumpToCurrentDate();
-            timeTableController.jumpTo(DateTime.now());
-          },
-        ),
-        actions: <Widget>[
-          IconButton(
+                      //     setState(() {});
+                      //     simpleController.changeDate(
+                      //         DateTime(dateTime.year, dateTime.month),
+                      //         dateTime.lastDayOfMonth);
+                      //   }
+                      // });
+                    },
+                    child: Text(
+                      DateFormat('dd-MMMM-y').format(dateTime),
+                      style: context.termPlannerTitle,
+                    ),
+                  )),
+          leading: IconButton(
             icon: const Icon(
-              Icons.download,
-              color: Colors.black,
-            ),
-            onPressed: () async {
-              final TimeTableCubit cubit =
-                  BlocProvider.of<TimeTableCubit>(context);
-
-              await Preview.exportWeekView(DateTime(2022, 9),
-                 DateTime(2022, 10, 3), cubit.periods, cubit.events, context,
-                  saveImage: false);
-            },
-          ),
-          IconButton(
-            icon: const Icon(
-              Icons.search,
-              color: Colors.black,
-            ),
-            onPressed: () async {
-              setState(() {
-                if (index < 5) {
-                  index++;
-                } else {
-                  index = 0;
-                }
-              });
-            },
-          ),
-          IconButton(
-            icon: const Icon(
-              Icons.calendar_month,
+              Icons.menu,
               color: Colors.black,
             ),
             onPressed: () {
-              scaffoldKey.currentState!.openEndDrawer();
-              return;
+              // BlocProvider.of<TimeTableCubit>(context).jumpToCurrentDate();
+              final DateTime now = DateTime.now();
+
+              timeTableController.jumpTo(
+                  DateTime(now.year, now.month, now.day, now.hour, now.minute));
             },
           ),
-        ],
-      ),
-      endDrawer: SettingDrawer(
-        startDate: startDate,
-        isMobile: isMobile,
-        endDate: endDate,
-        onDateChange: (DateTime start, DateTime end) {
-          setState(() {
-            startDate = start;
-            endDate = end;
-            timeTableController.changeDate(startDate, endDate);
-          });
-        },
-      ),
-      body: Screenshot<Widget>(
-        controller: screenshotController,
-        child: SafeArea(
+          actions: <Widget>[
+            IconButton(
+              icon: const Icon(
+                Icons.download,
+                color: Colors.black,
+              ),
+              onPressed: () async {
+                final TimeTableCubit cubit =
+                    BlocProvider.of<TimeTableCubit>(context);
+
+                await Preview.exportWeekView(DateTime(2022, 9),
+                    DateTime(2022, 10, 3), cubit.periods, cubit.events, context,
+                    saveImage: false);
+              },
+            ),
+            IconButton(
+              icon: const Icon(
+                Icons.update,
+                color: Colors.black,
+              ),
+              onPressed: () async {
+                // final PlannerEvent oldEvent = dummyEventData.first;
+                // final PlannerEvent newEvent = oldEvent;
+                // newEvent.eventData!.color = Colors.red;
+                // timeTableController.updateEvent(oldEvent, newEvent);
+              },
+            ),
+            IconButton(
+              icon: const Icon(
+                Icons.delete_forever,
+                color: Colors.black,
+              ),
+              onPressed: () async {
+                final TimeTableCubit cubit =
+                    BlocProvider.of<TimeTableCubit>(context);
+                unawaited(cubit.getDummyEvents());
+                // final List<PlannerEvent> events =
+                //dummyEventData.sublist(0, 1);
+                // timeTableController.removeEvent(events);
+              },
+            ),
+            IconButton(
+              icon: const Icon(
+                Icons.search,
+                color: Colors.black,
+              ),
+              onPressed: () async {
+                //   final List<PlannerEvent> events = dummyEventData;
+                //   timeTableController.addEvent(
+                //     events,
+                //   );
+              },
+            ),
+            IconButton(
+              icon: const Icon(
+                Icons.calendar_month,
+                color: Colors.black,
+              ),
+              onPressed: () {
+                scaffoldKey.currentState!.openEndDrawer();
+                return;
+              },
+            ),
+          ],
+        ),
+        endDrawer: SettingDrawer(
+          startDate: startDate,
+          isMobile: isMobile,
+          endDate: endDate,
+          onDateChange: (DateTime start, DateTime end) {
+            setState(() {
+              startDate = start;
+              endDate = end;
+              timeTableController.changeDate(startDate, endDate);
+            });
+          },
+        ),
+        body: SafeArea(
           child: LayoutBuilder(
               builder: (BuildContext context, BoxConstraints value) {
             isMobile = value.maxWidth < mobileThreshold;
@@ -177,147 +217,65 @@ class _PlannerState extends State<Planner> {
               children: <Widget>[
                 isMobile ? const SizedBox.shrink() : const LeftStrip(),
                 Expanded(
-                    child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 500),
-                  transitionBuilder:
-                      (Widget child, Animation<double> animation) =>
-                          ScaleTransition(scale: animation, child: child),
-                  child: BlocConsumer<TimeTableCubit, TimeTableState>(
-                      listener: (BuildContext context, TimeTableState state) {
-                    if (state is DateUpdated) {
-                      timeTableController.changeDate(
-                          state.startDate, state.endDate);
-                    } else if (state is ViewUpdated) {
-                    } else if (state is ChangeToCurrentDate) {
-                      if (state.isDateChanged) {
-                        final TimeTableCubit cubit =
-                            BlocProvider.of<TimeTableCubit>(context);
-                        timeTableController.changeDate(
-                            cubit.startDate, cubit.endDate);
-                      } else if (state.isViewChanged) {
-                        timeTableController.changeView(state.viewType);
-                      }
-                      timeTableController.jumpTo(DateTime.now());
-                    }
-                  }, buildWhen:
-                          (TimeTableState previous, TimeTableState current) {
-                    if (current is LoadedState) {
-                      log('Reloading timetable');
-                      return true;
-                    } else {
-                      return false;
-                    }
-                  }, builder: (BuildContext context, TimeTableState state) {
-                    if (state is ErrorState) {
-                      return const Center(
-                        child: Icon(Icons.close),
-                      );
-                    } else {
-                      final List<PlannerEvent> events = state is LoadedState
-                          ? state.events
-                          : <PlannerEvent>[];
-                      return Column(
-                        children: <Widget>[
-                          state is LoadingState ||
-                                  state is LoadingUpdated && state.isLoading
-                              ? const LinearProgressIndicator()
-                              : const SizedBox.shrink(),
-                          Expanded(
-                            child: IndexedStack(
-                              index: state is LoadedState
-                                  ? getIndex(state.viewType)
-                                  : 2,
-                              children: <Widget>[
-                                SchedulePlanner(
-                                  isMobile: isMobile,
-                                  onImageCapture: (Uint8List p0) {
-                                    log('Schedule View image received '
-                                        'from planner');
-                                    BlocProvider.of<TimeTableCubit>(context)
-                                        .saveTomImage(p0);
-                                  },
-                                  events: events,
-                                  customPeriods: state is LoadedState
-                                      ? state.periods
-                                      : customStaticPeriods,
-                                  timetableController: timeTableController,
-                                ),
-                                DayPlanner(
-                                    onImageCapture: (Uint8List p0) {
-                                      log('Day view image received '
-                                          'from planner');
-                                      BlocProvider.of<TimeTableCubit>(context)
-                                          .saveTomImage(p0);
-                                    },
-                                    customPeriods: state is LoadedState
-                                        ? state.periods
-                                        : customStaticPeriods,
-                                    events: events,
+                    child: ValueListenableBuilder<CalendarViewType>(
+                        valueListenable: viewTypeNotifer,
+                        builder: (BuildContext context,
+                                CalendarViewType viewType, Widget? child) =>
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 500),
+                              transitionBuilder:
+                                  (Widget child, Animation<double> animation) =>
+                                      ScaleTransition(
+                                          scale: animation, child: child),
+                              child: IndexedStack(
+                                index: getIndex(viewType),
+                                children: <Widget>[
+                                  DayPlanner(
+                                    customPeriods: customStaticPeriods,
                                     timetableController: timeTableController,
-                                    onDateChanged: (DateTime dateTime) {
-                                      log('Date for dayview:$dateTime');
-                                      this.dateTime = dateTime;
-                                      headerDateNotifier.value = dateTime;
-                                    }),
-                                WeekPlanner(
-                                  onImageCapture: (Uint8List p0) {
-                                    log(' Week view image received '
-                                        'from planner');
-                                    BlocProvider.of<TimeTableCubit>(context)
-                                        .saveTomImage(p0);
-                                  },
-                                  events: events,
-                                  customPeriods: state is LoadedState
-                                      ? state.periods
-                                      : customStaticPeriods,
-                                  timetableController: timeTableController,
-                                ),
-                                MonthPlanner(
-                                  timetableController: timeTableController,
-                                  events: events,
-                                  onMonthChanged: (Month month) {
-                                    log('month changed$month');
-                                    setState(() {
-                                      dateTime =
-                                          DateTime(month.year, month.month, 15);
-                                    });
-                                  },
-                                ),
-                                TermPlanner(
-                                  timetableController: timeTableController,
-                                  events: events,
-                                  onMonthChanged: (Month month) {
-                                    log('month changed$month');
-                                    setState(() {
-                                      dateTime =
-                                          DateTime(month.year, month.month, 15);
-                                    });
-                                  },
-                                ),
-
-                                // MainWidget(),
-                                NewDayPlanner(
-                                  customPeriods: state is LoadedState
-                                      ? state.periods
-                                      : customStaticPeriods,
-                                  timetableController: timeTableController,
-                                ),
-
-                                GlSchedulePlanner(
-                                  isMobile: isMobile,
-                                  customPeriods: state is LoadedState
-                                      ? state.periods
-                                      : customStaticPeriods,
-                                  timetableController: timeTableController,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      );
-                    }
-                  }),
-                )),
+                                  ),
+                                  WeekPlanner<EventData>(
+                                    customPeriods: customStaticPeriods,
+                                    timetableController: timeTableController,
+                                    onTap: (DateTime dateTime, Period p1,
+                                        CalendarEvent<Object?>? p2) {},
+                                    onEventDragged:
+                                        (CalendarEvent<EventData> old,
+                                            CalendarEvent<EventData> newEvent,
+                                            Period? period) {
+                                      BlocProvider.of<TimeTableCubit>(context)
+                                          .updatePlannerEvent(
+                                              old as PlannerEvent,
+                                              newEvent as PlannerEvent,
+                                              period);
+                                    },
+                                  ),
+                                  SchedulePlanner(
+                                    customPeriods: customStaticPeriods,
+                                    timetableController: timeTableController,
+                                    isMobile: isMobile,
+                                  ),
+                                  MonthPlanner(
+                                    timetableController: timeTableController,
+                                    onMonthChanged: (Month month) {
+                                      setState(() {
+                                        dateTime = DateTime(
+                                            month.year, month.month, 15);
+                                      });
+                                    },
+                                  ),
+                                  TermPlanner(
+                                    timetableController: timeTableController,
+                                    onMonthChanged: (Month month) {
+                                      setState(() {
+                                        dateTime = DateTime(
+                                            month.year, month.month, 15);
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ))),
                 isMobile
                     ? const SizedBox.shrink()
                     : BlocConsumer<TimeTableCubit, TimeTableState>(
@@ -335,17 +293,17 @@ class _PlannerState extends State<Planner> {
             );
           }),
         ),
-      ));
+      );
 }
 
 ///get index of the index stack
 int getIndex(CalendarViewType viewType) {
   switch (viewType) {
-    case CalendarViewType.scheduleView:
-      return 0;
     case CalendarViewType.dayView:
-      return 1;
+      return 0;
     case CalendarViewType.weekView:
+      return 1;
+    case CalendarViewType.scheduleView:
       return 2;
     case CalendarViewType.monthView:
       return 3;

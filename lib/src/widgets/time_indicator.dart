@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 
 /// Current time indicator widget
-class TimeIndicator extends StatelessWidget {
+class TimeIndicator<T> extends StatelessWidget {
   ///initialized timeIndicator
   const TimeIndicator({
     required this.controller,
@@ -13,7 +13,7 @@ class TimeIndicator extends StatelessWidget {
   }) : super(key: key);
 
   ///timetable controller
-  final TimetableController controller;
+  final TimetableController<T> controller;
 
   ///column width
   final double columnWidth;

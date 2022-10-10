@@ -11,10 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  intl: ^0.17.0
-  screenshot:
-    git:
-      url: https://github.com/SachinGanesh/screenshot
+  intl: ^0.17.0 
 dev_dependencies:
   flutter_test:
     sdk: flutter

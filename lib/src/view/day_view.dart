@@ -1,8 +1,7 @@
 import 'dart:developer';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:screenshot/screenshot.dart';
+import 'package:flutter_calendar/src/core/constants.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:flutter_calendar/src/widgets/cell.dart';
 import 'package:flutter_calendar/src/widgets/hour_cell.dart';
@@ -18,7 +17,6 @@ class SlDayView<T> extends StatefulWidget {
   const SlDayView({
     required this.timelines,
     required this.onWillAccept,
-    required this.onImageCapture,
     this.backgroundColor = Colors.transparent,
     Key? key,
     this.onEventDragged,
@@ -43,7 +41,7 @@ class SlDayView<T> extends StatefulWidget {
   }) : super(key: key);
 
   /// [TimetableController] is the controller that also initialize the timetable
-  final TimetableController? controller;
+  final TimetableController<T>? controller;
 
   /// Renders for the cells the represent each hour that provides
   /// that [DateTime] for that hour
@@ -118,9 +116,6 @@ class SlDayView<T> extends StatefulWidget {
   ///function will handle if event is draggable
   final bool Function(CalendarEvent<T> event)? isCellDraggable;
 
-  ///callback on when image capture
-  final Function(Uint8List data) onImageCapture;
-
   ///background color
   final Color backgroundColor;
 
@@ -135,7 +130,7 @@ class SlDayView<T> extends StatefulWidget {
 
 class _SlDayViewState<T> extends State<SlDayView<T>> {
   double columnWidth = 50;
-  TimetableController controller = TimetableController();
+  TimetableController<T> controller = TimetableController<T>();
   final GlobalKey<State<StatefulWidget>> _key = GlobalKey();
 
   Color get nowIndicatorColor =>
@@ -241,17 +236,7 @@ class _SlDayViewState<T> extends State<SlDayView<T>> {
       await adjustColumnWidth();
     }
     if (event is TimeTableSave) {
-      isSavingTimeTable = true;
-      setState(() {});
-      await screenshotController
-          .capture(
-              pixelRatio: 10,
-              delay: const Duration(seconds: 1, milliseconds: 400))
-          .then((Uint8List? value) {
-        widget.onImageCapture(value!);
-        isSavingTimeTable = false;
-        setState(() {});
-      });
+      ///implimet timetable save
     }
   }
 
@@ -316,7 +301,7 @@ class _SlDayViewState<T> extends State<SlDayView<T>> {
 
   Map<Key, double> eventMargin = <Key, double>{};
   bool isSavingTimeTable = false;
-  ScreenshotController screenshotController = ScreenshotController();
+  ScrollController timeScrollController = ScrollController();
 
   // static const int maxPage = 10000;
   @override
@@ -363,6 +348,7 @@ class _SlDayViewState<T> extends State<SlDayView<T>> {
                     getEventList(events);
                 return ListView(
                   // physics: const NeverScrollableScrollPhysics(),
+                  controller: timeScrollController,
                   children: <Widget>[
                     ValueListenableBuilder<DateTime>(
                         valueListenable: headerDateNotifier,
@@ -405,7 +391,7 @@ class _SlDayViewState<T> extends State<SlDayView<T>> {
                           child: Column(
                             children: <Widget>[
                               for (Period item in widget.timelines)
-                                HourCell(
+                                HourCell<T>(
                                   controller: controller,
                                   period: item,
                                   hourLabelBuilder: widget.hourLabelBuilder,
@@ -566,7 +552,7 @@ class _SlDayViewState<T> extends State<SlDayView<T>> {
                                       builder: (BuildContext context,
                                               AsyncSnapshot<DateTime>
                                                   snapshot) =>
-                                          TimeIndicator(
+                                          TimeIndicator<T>(
                                               controller: controller,
                                               columnWidth: size.width - 60,
                                               nowIndicatorColor:
@@ -607,8 +593,28 @@ class _SlDayViewState<T> extends State<SlDayView<T>> {
               now.day == date.day);
 
           final int index = dateRange.indexOf(objectOfDate);
-          await pageController.animateToPage(index,
-              duration: _animationDuration, curve: _animationCurve);
+          final double hourPosition = getTimeIndicatorFromTop(
+              widget.timelines, controller.cellHeight, controller.breakHeight);
+          final double height = getTimelineHeight(
+              widget.timelines, controller.cellHeight, controller.breakHeight);
+
+          final double maxScroll =
+              timeScrollController.position.maxScrollExtent;
+          final double scrollTo = hourPosition * maxScroll / height;
+          log('height $height hour $hourPosition '
+              'max $maxScroll scrollTo $scrollTo');
+
+          await pageController
+              .animateToPage(index,
+                  duration: animationDuration, curve: animationCurve)
+              .then((void value) async {
+            await Future<void>.delayed(const Duration(milliseconds: 150))
+                .then((void value) => timeScrollController.animateTo(
+                      scrollTo,
+                      duration: animationDuration,
+                      curve: animationCurve,
+                    ));
+          });
         } on Exception catch (e) {
           debugPrint(e.toString());
         }

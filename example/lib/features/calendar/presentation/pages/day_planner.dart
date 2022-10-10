@@ -1,6 +1,5 @@
 import 'package:edgar_planner_calendar_flutter/core/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/constants.dart';
-import 'package:edgar_planner_calendar_flutter/core/date_extension.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
@@ -18,9 +17,7 @@ class DayPlanner extends StatefulWidget {
   const DayPlanner(
       {required this.timetableController,
       required this.customPeriods,
-      required this.onImageCapture,
       this.onDateChanged,
-      this.events = const <PlannerEvent>[],
       Key? key,
       this.id})
       : super(key: key);
@@ -32,14 +29,7 @@ class DayPlanner extends StatefulWidget {
   final String? id;
 
   ///timetable controller for the calendar
-  final TimetableController timetableController;
-
-  ///function return unit8List when user ask for screenshot
-
-  final Function(Uint8List) onImageCapture;
-
-  ///list of the events for the planner
-  final List<PlannerEvent> events;
+  final TimetableController<EventData> timetableController;
 
   ///give new day when day is scrolled
   final Function(DateTime dateTime)? onDateChanged;
@@ -48,25 +38,17 @@ class DayPlanner extends StatefulWidget {
 }
 
 class _DayPlannerState extends State<DayPlanner> {
-  TimetableController simpleController = TimetableController(
-      start:
-          DateUtils.dateOnly(DateTime.now()).subtract(const Duration(days: 1)),
-      end: dateTime.lastDayOfMonth,
-      timelineWidth: 60,
-      breakHeight: 35,
-      cellHeight: 120);
   static DateTime dateTime = DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    simpleController = widget.timetableController;
     setState(() {});
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      currentMonth = simpleController.visibleDateStart;
+      currentMonth = widget.timetableController.visibleDateStart;
       setState(() {});
       Future<dynamic>.delayed(const Duration(milliseconds: 100), () {
-        simpleController.jumpTo(dateTime);
+        widget.timetableController.jumpTo(dateTime);
       });
     });
   }
@@ -84,13 +66,8 @@ class _DayPlannerState extends State<DayPlanner> {
         return Column(
           children: <Widget>[
             Expanded(
-              child: SlDayView<EventData>(
-                onImageCapture: (Uint8List data) {
-                  if (BlocProvider.of<TimeTableCubit>(context).viewType ==
-                      CalendarViewType.dayView) {
-                    widget.onImageCapture(data);
-                  }
-                },
+              child: NewSlDayView<EventData>(
+                onImageCapture: (Uint8List data) {},
                 backgroundColor: white,
                 timelines: widget.customPeriods,
                 onDateChanged: (DateTime dateTime) {
@@ -112,7 +89,6 @@ class _DayPlannerState extends State<DayPlanner> {
                 nowIndicatorColor: timeIndicatorColor,
                 fullWeek: true,
                 cornerBuilder: (DateTime current) => const SizedBox.shrink(),
-                items: widget.events,
                 onTap: (DateTime date, Period period,
                     CalendarEvent<EventData>? event) {
                   final TimeTableCubit provider =
@@ -125,7 +101,7 @@ class _DayPlannerState extends State<DayPlanner> {
                     ? Row(
                         children: <Widget>[
                           SizedBox(
-                            width: simpleController.timelineWidth,
+                            width: widget.timetableController.timelineWidth,
                             child: Center(
                               child: Column(
                                 mainAxisAlignment:
@@ -171,7 +147,7 @@ class _DayPlannerState extends State<DayPlanner> {
                         children: <Widget>[
                           Expanded(
                             child: Container(
-                                height: simpleController.headerHeight,
+                                height: widget.timetableController.headerHeight,
                                 decoration: BoxDecoration(
                                     border: Border.all(
                                         color: Colors.grey.withOpacity(0.5),
@@ -181,7 +157,8 @@ class _DayPlannerState extends State<DayPlanner> {
                                   child: Row(
                                     children: <Widget>[
                                       SizedBox(
-                                        width: simpleController.timelineWidth,
+                                        width: widget
+                                            .timetableController.timelineWidth,
                                       ),
                                       Text(
                                         DateFormat('EEEE')
@@ -248,7 +225,7 @@ class _DayPlannerState extends State<DayPlanner> {
                           ),
                   );
                 },
-                controller: simpleController,
+                controller: widget.timetableController,
                 isCellDraggable: (CalendarEvent<EventData> event) {
                   if (event.eventData!.period.isCustomeSlot) {
                     return false;
@@ -262,12 +239,13 @@ class _DayPlannerState extends State<DayPlanner> {
                         border: item.eventData!.period.isCustomeSlot
                             ? null
                             : Border.all(color: white, width: 2),
-                        cellWidth: size.width - simpleController.timelineWidth,
+                        cellWidth: size.width -
+                            widget.timetableController.timelineWidth,
                         item: item,
                         isDraggable: false,
                         period: item.eventData!.period,
-                        breakHeight: simpleController.breakHeight,
-                        cellHeight: simpleController.cellHeight),
+                        breakHeight: widget.timetableController.breakHeight,
+                        cellHeight: widget.timetableController.cellHeight),
                 cellBuilder: (Period period) => CellBorder(
                     borderWidth: 1,
                     borderRadius: 0,
@@ -298,8 +276,8 @@ class _DayPlannerState extends State<DayPlanner> {
                               color: grey,
                             )),
                     cellHeight: period.isCustomeSlot
-                        ? simpleController.breakHeight
-                        : simpleController.cellHeight),
+                        ? widget.timetableController.breakHeight
+                        : widget.timetableController.cellHeight),
               ),
             ),
           ],
