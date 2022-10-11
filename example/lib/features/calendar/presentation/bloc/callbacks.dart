@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/date_change_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/method_name.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 
@@ -110,14 +111,15 @@ class NativeCallBack {
 
   ///send data to native app
   Future<bool> sendToNativeApp(String methodName, dynamic data) {
-    log('MethodName: $methodName');
-    log('Data: $data');
     platform
         .invokeMethod<dynamic>(
-          methodName,
-          data,
-        )
-        .then((dynamic value) {});
+      methodName,
+      data,
+    )
+        .then((dynamic value) {
+      debugPrint('MethodName: $methodName');
+      debugPrint('Data: $data');
+    });
 
     return Future<bool>.value(true);
   }

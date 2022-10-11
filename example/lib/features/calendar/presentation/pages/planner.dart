@@ -1,15 +1,13 @@
-import 'dart:async';
-
 import 'package:edgar_planner_calendar_flutter/core/constants.dart';
 import 'package:edgar_planner_calendar_flutter/core/static.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/term_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_event_state.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/month_planner.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/day_planner.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/preview.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/schedule_planner.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/setting_dialog.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/term_planner.dart';
@@ -19,8 +17,8 @@ import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/wi
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
+import 'package:intl/intl.dart';
 
 ///planner
 class Planner extends StatefulWidget {
@@ -59,144 +57,163 @@ class _PlannerState extends State<Planner> {
   ValueNotifier<DateTime> headerDateNotifier =
       ValueNotifier<DateTime>(dateForHeader);
   int index = 0;
-
+  bool showAppbar = false;
   @override
   void initState() {
+    periods = customStaticPeriods;
+    setState(() {});
     BlocProvider.of<TimeTableCubit>(context)
         .stream
         .listen((TimeTableState event) {
       if (event is DateUpdated) {
+        debugPrint('Date is updating in calendar');
         timeTableController.changeDate(event.startDate, event.endDate);
       } else if (event is ViewUpdated) {
+        debugPrint('view updated in calendar');
         viewTypeNotifer.value = event.viewType;
       } else if (event is JumpToDateState) {
+        debugPrint('jumping to date in calendar');
         timeTableController.jumpTo(event.dateTime);
       } else if (event is LoadedState) {
+        debugPrint('Setting event in calendar');
         timeTableController.addEvent(event.events, replace: false);
       } else if (event is EventUpdatedState) {
+        debugPrint('updating events in calendar');
         timeTableController.updateEvent(event.oldEvent, event.newEvent);
+      } else if (event is EventsAdded) {
+        debugPrint('adding events in calendar');
+        timeTableController.addEvent(event.events, replace: false);
+      } else if (event is PeriodsUpdated) {
+        periods = event.periods;
+        setState(() {
+          debugPrint('Setting periods in calendar');
+        });
+      } else if (event is DeletedEvents) {
+        timeTableController.removeEvent(event.deletedEvents);
       }
     });
     super.initState();
   }
+
+  List<Period> periods = <PeriodModel>[];
 
   ValueNotifier<CalendarViewType> viewTypeNotifer =
       ValueNotifier<CalendarViewType>(CalendarViewType.weekView);
   @override
   Widget build(BuildContext context) => Scaffold(
         key: scaffoldKey,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          systemOverlayStyle: SystemUiOverlayStyle.dark,
-          centerTitle: true,
-          title: ValueListenableBuilder<DateTime>(
-              valueListenable: headerDateNotifier,
-              builder: (BuildContext context, DateTime value, Widget? child) =>
-                  GestureDetector(
-                    onTap: () {
-                      // DatePicker.showPicker(context,
-                      //         pickerModel: CustomMonthPicker(
-                      //             minTime: DateTime(
-                      //               2020,
-                      //             ),
-                      //             maxTime: DateTime.now(),
-                      //             currentTime: dateTime))
-                      //     .then((DateTime? value) {
-                      //   if (value != null) {
-                      //     log(dateTime.toString());
-                      //     dateTime = value;
+        appBar: showAppbar
+            ? AppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                systemOverlayStyle: SystemUiOverlayStyle.dark,
+                centerTitle: true,
+                title: ValueListenableBuilder<DateTime>(
+                    valueListenable: headerDateNotifier,
+                    builder:
+                        (BuildContext context, DateTime value, Widget? child) =>
+                            GestureDetector(
+                              onTap: () {
+                                // DatePicker.showPicker(context,
+                                //         pickerModel: CustomMonthPicker(
+                                //             minTime: DateTime(
+                                //               2020,
+                                //             ),
+                                //             maxTime: DateTime.now(),
+                                //             currentTime: dateTime))
+                                //     .then((DateTime? value) {
+                                //   if (value != null) {
+                                //     log(dateTime.toString());
+                                //     dateTime = value;
 
-                      //     setState(() {});
-                      //     simpleController.changeDate(
-                      //         DateTime(dateTime.year, dateTime.month),
-                      //         dateTime.lastDayOfMonth);
-                      //   }
-                      // });
-                    },
-                    child: Text(
-                      DateFormat('dd-MMMM-y').format(dateTime),
-                      style: context.termPlannerTitle,
+                                //     setState(() {});
+                                //     simpleController.changeDate(
+                                //         DateTime(dateTime.year, dateTime.month),
+                                //         dateTime.lastDayOfMonth);
+                                //   }
+                                // });
+                              },
+                              child: Text(
+                                DateFormat('dd-MMMM-y').format(dateTime),
+                                style: context.termPlannerTitle,
+                              ),
+                            )),
+                leading: IconButton(
+                  icon: const Icon(
+                    Icons.menu,
+                    color: Colors.black,
+                  ),
+                  onPressed: () {
+                    // BlocProvider.of<TimeTableCubit>(context).jumpToCurrentDate();
+                    final DateTime now = DateTime.now();
+
+                    timeTableController.jumpTo(DateTime(
+                        now.year, now.month, now.day, now.hour, now.minute));
+                  },
+                ),
+                actions: <Widget>[
+                  IconButton(
+                    icon: const Icon(
+                      Icons.download,
+                      color: Colors.black,
                     ),
-                  )),
-          leading: IconButton(
-            icon: const Icon(
-              Icons.menu,
-              color: Colors.black,
-            ),
-            onPressed: () {
-              // BlocProvider.of<TimeTableCubit>(context).jumpToCurrentDate();
-              final DateTime now = DateTime.now();
+                    onPressed: () async {
+                      // final TimeTableCubit cubit =
+                      //     BlocProvider.of<TimeTableCubit>(context);
 
-              timeTableController.jumpTo(
-                  DateTime(now.year, now.month, now.day, now.hour, now.minute));
-            },
-          ),
-          actions: <Widget>[
-            IconButton(
-              icon: const Icon(
-                Icons.download,
-                color: Colors.black,
-              ),
-              onPressed: () async {
-                final TimeTableCubit cubit =
-                    BlocProvider.of<TimeTableCubit>(context);
-
-                await Preview.exportWeekView(DateTime(2022, 9),
-                    DateTime(2022, 10, 3), cubit.periods, cubit.events, context,
-                    saveImage: false);
-              },
-            ),
-            IconButton(
-              icon: const Icon(
-                Icons.update,
-                color: Colors.black,
-              ),
-              onPressed: () async {
-                // final PlannerEvent oldEvent = dummyEventData.first;
-                // final PlannerEvent newEvent = oldEvent;
-                // newEvent.eventData!.color = Colors.red;
-                // timeTableController.updateEvent(oldEvent, newEvent);
-              },
-            ),
-            IconButton(
-              icon: const Icon(
-                Icons.delete_forever,
-                color: Colors.black,
-              ),
-              onPressed: () async {
-                final TimeTableCubit cubit =
-                    BlocProvider.of<TimeTableCubit>(context);
-                unawaited(cubit.getDummyEvents());
-                // final List<PlannerEvent> events =
-                //dummyEventData.sublist(0, 1);
-                // timeTableController.removeEvent(events);
-              },
-            ),
-            IconButton(
-              icon: const Icon(
-                Icons.search,
-                color: Colors.black,
-              ),
-              onPressed: () async {
-                //   final List<PlannerEvent> events = dummyEventData;
-                //   timeTableController.addEvent(
-                //     events,
-                //   );
-              },
-            ),
-            IconButton(
-              icon: const Icon(
-                Icons.calendar_month,
-                color: Colors.black,
-              ),
-              onPressed: () {
-                scaffoldKey.currentState!.openEndDrawer();
-                return;
-              },
-            ),
-          ],
-        ),
+                      // await Preview.exportWeekView(DateTime(2022, 9),
+                      //  DateTime(2022, 10, 3), cubit.periods, cubit.events, context,
+                      //     saveImage: false);
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.update,
+                      color: Colors.black,
+                    ),
+                    onPressed: () async {
+                      // final PlannerEvent oldEvent = dummyEventData.first;
+                      // final PlannerEvent newEvent = oldEvent;
+                      // newEvent.eventData!.color = Colors.red;
+                      // timeTableController.updateEvent(oldEvent, newEvent);
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.delete_forever,
+                      color: Colors.black,
+                    ),
+                    onPressed: () async {
+                      // final List<PlannerEvent> events =
+                      //dummyEventData.sublist(0, 1);
+                      // timeTableController.removeEvent(events);
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.search,
+                      color: Colors.black,
+                    ),
+                    onPressed: () async {
+                      //   final List<PlannerEvent> events = dummyEventData;
+                      //   timeTableController.addEvent(
+                      //     events,
+                      //   );
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.calendar_month,
+                      color: Colors.black,
+                    ),
+                    onPressed: () {
+                      scaffoldKey.currentState!.openEndDrawer();
+                      return;
+                    },
+                  ),
+                ],
+              )
+            : null,
         endDrawer: SettingDrawer(
           startDate: startDate,
           isMobile: isMobile,
@@ -213,6 +230,7 @@ class _PlannerState extends State<Planner> {
           child: LayoutBuilder(
               builder: (BuildContext context, BoxConstraints value) {
             isMobile = value.maxWidth < mobileThreshold;
+            debugPrint('building calenda rgain');
             return Row(
               children: <Widget>[
                 isMobile ? const SizedBox.shrink() : const LeftStrip(),
@@ -231,29 +249,84 @@ class _PlannerState extends State<Planner> {
                                 index: getIndex(viewType),
                                 children: <Widget>[
                                   DayPlanner(
-                                    customPeriods: customStaticPeriods,
+                                    customPeriods: periods,
                                     timetableController: timeTableController,
+                                    onTap: (DateTime dateTime, Period? period,
+                                        CalendarEvent<EventData>? event) {
+                                      final TimeTableCubit cubit =
+                                          BlocProvider.of<TimeTableCubit>(
+                                              context);
+                                      if (event == null && period != null) {
+                                        cubit.nativeCallBack
+                                            .sendAddEventToNativeApp(dateTime,
+                                                cubit.viewType, period);
+                                      } else if (event != null) {
+                                        cubit.nativeCallBack
+                                            .sendShowEventToNativeApp(
+                                                dateTime,
+                                                <CalendarEvent<EventData>>[
+                                                  event
+                                                ],
+                                                cubit.viewType);
+                                      }
+                                    },
                                   ),
                                   WeekPlanner<EventData>(
-                                    customPeriods: customStaticPeriods,
+                                    customPeriods: periods,
                                     timetableController: timeTableController,
-                                    onTap: (DateTime dateTime, Period p1,
-                                        CalendarEvent<Object?>? p2) {},
+                                    onTap: (DateTime dateTime, Period? period,
+                                        CalendarEvent<EventData>? event) {
+                                      final TimeTableCubit cubit =
+                                          BlocProvider.of<TimeTableCubit>(
+                                              context);
+                                      if (event == null && period != null) {
+                                        cubit.nativeCallBack
+                                            .sendAddEventToNativeApp(dateTime,
+                                                cubit.viewType, period);
+                                      } else if (event != null) {
+                                        cubit.nativeCallBack
+                                            .sendShowEventToNativeApp(
+                                                dateTime,
+                                                <CalendarEvent<EventData>>[
+                                                  event
+                                                ],
+                                                cubit.viewType);
+                                      }
+                                    },
                                     onEventDragged:
                                         (CalendarEvent<EventData> old,
                                             CalendarEvent<EventData> newEvent,
                                             Period? period) {
                                       BlocProvider.of<TimeTableCubit>(context)
-                                          .updatePlannerEvent(
-                                              old as PlannerEvent,
-                                              newEvent as PlannerEvent,
-                                              period);
+                                          .updateEvent(old, newEvent, period);
                                     },
                                   ),
                                   SchedulePlanner(
-                                    customPeriods: customStaticPeriods,
+                                    customPeriods: periods,
                                     timetableController: timeTableController,
                                     isMobile: isMobile,
+                                    onTap: (DateTime dateTime,
+                                        Period? period,
+                                        List<CalendarEvent<EventData>>?
+                                            events) {
+                                      final TimeTableCubit cubit =
+                                          BlocProvider.of<TimeTableCubit>(
+                                              context);
+                                      if (events == null && period == null) {
+                                        cubit.nativeCallBack
+                                            .sendAddEventToNativeApp(dateTime,
+                                                cubit.viewType, period);
+                                      } else if (events != null) {
+                                        cubit.nativeCallBack
+                                            .sendShowEventToNativeApp(
+                                                dateTime, events, viewType);
+                                        // cubit.nativeCallBack
+                                        //     .sendShowEventToNativeApp(
+                                        //         dateTime,
+                                        //        ,events,
+                                        //         cubit.viewType);
+                                      }
+                                    },
                                   ),
                                   MonthPlanner(
                                     timetableController: timeTableController,
@@ -263,6 +336,21 @@ class _PlannerState extends State<Planner> {
                                             month.year, month.month, 15);
                                       });
                                     },
+                                    onTap: (DateTime dateTime,
+                                        List<CalendarEvent<EventData>> event) {
+                                      final TimeTableCubit cubit =
+                                          BlocProvider.of<TimeTableCubit>(
+                                              context);
+                                      if (event.isEmpty) {
+                                        cubit.nativeCallBack
+                                            .sendAddEventToNativeApp(
+                                                dateTime, cubit.viewType, null);
+                                      } else {
+                                        cubit.nativeCallBack
+                                            .sendShowEventToNativeApp(dateTime,
+                                                event, cubit.viewType);
+                                      }
+                                    },
                                   ),
                                   TermPlanner(
                                     timetableController: timeTableController,
@@ -271,6 +359,21 @@ class _PlannerState extends State<Planner> {
                                         dateTime = DateTime(
                                             month.year, month.month, 15);
                                       });
+                                    },
+                                    onTap: (DateTime dateTime,
+                                        List<CalendarEvent<EventData>> event) {
+                                      final TimeTableCubit cubit =
+                                          BlocProvider.of<TimeTableCubit>(
+                                              context);
+                                      if (event.isEmpty) {
+                                        cubit.nativeCallBack
+                                            .sendAddEventToNativeApp(
+                                                dateTime, cubit.viewType, null);
+                                      } else {
+                                        cubit.nativeCallBack
+                                            .sendShowEventToNativeApp(dateTime,
+                                                event, cubit.viewType);
+                                      }
                                     },
                                   ),
                                 ],

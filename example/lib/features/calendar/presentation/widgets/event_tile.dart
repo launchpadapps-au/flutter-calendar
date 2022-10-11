@@ -21,21 +21,33 @@ class EventTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        margin: const EdgeInsets.all(4),
+        margin: EdgeInsets.all(item.eventData!.isDutyTime ? 0 : 4),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: item.eventData!.isDutyTime
+              ? MainAxisAlignment.center
+              : MainAxisAlignment.start,
           children: <Widget>[
             Row(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisSize: item.eventData!.isDutyTime
+                  ? MainAxisSize.max
+                  : MainAxisSize.min,
+              mainAxisAlignment: item.eventData!.isDutyTime
+                  ? MainAxisAlignment.center
+                  : MainAxisAlignment.start,
               children: <Widget>[
-                const Icon(
-                  Icons.circle,
-                  color: Colors.black,
-                  size: 4,
-                ),
-                const SizedBox(
-                  width: 4,
-                ),
+                item.eventData!.isDutyTime
+                    ? const SizedBox.shrink()
+                    : const Icon(
+                        Icons.circle,
+                        color: Colors.black,
+                        size: 4,
+                      ),
+                item.eventData!.isDutyTime
+                    ? const SizedBox.shrink()
+                    : const SizedBox(
+                        width: 4,
+                      ),
                 Flexible(
                   child: Text(
                     item.eventData!.title,
@@ -45,7 +57,7 @@ class EventTile extends StatelessWidget {
                 ),
               ],
             ),
-            item.eventData!.freeTime
+            item.eventData!.freeTime || item.eventData!.isDutyTime
                 ? const SizedBox.shrink()
                 : Flexible(
                     child: Text(
@@ -54,8 +66,12 @@ class EventTile extends StatelessWidget {
                       style: context.subtitle,
                     ),
                   ),
-            item.eventData!.freeTime ? const SizedBox.shrink() : const Spacer(),
-            item.eventData!.eventLinks == null
+            item.eventData!.freeTime || item.eventData!.isDutyTime
+                ? const SizedBox.shrink()
+                : const Spacer(),
+            item.eventData!.freeTime ||
+                    item.eventData!.eventLinks == null ||
+                    item.eventData!.eventLinks.toString() == ''
                 ? const SizedBox.shrink()
                 : Container(
                     width: MediaQuery.of(context).size.width,
@@ -65,7 +81,7 @@ class EventTile extends StatelessWidget {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20)),
                     child: Text(
-                      item.eventData!.eventLinks.toString(),
+                      '${item.eventData!.eventLinks}',
                       overflow: TextOverflow.ellipsis,
                       style: context.subtitle,
                     ))

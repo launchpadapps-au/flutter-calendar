@@ -1,3 +1,4 @@
+import 'package:edgar_planner_calendar_flutter/core/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:flutter/material.dart';
@@ -43,23 +44,32 @@ class SingleDayEventTile extends StatelessWidget {
   final Border? border;
   @override
   Widget build(BuildContext context) => Container(
-        margin: margin,
+        decoration: item.eventData!.isDutyTime
+            ? BoxDecoration(
+                border:
+                    const Border(left: BorderSide(color: textGrey, width: 8)),
+                color: item.eventData!.color)
+            : BoxDecoration(
+                borderRadius: BorderRadius.circular(6),
+                border: border,
+                color: item.eventData!.color),
+        margin: EdgeInsets.all(item.eventData!.isDutyTime ? 0 : 4),
         width: cellWidth,
         // height: item.eventData!.period.isBreak ? breakHeight : cellHeight,
-        padding: const EdgeInsets.only(left: 6, right: 18, top: 6, bottom: 6),
-        color: Colors.transparent,
+        padding: item.eventData!.isDutyTime
+            ? EdgeInsets.zero
+            : const EdgeInsets.only(left: 6, right: 18, top: 6, bottom: 6),
+
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(6),
+          borderRadius:
+              BorderRadius.circular(item.eventData!.isDutyTime ? 0 : 6),
           child: Container(
             padding:
                 EdgeInsets.all(item.eventData!.period.isCustomeSlot ? 0 : 8),
             // height: item.eventData!.period.isBreak ? breakHeight :
             // cellHeight,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(6),
-                border: border,
-                color: item.eventData!.color),
-            child: item.eventData!.period.isCustomeSlot
+
+            child: item.eventData!.isDutyTime
                 ? SizedBox(
                     height: breakHeight,
                     child: Center(
@@ -106,7 +116,7 @@ class SingleDayEventTile extends StatelessWidget {
                               ? const SizedBox.shrink()
                               : Flexible(
                                   child: Text(
-                                    item.eventData!.location??'',
+                                    item.eventData!.location ?? '',
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 1,
                                     style: context.eventTitle,

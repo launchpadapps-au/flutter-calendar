@@ -17,6 +17,7 @@ class DayPlanner extends StatefulWidget {
   const DayPlanner(
       {required this.timetableController,
       required this.customPeriods,
+      required this.onTap,
       this.onDateChanged,
       Key? key,
       this.id})
@@ -30,6 +31,9 @@ class DayPlanner extends StatefulWidget {
 
   ///timetable controller for the calendar
   final TimetableController<EventData> timetableController;
+
+  ///provide calalback user tap on the cell
+  final Function(DateTime dateTime, Period?, CalendarEvent<EventData>?) onTap;
 
   ///give new day when day is scrolled
   final Function(DateTime dateTime)? onDateChanged;
@@ -89,13 +93,7 @@ class _DayPlannerState extends State<DayPlanner> {
                 nowIndicatorColor: timeIndicatorColor,
                 fullWeek: true,
                 cornerBuilder: (DateTime current) => const SizedBox.shrink(),
-                onTap: (DateTime date, Period period,
-                    CalendarEvent<EventData>? event) {
-                  final TimeTableCubit provider =
-                      BlocProvider.of<TimeTableCubit>(context);
-                  provider.nativeCallBack.sendAddEventToNativeApp(
-                      dateTime, provider.viewType, period);
-                },
+                onTap: widget.onTap,
                 headerHeight: isMobile ? headerHeightForDayView : 40,
                 headerCellBuilder: (DateTime date) => isMobile
                     ? Row(
@@ -235,17 +233,22 @@ class _DayPlannerState extends State<DayPlanner> {
                 },
                 itemBuilder: (CalendarEvent<EventData> item, int index,
                         int length, double width) =>
-                    SingleDayEventTile(
-                        border: item.eventData!.period.isCustomeSlot
-                            ? null
-                            : Border.all(color: white, width: 2),
-                        cellWidth: size.width -
-                            widget.timetableController.timelineWidth,
-                        item: item,
-                        isDraggable: false,
-                        period: item.eventData!.period,
-                        breakHeight: widget.timetableController.breakHeight,
-                        cellHeight: widget.timetableController.cellHeight),
+                    GestureDetector(
+                  onTap: () {
+                    widget.onTap(item.startTime, null, item);
+                  },
+                  child: SingleDayEventTile(
+                      border: item.eventData!.period.isCustomeSlot
+                          ? null
+                          : Border.all(color: white, width: 2),
+                      cellWidth:
+                          size.width - widget.timetableController.timelineWidth,
+                      item: item,
+                      isDraggable: false,
+                      period: item.eventData!.period,
+                      breakHeight: widget.timetableController.breakHeight,
+                      cellHeight: widget.timetableController.cellHeight),
+                ),
                 cellBuilder: (Period period) => CellBorder(
                     borderWidth: 1,
                     borderRadius: 0,

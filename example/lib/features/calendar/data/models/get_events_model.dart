@@ -177,7 +177,7 @@ class EventData {
     required this.lessonPlans,
     required this.googleDriveFiles,
     required this.period,
-    required this.subject,
+    this.subject,
     this.color = lessonPink,
     this.freeTime = false,
     this.isDutyTime = false,
@@ -195,6 +195,9 @@ class EventData {
       color = const Color(0xFFE0E0E0);
       isDutyTime = true;
       freeTime = false;
+    } else if (type == 'lesson') {
+      if(subject!=null)
+      color = subject!.colorCode;
     }
   }
 
@@ -247,17 +250,18 @@ class EventData {
     };
 
     return EventData(
-      id: json['id'],
+      id: json['id'].toString(),
       title: json['title'],
       location: json['location'],
-      subject: Subject.fromJson(json['subject']),
+      subject:
+          json['subject'] == null ? null : Subject.fromJson(json['subject']),
       startDate: DateTime.parse(json['start_date']),
       endDate: DateTime.parse(json['end_date']),
       startTime: json['start_time'],
       endTime: json['end_time'],
       remindBefore: json['remind_before'],
       reminderEnabled: json['reminder_enabled'],
-      slots: json['slots'],
+      slots: json['slots'].toString(),
       period: periodModel ?? PeriodModel.fromJson(data),
       recurrenceUntil: json['recurrence_until'],
       recurringEventId: json['recurring_event_id'],
@@ -275,7 +279,7 @@ class EventData {
   }
 
   ///id of the event
-  int id;
+  dynamic id;
 
   ///event title
   String title;
@@ -284,7 +288,7 @@ class EventData {
   String? location;
 
   ///subject id
-  Subject subject;
+  Subject? subject;
 
   ///start date of the evebt
   DateTime startDate;
@@ -304,7 +308,7 @@ class EventData {
   bool reminderEnabled;
 
   ///slot number
-  int slots;
+  String slots;
 
   ///Period model of the events
   Period period;
@@ -347,7 +351,7 @@ class EventData {
         'id': id,
         'title': title,
         'location': location,
-        'subject': subject.toJson(),
+        'subject': subject,
         'start_date': "${startDate.year.toString().padLeft(4, '0')}-"
             "${startDate.month.toString().padLeft(2, '0')}-"
             "${startDate.day.toString().padLeft(2, '0')}",
@@ -449,7 +453,8 @@ class HexColor extends Color {
   ///initialize the hex
 
   HexColor(final String hexColor) : super(_getColorFromHex(hexColor));
-  static int _getColorFromHex(String hexColor) {
+  static int _getColorFromHex(String hex) {
+    String hexColor = hex;
     hexColor = hexColor.toUpperCase().replaceAll('#', '');
     if (hexColor.length == 6) {
       hexColor = 'FF$hexColor';

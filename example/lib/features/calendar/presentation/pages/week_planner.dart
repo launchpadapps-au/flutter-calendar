@@ -2,12 +2,10 @@ import 'package:edgar_planner_calendar_flutter/core/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/constants.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/event_tile.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
+import 'package:intl/intl.dart';
 
 ///planner
 class WeekPlanner<T> extends StatefulWidget {
@@ -26,8 +24,8 @@ class WeekPlanner<T> extends StatefulWidget {
   ///timetable controller
   final TimetableController<EventData> timetableController;
 
-  ///onTap
-  final Function(DateTime dateTime, Period, CalendarEvent<T>?)? onTap;
+  ///provide calalback user tap on the cell
+  final Function(DateTime dateTime, Period?, CalendarEvent<T>?)? onTap;
 
   ///return new and okd event
 
@@ -68,7 +66,6 @@ class _WeekPlannerState extends State<WeekPlanner<EventData>> {
           color: white,
           child: SlWeekView<EventData>(
             backgroundColor: white,
-            fullWeek: true,
             timelines: widget.customPeriods,
             onEventDragged: (CalendarEvent<EventData> old,
                 CalendarEvent<EventData> newEvent, Period? period) {
@@ -76,10 +73,7 @@ class _WeekPlannerState extends State<WeekPlanner<EventData>> {
             },
             onTap: (DateTime date, Period period,
                 CalendarEvent<EventData>? event) {
-              final TimeTableCubit provider =
-                  BlocProvider.of<TimeTableCubit>(context);
-              provider.nativeCallBack
-                  .sendAddEventToNativeApp(dateTime, provider.viewType, period);
+              widget.onTap!(date, period, event);
             },
             onWillAccept: (CalendarEvent<EventData>? event, Period period) =>
                 true,
@@ -200,32 +194,43 @@ class _WeekPlannerState extends State<WeekPlanner<EventData>> {
             },
             controller: widget.timetableController,
             itemBuilder: (CalendarEvent<EventData> item, double width) =>
-                Container(
-              margin: const EdgeInsets.all(4),
+                InkWell(
+              onTap: () {
+                widget.onTap!(dateTime, null, item);
+              },
               child: Container(
-                  padding: const EdgeInsets.all(6),
-                  height: item.eventData!.period.isCustomeSlot
-                      ? widget.timetableController.breakHeight
-                      : widget.timetableController.cellHeight,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(6),
-                      color: item.eventData!.color),
-                  child: item.eventData!.period.isCustomeSlot
-                      ? SizedBox(
-                          height: widget.timetableController.breakHeight,
-                          child: Center(
-                              child: Text(
-                            item.eventData!.title,
-                            style: context.subtitle,
+                margin: EdgeInsets.all(item.eventData!.isDutyTime ? 0 : 4),
+                child: Container(
+                    padding: EdgeInsets.all(item.eventData!.isDutyTime ? 0 : 6),
+                    height: item.eventData!.period.isCustomeSlot
+                        ? widget.timetableController.breakHeight
+                        : widget.timetableController.cellHeight,
+                    decoration: item.eventData!.isDutyTime
+                        ? BoxDecoration(
+                            border: const Border(
+                                left: BorderSide(color: textGrey, width: 8)),
+                            color: item.eventData!.color)
+                        : BoxDecoration(
+                            borderRadius: BorderRadius.circular(
+                                item.eventData!.isDutyTime ? 0 : 6),
+                            color: item.eventData!.color),
+                    child: item.eventData!.period.isCustomeSlot
+                        ? SizedBox(
+                            height: widget.timetableController.breakHeight,
+                            child: Center(
+                                child: Text(
+                              item.eventData!.title,
+                              style: context.subtitle,
+                            )),
+                          )
+                        : EventTile(
+                            item: item,
+                            height: item.eventData!.period.isCustomeSlot
+                                ? widget.timetableController.breakHeight
+                                : widget.timetableController.cellHeight,
+                            width: width,
                           )),
-                        )
-                      : EventTile(
-                          item: item,
-                          height: item.eventData!.period.isCustomeSlot
-                              ? widget.timetableController.breakHeight
-                              : widget.timetableController.cellHeight,
-                          width: width,
-                        )),
+              ),
             ),
             cellBuilder: (Period period) => Container(
               height: period.isCustomeSlot

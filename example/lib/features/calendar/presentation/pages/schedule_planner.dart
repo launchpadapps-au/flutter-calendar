@@ -1,9 +1,9 @@
-import 'package:edgar_planner_calendar_flutter/core/colors.dart'; 
-import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
+import 'package:edgar_planner_calendar_flutter/core/colors.dart';
+import 'package:edgar_planner_calendar_flutter/core/text_styles.dart'; 
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/schedule_view_event_tile.dart';
- 
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -15,6 +15,7 @@ class SchedulePlanner extends StatefulWidget {
   const SchedulePlanner({
     required this.timetableController,
     required this.customPeriods,
+    required this.onTap,
     Key? key,
     this.id,
     this.isMobile = true,
@@ -22,6 +23,10 @@ class SchedulePlanner extends StatefulWidget {
 
   ///custom periods for the timetable
   final List<Period> customPeriods;
+
+  ///provide calalback user tap on the cell
+  final Function(
+      DateTime dateTime, Period?, List<CalendarEvent<EventData>>? events) onTap;
 
   ///id that we will received from native ios
   final String? id;
@@ -73,10 +78,11 @@ class _SchedulePlannerState extends State<SchedulePlanner> {
         fullWeek: true,
         cornerBuilder: (DateTime current) => const SizedBox.shrink(),
         onTap: (DateTime dateTime, List<CalendarEvent<EventData>>? p1) {
-          final TimeTableCubit provider =
-              BlocProvider.of<TimeTableCubit>(context);
-          provider.nativeCallBack
-              .sendAddEventToNativeApp(dateTime, provider.viewType, null);
+          if (p1 == null) {
+            widget.onTap(dateTime, null, null);
+          } else {
+            widget.onTap(dateTime, null, p1);
+          }
         },
         headerHeight: widget.isMobile ? 38 : 40,
         headerCellBuilder: (DateTime date) =>

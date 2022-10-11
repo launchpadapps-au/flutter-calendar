@@ -33,6 +33,17 @@ class PeriodModel implements Period {
       required this.isCustomeSlot}) {
     title = slotName;
     isCustomeSlot = type == 'break';
+    if (title == 'break_1') {
+      title = 'Recess';
+    } else if (title == 'break_2') {
+      title = 'Lunch';
+    } else {
+      final List<String> t = title!.split('_');
+
+      if (t.length == 2) {
+        title = 'Break ${t[1]}';
+      }
+    }
   }
 
   ///create model from the json

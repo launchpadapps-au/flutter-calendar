@@ -32,7 +32,7 @@ class ReceiveMethods {
   static const String updateEvent = 'updateEvent';
 
   ///deleteEvent called from native app
-  static const String deleteEvent = 'deleteEvent';
+  static const String removeEvent = 'removeEvent';
 
   ///jumpToCurrentDate
   static const String jumpToCurrentDate = 'jumpToCurrentDate';

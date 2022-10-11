@@ -24,7 +24,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   /// initialized timetable cubit
   TimeTableCubit() : super(InitialState()) {
     nativeCallBack.initializeChannel('com.example.demo/data');
-    getDummyEvents();
+    getDummyData(addDummyEvent: false);
 
     setListener();
   }
@@ -117,7 +117,6 @@ class TimeTableCubit extends Cubit<TimeTableState> {
           final List<PeriodModel> newPeriods =
               periodModelFromJson(jsonEncode(call.arguments));
 
-          debugPrint('\n');
           if (newPeriods.isEmpty) {
             debugPrint('Received empty slots,no changes made');
           } else {
@@ -129,6 +128,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
             }
           }
           emit(PeriodsUpdated(periods, _events, viewType, termModel));
+
           break;
 
         ///handle set Terms method when data recieve from native app
@@ -142,8 +142,8 @@ class TimeTableCubit extends Cubit<TimeTableState> {
         ///handle setEvents methods
         case ReceiveMethods.setEvents:
           debugPrint('set events received from native app');
-          final GetEvents getEvents =
-              GetEvents.fromJsonWithPeriod(jsonDecode(call.arguments), periods);
+          final GetEvents getEvents = GetEvents.fromJsonWithPeriod(
+              jsonDecode(jsonEncode(call.arguments)), periods);
           _events = getEvents.events;
           emit(EventsAdded(
               periods, _events, viewType, getEvents.events, termModel));
@@ -172,16 +172,23 @@ class TimeTableCubit extends Cubit<TimeTableState> {
           break;
 
         ///handle delete Event method
-        case ReceiveMethods.deleteEvent:
+        case ReceiveMethods.removeEvent:
           debugPrint('delete events received from native app');
-          final GetEvents getEvents =
-              GetEvents.fromJsonWithPeriod(jsonDecode(call.arguments), periods);
-          for (final PlannerEvent e in getEvents.events) {
-            _events.removeWhere((PlannerEvent element) => element.id == e.id);
+
+          final Map<String, dynamic> json =
+              jsonDecode(jsonEncode(call.arguments));
+          final String id = json['eventId'].toString();
+
+          final List<PlannerEvent> events = _events
+              .where((PlannerEvent element) =>
+                  element.eventData!.id.toString() == id)
+              .toList();
+          for (final PlannerEvent element in events) {
+            log('');
+            _events.remove(element);
           }
 
-          emit(DeletedEvents(
-              periods, _events, viewType, getEvents.events, termModel));
+          emit(DeletedEvents(periods, _events, viewType, events, termModel));
           break;
         default:
           debugPrint('Data receive from flutter:No handler');
@@ -218,7 +225,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   }
 
   ///get dummy events
-  Future<void> getDummyEvents({bool addDummyEvent = true}) async {
+  Future<void> getDummyData({bool addDummyEvent = true}) async {
     try {
       emit(LoadingState());
       await Future<dynamic>.delayed(const Duration(seconds: 3));
@@ -229,8 +236,22 @@ class TimeTableCubit extends Cubit<TimeTableState> {
         final GetEvents getEvents = GetEvents.fromJsonWithPeriod(data, periods);
         _events = getEvents.events;
       }
-
       emit(LoadedState(_events, viewType, periods, termModel));
+      final String response = await rootBundle.loadString('assets/period.json');
+
+      final List<PeriodModel> newPeriods = periodModelFromJson(response);
+
+      if (newPeriods.isEmpty) {
+        debugPrint('Received empty slots,no changes made');
+      } else {
+        periods = newPeriods;
+        debugPrint('Received  slots,perios updated');
+        for (final PeriodModel element in periods) {
+          debugPrint(element.toMap.toString());
+          debugPrint('\n');
+        }
+      }
+      emit(PeriodsUpdated(periods, _events, viewType, termModel));
     } on Exception catch (e) {
       debugPrint(e.toString());
       emit(ErrorState());

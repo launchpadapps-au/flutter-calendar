@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:edgar_planner_calendar_flutter/core/constants.dart'; 
+import 'package:edgar_planner_calendar_flutter/core/constants.dart';
 import 'package:edgar_planner_calendar_flutter/core/static.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
@@ -19,6 +19,7 @@ class TermPlanner extends StatefulWidget {
   const TermPlanner({
     required this.timetableController,
     required this.onMonthChanged,
+    required this.onTap,
     Key? key,
     this.id,
   }) : super(key: key);
@@ -28,6 +29,10 @@ class TermPlanner extends StatefulWidget {
 
   ///timetable controller
   final TimetableController<EventData> timetableController;
+
+  ///provide calalback user tap on the cell
+  final Function(DateTime dateTime, List<CalendarEvent<EventData>> events)
+      onTap;
 
   ///return current month when user swipe and month changed
   final Function(Month) onMonthChanged;
@@ -40,16 +45,14 @@ class TermPlanner extends StatefulWidget {
 DateTime now = DateTime.now();
 
 class _TermPlannerState extends State<TermPlanner> {
- 
   static DateTime dateTime = DateTime.now();
 
   @override
   void initState() {
-    super.initState(); 
+    super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       currentMonth = widget.timetableController.visibleDateStart;
       setState(() {});
- 
     });
   }
 
@@ -129,10 +132,7 @@ class _TermPlannerState extends State<TermPlanner> {
           nowIndicatorColor: Colors.red,
           fullWeek: true,
           onTap: (DateTime date) {
-            final TimeTableCubit provider =
-                BlocProvider.of<TimeTableCubit>(context);
-            provider.nativeCallBack
-                .sendAddEventToNativeApp(dateTime, provider.viewType, null);
+            widget.onTap(date, <CalendarEvent<EventData>>[]);
           },
           headerHeight: isMobile ? 38 : 40,
           headerCellBuilder: (int index) => SizedBox(
@@ -158,16 +158,32 @@ class _TermPlannerState extends State<TermPlanner> {
                             height: 19,
                             child: Row(
                               children: <Widget>[
-                                ExtraSmallEventTile(
-                                  event: item.first,
-                                  isDraggable: isDragEnable,
-                                  width: (size.width - 6) / 2,
+                                GestureDetector(
+                                  onTap: () {
+                                    widget.onTap(
+                                        item.first.eventData!.startDate,
+                                        <CalendarEvent<EventData>>[item.first]);
+                                  },
+                                  child: ExtraSmallEventTile(
+                                    event: item.first,
+                                    isDraggable: isDragEnable,
+                                    width: (size.width - 6) / 2,
+                                  ),
                                 ),
                                 item.length >= 2
-                                    ? ExtraSmallEventTile(
-                                        event: item[1],
-                                        isDraggable: isDragEnable,
-                                        width: (size.width - 6) / 2,
+                                    ? GestureDetector(
+                                        onTap: () {
+                                          widget.onTap(
+                                              item[1].eventData!.startDate,
+                                              <CalendarEvent<EventData>>[
+                                                item[1]
+                                              ]);
+                                        },
+                                        child: ExtraSmallEventTile(
+                                          event: item[1],
+                                          isDraggable: isDragEnable,
+                                          width: (size.width - 6) / 2,
+                                        ),
                                       )
                                     : const SizedBox.shrink(),
                               ],
@@ -179,10 +195,19 @@ class _TermPlannerState extends State<TermPlanner> {
                             child: Row(
                               children: <Widget>[
                                 item.length >= 3
-                                    ? ExtraSmallEventTile(
-                                        event: item.first,
-                                        isDraggable: isDragEnable,
-                                        width: (size.width - 6) / 2,
+                                    ? GestureDetector(
+                                        onTap: () {
+                                          widget.onTap(
+                                              item.first.eventData!.startDate,
+                                              <CalendarEvent<EventData>>[
+                                                item.first
+                                              ]);
+                                        },
+                                        child: ExtraSmallEventTile(
+                                          event: item.first,
+                                          isDraggable: isDragEnable,
+                                          width: (size.width - 6) / 2,
+                                        ),
                                       )
                                     : const SizedBox.shrink(),
                                 item.skip(3).isEmpty

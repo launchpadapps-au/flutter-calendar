@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:edgar_planner_calendar_flutter/core/constants.dart'; 
+import 'package:edgar_planner_calendar_flutter/core/constants.dart';
 import 'package:edgar_planner_calendar_flutter/core/static.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
@@ -18,6 +18,7 @@ class MonthPlanner extends StatefulWidget {
   const MonthPlanner({
     required this.timetableController,
     required this.onMonthChanged,
+    required this.onTap,
     Key? key,
     this.id,
   }) : super(key: key);
@@ -27,6 +28,9 @@ class MonthPlanner extends StatefulWidget {
 
   ///timetable controller
   final TimetableController<EventData> timetableController;
+
+  ///provide calalback user tap on the cell
+  final Function(DateTime dateTime, List<CalendarEvent<EventData>>) onTap;
 
   ///return current month when user swipe and month changed
   final Function(Month) onMonthChanged;
@@ -103,10 +107,7 @@ class _MonthPlannerState extends State<MonthPlanner> {
             child: DeadCell(),
           ),
           onTap: (DateTime date) {
-            final TimeTableCubit provider =
-                BlocProvider.of<TimeTableCubit>(context);
-            provider.nativeCallBack
-                .sendAddEventToNativeApp(dateTime, provider.viewType, null);
+            widget.onTap(date, <CalendarEvent<EventData>>[]);
           },
           headerHeight: isMobile ? 38 : 40,
           headerCellBuilder: (int index) => SizedBox(
@@ -140,73 +141,115 @@ class _MonthPlannerState extends State<MonthPlanner> {
             );
           },
           controller: widget.timetableController,
-          itemBuilder: (List<CalendarEvent<EventData>> item, Size size) =>
-              item.isEmpty
-                  ? const SizedBox.shrink()
-                  : SizedBox(
-                      width: size.width,
-                      height: size.height,
-                      child: Column(
-                        children: <Widget>[
-                          const SizedBox(
-                            height: 30,
+          itemBuilder: (List<CalendarEvent<EventData>> item, Size size) => item
+                  .isEmpty
+              ? const SizedBox.shrink()
+              : SizedBox(
+                  width: size.width,
+                  height: size.height,
+                  child: Column(
+                    children: <Widget>[
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      if (item.length == 1)
+                        GestureDetector(
+                          onTap: () {
+                            widget.onTap(item.first.eventData!.startDate,
+                                <CalendarEvent<EventData>>[item.first]);
+                          },
+                          child: SmallEventTile(
+                            event: item.first,
+                            width: size.width,
+                            isDraggable: isDraggable,
                           ),
-                          if (item.length == 1)
-                            SmallEventTile(
-                              event: item.first,
-                              width: size.width,
-                              isDraggable: isDraggable,
+                        ),
+                      if (item.length == 2)
+                        Column(
+                          children: <Widget>[
+                            GestureDetector(
+                              onTap: () {
+                                widget.onTap(item.first.eventData!.startDate,
+                                    <CalendarEvent<EventData>>[item.first]);
+                              },
+                              child: SmallEventTile(
+                                event: item.first,
+                                isDraggable: isDraggable,
+                                width: size.width,
+                              ),
                             ),
-                          if (item.length == 2)
-                            Column(
-                              children: <Widget>[
-                                SmallEventTile(
-                                  event: item.first,
-                                  isDraggable: isDraggable,
-                                  width: size.width,
-                                ),
-                                SmallEventTile(
-                                  event: item[1],
-                                  isDraggable: isDraggable,
-                                  width: size.width,
-                                )
-                              ],
-                            ),
-                          if (item.length > 2)
-                            SizedBox(
-                              width: size.width,
-                              child: Column(
-                                children: <Widget>[
-                                  SmallEventTile(
-                                    event: item.first,
-                                    width: size.width,
-                                    isDraggable: isDraggable,
-                                  ),
-                                  SmallEventTile(
-                                    event: item[1],
-                                    width: size.width,
-                                    isDraggable: isDraggable,
-                                  ),
-                                  Row(children: <Widget>[
-                                    SizedBox(
-                                      width: size.width - 90,
-                                      child: SmallEventTile(
-                                          isDraggable: isDraggable,
-                                          event: item[2],
-                                          width: size.width - 60),
-                                    ),
-                                    const SizedBox(
-                                      width: 6,
-                                    ),
-                                    Text('+${item.skip(3).length}'),
-                                    const Spacer()
-                                  ])
-                                ],
+                            GestureDetector(
+                              onTap: () {
+                                widget.onTap(item[1].eventData!.startDate,
+                                    <CalendarEvent<EventData>>[item[1]]);
+                              },
+                              child: SmallEventTile(
+                                event: item[1],
+                                isDraggable: isDraggable,
+                                width: size.width,
                               ),
                             )
-                        ],
-                      ),
-                    ),
+                          ],
+                        ),
+                      if (item.length > 2)
+                        SizedBox(
+                          width: size.width,
+                          child: Column(
+                            children: <Widget>[
+                              GestureDetector(
+                                onTap: () {
+                                  widget.onTap(item.first.eventData!.startDate,
+                                      <CalendarEvent<EventData>>[item.first]);
+                                },
+                                child: SmallEventTile(
+                                  event: item.first,
+                                  width: size.width,
+                                  isDraggable: isDraggable,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  widget.onTap(item[1].eventData!.startDate,
+                                      <CalendarEvent<EventData>>[item[1]]);
+                                },
+                                child: SmallEventTile(
+                                  event: item[1],
+                                  width: size.width,
+                                  isDraggable: isDraggable,
+                                ),
+                              ),
+                              Row(children: <Widget>[
+                                SizedBox(
+                                  width: size.width - 90,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      widget.onTap(item[2].eventData!.startDate,
+                                          <CalendarEvent<EventData>>[item[2]]);
+                                    },
+                                    child: SmallEventTile(
+                                        isDraggable: isDraggable,
+                                        event: item[2],
+                                        width: size.width - 60),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 6,
+                                ),
+                                GestureDetector(
+                                    onTap: () {
+                                      widget.onTap(
+                                          item.first.eventData!.startDate,
+                                          item);
+                                    },
+                                    child: Text('+${item.skip(3).length}')),
+                                const Spacer()
+                              ])
+                            ],
+                          ),
+                        )
+                    ],
+                  ),
+                ),
           cellBuilder: (Period period) => Container(
             height: period.isCustomeSlot
                 ? widget.timetableController.breakHeight

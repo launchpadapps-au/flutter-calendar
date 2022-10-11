@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:developer';
- 
+
 import 'package:flutter/material.dart';
-import 'package:flutter_calendar/src/core/constants.dart'; 
+import 'package:flutter_calendar/src/core/constants.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:flutter_calendar/src/core/app_log.dart';
 
@@ -13,7 +13,7 @@ class SlScheduleView<T> extends StatefulWidget {
   const SlScheduleView({
     required this.timelines,
     required this.onWillAccept,
-    required this.cellBuilder, 
+    required this.cellBuilder,
     this.backgroundColor = Colors.transparent,
     Key? key,
     this.onEventDragged,
@@ -101,8 +101,6 @@ class SlScheduleView<T> extends StatefulWidget {
   ///bool isDraggable
   final bool isDraggable;
 
- 
-
   ///background color
   final Color backgroundColor;
 
@@ -126,7 +124,7 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
   List<DateTime> dateRange = <DateTime>[];
 
   /// Timetable items to display in the timetable
-  List<CalendarEvent<T>> items =<CalendarEvent<T>> [];
+  List<CalendarEvent<T>> items = <CalendarEvent<T>>[];
   StreamController<List<CalendarEvent<T>>> eventNotifier =
       StreamController<List<CalendarEvent<T>>>.broadcast();
 
@@ -201,7 +199,8 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
     if (_listenerId != null) {
       controller.removeListener(_listenerId!);
     }
-    dayScrollController.dispose();    eventNotifier.close();
+    dayScrollController.dispose();
+    eventNotifier.close();
     super.dispose();
   }
 
@@ -263,7 +262,7 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
       log('total events  ${items.length}');
     }
     if (event is TimeTableSave) {
- ///impliment timetable sabe
+      ///impliment timetable sabe
     }
     if (event is TimetableJumpToRequested) {
       log('jumping to ${event.date}');
@@ -275,7 +274,7 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
   }
 
   double maxColumn = 5;
- 
+
   bool isSavingTimeTable = false;
   @override
   Widget build(BuildContext context) => LayoutBuilder(
@@ -309,7 +308,8 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
                             key: Key(date.toString().substring(0, 10)),
                             onTap: () {
                               if (widget.onTap != null) {
-                                widget.onTap!(date, events);
+                                widget.onTap!(
+                                    date, events.isEmpty ? null : events);
                               }
                             },
                             leading: widget.headerCellBuilder!(date),
