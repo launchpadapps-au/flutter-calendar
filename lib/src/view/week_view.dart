@@ -245,17 +245,14 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
       await adjustColumnWidth();
     }
     if (event is AddEventToTable<T>) {
+      var myevents = items;
+      List<CalendarEvent<T>> tempEvetnts = event.events;
       if (event.replace) {
-        items
-          ..clear()
-          ..addAll(event.events);
+        myevents = tempEvetnts;
       } else {
-        for (final CalendarEvent<T> element in event.events) {
-          debugPrint('');
-          items.add(element);
-        }
+        myevents.addAll(tempEvetnts);
       }
-      items = event.events;
+      items = myevents;
       eventNotifier.sink.add(items);
       log('adding events  ${items.length}');
     }

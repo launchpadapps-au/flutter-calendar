@@ -24,7 +24,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   /// initialized timetable cubit
   TimeTableCubit() : super(InitialState()) {
     nativeCallBack.initializeChannel('com.example.demo/data');
-    getDummyData(addDummyEvent: false);
+    getDummyData(addDummyEvent: true);
 
     setListener();
   }
@@ -246,10 +246,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
       } else {
         periods = newPeriods;
         debugPrint('Received  slots,perios updated');
-        for (final PeriodModel element in periods) {
-          debugPrint(element.toMap.toString());
-          debugPrint('\n');
-        }
+   
       }
       emit(PeriodsUpdated(periods, _events, viewType, termModel));
     } on Exception catch (e) {

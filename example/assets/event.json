@@ -127,6 +127,31 @@
             "event_links": null
         },
         {
+            "id": 774,
+            "title": "Lession1",
+            "location": "24-A",
+            "subject": {
+                "id": 205,
+                "color_code": "F49628",
+                "subject_name": "maths"
+            },
+            "start_date": "2022-10-11",
+            "end_date": "2022-10-11",
+            "start_time": "12:45:00",
+            "end_time": "13:30:00",
+            "remind_before": null,
+            "reminder_enabled": false,
+            "slots": 273,
+            "recurrence_until": null,
+            "recurring_event_id": null,
+            "recurrence_freq": null,
+            "type": "lesson",
+            "updated_at": "2022-10-11T07:53:46.238543+00:00",
+            "lesson_plans": [],
+            "google_drive_files": [],
+            "event_links": null
+        },
+        {
             "id": 651,
             "title": "Duty-Sports",
             "location": "Sports",
@@ -229,6 +254,81 @@
             "updated_at": "2022-10-11T04:51:43.375433+00:00",
             "lesson_plans": [],
             "google_drive_files": null,
+            "event_links": null
+        },
+        {
+            "id": 769,
+            "title": "TestEvent",
+            "location": "5-A",
+            "subject": {
+                "id": 205,
+                "color_code": "F49628",
+                "subject_name": "maths"
+            },
+            "start_date": "2022-10-18",
+            "end_date": "2022-10-18",
+            "start_time": "12:00:00",
+            "end_time": "12:45:00",
+            "remind_before": null,
+            "reminder_enabled": false,
+            "slots": 281,
+            "recurrence_until": null,
+            "recurring_event_id": null,
+            "recurrence_freq": null,
+            "type": "lesson",
+            "updated_at": "2022-10-11T07:19:25.838628+00:00",
+            "lesson_plans": [],
+            "google_drive_files": [],
+            "event_links": null
+        },
+        {
+            "id": 778,
+            "title": "LessonH",
+            "location": "25-A",
+            "subject": {
+                "id": 211,
+                "color_code": "3EA4B1",
+                "subject_name": "History"
+            },
+            "start_date": "2022-10-19",
+            "end_date": "2022-10-19",
+            "start_time": "09:45:00",
+            "end_time": "10:30:00",
+            "remind_before": null,
+            "reminder_enabled": false,
+            "slots": 274,
+            "recurrence_until": null,
+            "recurring_event_id": null,
+            "recurrence_freq": null,
+            "type": "lesson",
+            "updated_at": "2022-10-11T11:20:35.386741+00:00",
+            "lesson_plans": [],
+            "google_drive_files": [],
+            "event_links": null
+        },
+        {
+            "id": 719,
+            "title": "myplanner",
+            "location": "5-A",
+            "subject": {
+                "id": 205,
+                "color_code": "F49628",
+                "subject_name": "maths"
+            },
+            "start_date": "2022-10-19",
+            "end_date": "2022-10-19",
+            "start_time": "11:15:00",
+            "end_time": "12:00:00",
+            "remind_before": null,
+            "reminder_enabled": false,
+            "slots": 278,
+            "recurrence_until": null,
+            "recurring_event_id": null,
+            "recurrence_freq": null,
+            "type": "lesson",
+            "updated_at": "2022-10-11T06:32:28.29249+00:00",
+            "lesson_plans": [],
+            "google_drive_files": [],
             "event_links": null
         },
         {

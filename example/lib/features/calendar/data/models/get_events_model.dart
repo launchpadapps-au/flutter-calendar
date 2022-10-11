@@ -6,11 +6,10 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:edgar_planner_calendar_flutter/core/colors.dart';
+import 'package:edgar_planner_calendar_flutter/core/date_extension.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_calendar/flutter_calendar.dart';
-import 'package:intl/intl.dart';
-
+import 'package:flutter_calendar/flutter_calendar.dart'; 
 // ///get events from json encoded string
 // GetEvents getEventsFromJson(String str) =>
 // GetEvents.fromJson(json.decode(str));
@@ -91,12 +90,11 @@ class PlannerEvent implements CalendarEvent<EventData> {
       Map<String, dynamic> json, List<PeriodModel> periods) {
     final DateTime start = DateTime.parse(json['start_date']);
     final DateTime end = DateTime.parse(json['end_date']);
-    final DateTime a = DateFormat('hh:mm').parse(json['start_time']);
 
-    final TimeOfDay startTime = TimeOfDay.fromDateTime(a);
-    final DateTime b = DateFormat('hh:mm').parse(json['end_time']);
+    final TimeOfDay startTime = getFromString(json['start_time']);
 
-    final TimeOfDay endTime = TimeOfDay.fromDateTime(b);
+    final TimeOfDay endTime =getFromString(json['end_time']);
+
     return PlannerEvent(
       id: json['id'].toString(),
       startTime: DateTime(
@@ -137,12 +135,8 @@ class PlannerEvent implements CalendarEvent<EventData> {
   @override
   Map<String, dynamic> get toMap => <String, dynamic>{
         'id': id,
-        'startTime': "${startTime.year.toString().padLeft(4, '0')}-"
-            "${startTime.month.toString().padLeft(2, '0')}-"
-            "${startTime.day.toString().padLeft(2, '0')}",
-        'endTime': "${endTime.year.toString().padLeft(4, '0')}-"
-            "${endTime.month.toString().padLeft(2, '0')}-"
-            "${endTime.day.toString().padLeft(2, '0')}",
+        'startTime': startTime,
+        'endTime': endTime,
         'eventData': eventData!.toJson(),
       };
 
@@ -196,8 +190,9 @@ class EventData {
       isDutyTime = true;
       freeTime = false;
     } else if (type == 'lesson') {
-      if(subject!=null)
-      color = subject!.colorCode;
+      if (subject != null) {
+        color = subject!.colorCode;
+      }
     }
   }
 

@@ -19,3 +19,11 @@ extension DateTimeExtension on DateTime {
     return DateTime(now.year, now.month, now.day, time.hour, time.minute);
   }
 }
+
+///return TimeOfDay from string
+TimeOfDay getFromString(String data) {
+  final List<String> temp = data.split(':');
+  final int hour = int.parse(temp.first);
+  final int minute = int.parse(temp[1]);
+  return TimeOfDay(hour: hour, minute: minute);
+}

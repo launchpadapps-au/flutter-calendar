@@ -1,7 +1,7 @@
 [
     {
-        "id": "270",
-        "calendar_id": "63",
+        "id": 270,
+        "calendar_id": 63,
         "user_id": "6e519f87-72b4-4264-9025-65e446f054ea",
         "slot_name": "period_1",
         "type": "period",
@@ -9,8 +9,8 @@
         "end_time": "09:45:00"
     },
     {
-        "id": "274",
-        "calendar_id": "63",
+        "id": 274,
+        "calendar_id": 63,
         "user_id": "6e519f87-72b4-4264-9025-65e446f054ea",
         "slot_name": "period_2",
         "type": "period",
@@ -18,8 +18,8 @@
         "end_time": "10:30:00"
     },
     {
-        "id": "275",
-        "calendar_id": "63",
+        "id": 275,
+        "calendar_id": 63,
         "user_id": "6e519f87-72b4-4264-9025-65e446f054ea",
         "slot_name": "break_1",
         "type": "break",
@@ -27,8 +27,8 @@
         "end_time": "11:15:00"
     },
     {
-        "id": "278",
-        "calendar_id": "63",
+        "id": 278,
+        "calendar_id": 63,
         "user_id": "6e519f87-72b4-4264-9025-65e446f054ea",
         "slot_name": "period_3",
         "type": "period",
@@ -36,8 +36,8 @@
         "end_time": "12:00:00"
     },
     {
-        "id": "281",
-        "calendar_id": "63",
+        "id": 281,
+        "calendar_id": 63,
         "user_id": "6e519f87-72b4-4264-9025-65e446f054ea",
         "slot_name": "period_4",
         "type": "period",
@@ -45,8 +45,8 @@
         "end_time": "12:45:00"
     },
     {
-        "id": "273",
-        "calendar_id": "63",
+        "id": 273,
+        "calendar_id": 63,
         "user_id": "6e519f87-72b4-4264-9025-65e446f054ea",
         "slot_name": "period_5",
         "type": "period",
@@ -54,8 +54,8 @@
         "end_time": "13:30:00"
     },
     {
-        "id": "280",
-        "calendar_id": "63",
+        "id": 280,
+        "calendar_id": 63,
         "user_id": "6e519f87-72b4-4264-9025-65e446f054ea",
         "slot_name": "break_2",
         "type": "break",
@@ -63,8 +63,8 @@
         "end_time": "14:30:00"
     },
     {
-        "id": "276",
-        "calendar_id": "63",
+        "id": 276,
+        "calendar_id": 63,
         "user_id": "6e519f87-72b4-4264-9025-65e446f054ea",
         "slot_name": "period_6",
         "type": "period",
@@ -72,8 +72,8 @@
         "end_time": "15:15:00"
     },
     {
-        "id": "277",
-        "calendar_id": "63",
+        "id": 277,
+        "calendar_id": 63,
         "user_id": "6e519f87-72b4-4264-9025-65e446f054ea",
         "slot_name": "period_7",
         "type": "period",
@@ -81,8 +81,8 @@
         "end_time": "16:00:00"
     },
     {
-        "id": "279",
-        "calendar_id": "63",
+        "id": 279,
+        "calendar_id": 63,
         "user_id": "6e519f87-72b4-4264-9025-65e446f054ea",
         "slot_name": "break_3",
         "type": "break",
@@ -90,8 +90,8 @@
         "end_time": "16:15:00"
     },
     {
-        "id": "271",
-        "calendar_id": "63",
+        "id": 271,
+        "calendar_id": 63,
         "user_id": "6e519f87-72b4-4264-9025-65e446f054ea",
         "slot_name": "period_8",
         "type": "period",
@@ -99,8 +99,8 @@
         "end_time": "17:00:00"
     },
     {
-        "id": "272",
-        "calendar_id": "63",
+        "id": 272,
+        "calendar_id": 63,
         "user_id": "6e519f87-72b4-4264-9025-65e446f054ea",
         "slot_name": "period_9",
         "type": "period",

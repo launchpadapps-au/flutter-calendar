@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:edgar_planner_calendar_flutter/core/constants.dart';
 import 'package:edgar_planner_calendar_flutter/core/static.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
@@ -57,7 +59,7 @@ class _PlannerState extends State<Planner> {
   ValueNotifier<DateTime> headerDateNotifier =
       ValueNotifier<DateTime>(dateForHeader);
   int index = 0;
-  bool showAppbar = false;
+  bool showAppbar = true;
   @override
   void initState() {
     periods = customStaticPeriods;
@@ -76,6 +78,13 @@ class _PlannerState extends State<Planner> {
         timeTableController.jumpTo(event.dateTime);
       } else if (event is LoadedState) {
         debugPrint('Setting event in calendar');
+
+        for (final PlannerEvent element in event.events) {
+          if (element.eventData!.freeTime || element.eventData!.isDutyTime) {
+          } else {
+            log(element.toMap.toString());
+          }
+        }
         timeTableController.addEvent(event.events, replace: false);
       } else if (event is EventUpdatedState) {
         debugPrint('updating events in calendar');
@@ -113,26 +122,7 @@ class _PlannerState extends State<Planner> {
                     builder:
                         (BuildContext context, DateTime value, Widget? child) =>
                             GestureDetector(
-                              onTap: () {
-                                // DatePicker.showPicker(context,
-                                //         pickerModel: CustomMonthPicker(
-                                //             minTime: DateTime(
-                                //               2020,
-                                //             ),
-                                //             maxTime: DateTime.now(),
-                                //             currentTime: dateTime))
-                                //     .then((DateTime? value) {
-                                //   if (value != null) {
-                                //     log(dateTime.toString());
-                                //     dateTime = value;
-
-                                //     setState(() {});
-                                //     simpleController.changeDate(
-                                //         DateTime(dateTime.year, dateTime.month),
-                                //         dateTime.lastDayOfMonth);
-                                //   }
-                                // });
-                              },
+                              onTap: () {},
                               child: Text(
                                 DateFormat('dd-MMMM-y').format(dateTime),
                                 style: context.termPlannerTitle,
@@ -144,7 +134,6 @@ class _PlannerState extends State<Planner> {
                     color: Colors.black,
                   ),
                   onPressed: () {
-                    // BlocProvider.of<TimeTableCubit>(context).jumpToCurrentDate();
                     final DateTime now = DateTime.now();
 
                     timeTableController.jumpTo(DateTime(
@@ -158,12 +147,7 @@ class _PlannerState extends State<Planner> {
                       color: Colors.black,
                     ),
                     onPressed: () async {
-                      // final TimeTableCubit cubit =
-                      //     BlocProvider.of<TimeTableCubit>(context);
-
-                      // await Preview.exportWeekView(DateTime(2022, 9),
-                      //  DateTime(2022, 10, 3), cubit.periods, cubit.events, context,
-                      //     saveImage: false);
+     
                     },
                   ),
                   IconButton(

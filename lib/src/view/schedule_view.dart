@@ -223,14 +223,14 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
       initDate();
     }
     if (event is AddEventToTable<T>) {
+      List<CalendarEvent<T>> myevents = items;
+      final List<CalendarEvent<T>> tempEvetnts = event.events;
       if (event.replace) {
-        items
-          ..clear()
-          ..addAll(event.events);
+        myevents = tempEvetnts;
       } else {
-        items.addAll(event.events);
+        myevents.addAll(tempEvetnts);
       }
-      items = event.events;
+      items = myevents;
       eventNotifier.sink.add(items);
       log('adding events  ${items.length}');
     }
