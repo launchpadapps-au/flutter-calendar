@@ -1,5 +1,6 @@
+import 'package:edgar_planner_calendar_flutter/core/calendar_utils.dart';
 import 'package:edgar_planner_calendar_flutter/core/colors.dart';
-import 'package:edgar_planner_calendar_flutter/core/text_styles.dart'; 
+import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/schedule_view_event_tile.dart';
@@ -140,13 +141,8 @@ class _SchedulePlannerState extends State<SchedulePlanner> {
                   ),
           );
         },
-        isCellDraggable: (CalendarEvent<EventData> event) {
-          if (event.eventData!.period.isCustomeSlot) {
-            return false;
-          } else {
-            return true;
-          }
-        },
+        isCellDraggable: (CalendarEvent<EventData> event) =>
+            isCelldraggable(event),
         controller: widget.timetableController,
         itemBuilder: (CalendarEvent<EventData> item) => ScheduleViewEventTile(
           item: item,

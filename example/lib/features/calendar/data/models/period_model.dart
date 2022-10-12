@@ -48,7 +48,7 @@ class PeriodModel implements Period {
 
   ///create model from the json
   factory PeriodModel.fromJson(Map<String, dynamic> json) => PeriodModel(
-      id: json['id'],
+      id: json['id'].toString(),
       slotName: json['slot_name'],
       type: json['type'],
       stringStartTime: json['start_time'],
@@ -60,7 +60,8 @@ class PeriodModel implements Period {
       endTime: parseTimeOfDay(json['end_time']));
 
   ///int id of the period
-  dynamic id;
+  @override
+  String id;
 
   ///name of the slot
   String slotName;

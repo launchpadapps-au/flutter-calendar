@@ -24,7 +24,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   /// initialized timetable cubit
   TimeTableCubit() : super(InitialState()) {
     nativeCallBack.initializeChannel('com.example.demo/data');
-    getDummyData(addDummyEvent: true);
+    getDummyData(addDummyEvent: false);
 
     setListener();
   }
@@ -122,10 +122,6 @@ class TimeTableCubit extends Cubit<TimeTableState> {
           } else {
             periods = newPeriods;
             debugPrint('Received  slots,perios updated');
-            for (final PeriodModel element in periods) {
-              debugPrint(element.toMap.toString());
-              debugPrint('\n');
-            }
           }
           emit(PeriodsUpdated(periods, _events, viewType, termModel));
 
@@ -235,20 +231,20 @@ class TimeTableCubit extends Cubit<TimeTableState> {
         final dynamic data = jsonDecode(response);
         final GetEvents getEvents = GetEvents.fromJsonWithPeriod(data, periods);
         _events = getEvents.events;
-      }
-      emit(LoadedState(_events, viewType, periods, termModel));
-      final String response = await rootBundle.loadString('assets/period.json');
+        emit(LoadedState(_events, viewType, periods, termModel));
+        final String response1 =
+            await rootBundle.loadString('assets/period.json');
 
-      final List<PeriodModel> newPeriods = periodModelFromJson(response);
+        final List<PeriodModel> newPeriods = periodModelFromJson(response1);
 
-      if (newPeriods.isEmpty) {
-        debugPrint('Received empty slots,no changes made');
-      } else {
-        periods = newPeriods;
-        debugPrint('Received  slots,perios updated');
-   
+        if (newPeriods.isEmpty) {
+          debugPrint('Received empty slots,no changes made');
+        } else {
+          periods = newPeriods;
+          debugPrint('Received  slots,perios updated');
+        }
+        emit(PeriodsUpdated(periods, _events, viewType, termModel));
       }
-      emit(PeriodsUpdated(periods, _events, viewType, termModel));
     } on Exception catch (e) {
       debugPrint(e.toString());
       emit(ErrorState());
@@ -282,8 +278,31 @@ class TimeTableCubit extends Cubit<TimeTableState> {
         startTime: newEvent.startTime,
         endTime: newEvent.endTime,
         eventData: newEvent.eventData));
-    emit(LoadedState(_events, viewType, periods, termModel));
+    emit(EventUpdatedState(
+        _events, old, newEvent, viewType, periods, termModel));
     log('added${newEvent.toMap}');
+    return true;
+  }
+
+  ///call maintaning state of the dragged event
+  bool onEventDragged(CalendarEvent<EventData> old,
+      CalendarEvent<EventData> newEvent, Period? period) {
+    emit(UpdatingEvent());
+    _events.remove(old);
+    if (period != null) {
+      newEvent.eventData!.period = period;
+    }
+
+    log('removed${old.toMap}');
+    _events.add(PlannerEvent(
+        startTime: newEvent.startTime,
+        endTime: newEvent.endTime,
+        eventData: newEvent.eventData));
+    emit(EventUpdatedState(
+        _events, old, newEvent, viewType, periods, termModel));
+    log('added${newEvent.toMap}');
+
+    nativeCallBack.sendEventDraggedToNativeApp(old, newEvent, viewType, period);
     return true;
   }
 
@@ -304,6 +323,25 @@ class TimeTableCubit extends Cubit<TimeTableState> {
     emit(EventUpdatedState(
         _events, old, newEvent, viewType, periods, termModel));
     log('added${newEvent.toMap}');
+    return true;
+  }
+
+  ///remove pld event and add new event
+  bool eventDragged(CalendarEvent<EventData> old,
+      CalendarEvent<EventData> newEvent, PeriodModel? period) {
+    emit(UpdatingEvent());
+    _events.remove(old);
+    if (period != null) {
+      newEvent.eventData!.period = period;
+    }
+
+    _events.add(PlannerEvent(
+        startTime: newEvent.startTime,
+        endTime: newEvent.endTime,
+        eventData: newEvent.eventData));
+    emit(EventUpdatedState(
+        _events, old, newEvent, viewType, periods, termModel));
+    nativeCallBack.sendEventDraggedToNativeApp(old, newEvent, viewType, period);
     return true;
   }
 

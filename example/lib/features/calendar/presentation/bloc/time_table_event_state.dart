@@ -67,10 +67,10 @@ class EventUpdatedState extends TimeTableState {
   final List<PlannerEvent> events;
 
   /// old event
-  final PlannerEvent oldEvent;
+  final CalendarEvent<EventData> oldEvent;
 
   ///new event
-  final PlannerEvent newEvent;
+  final CalendarEvent<EventData> newEvent;
 
   /// view type of the calendar
   final CalendarViewType viewType;

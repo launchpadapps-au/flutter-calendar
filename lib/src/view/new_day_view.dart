@@ -101,7 +101,8 @@ class NewSlDayView<T> extends StatefulWidget {
   final List<Period> timelines;
 
   ///return new and okd event
-  final Function(CalendarEvent<T> old, CalendarEvent<T> newEvent)?
+  final Function(
+          CalendarEvent<T> old, CalendarEvent<T> newEvent, Period? periodModel)?
       onEventDragged;
 
   /// Called to determine whether this widget is interested in receiving a given
@@ -396,6 +397,7 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
                   // physics: const NeverScrollableScrollPhysics(),
                   controller: timeScrollController,
                   children: <Widget>[
+                    Text(items.length.toString()),
                     ValueListenableBuilder<DateTime>(
                         valueListenable: headerDateNotifier,
                         builder: (BuildContext context, DateTime value,
@@ -448,216 +450,201 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
                         StreamBuilder<List<CalendarEvent<T>>>(
                             stream: eventNotifier.stream,
                             builder: (BuildContext context,
-                                    AsyncSnapshot<List<CalendarEvent<T>>>
-                                        snapshot) =>
-                                Builder(builder: (BuildContext context) {
-                                  final List<CalendarEvent<T>> events = items
-                                      .where((CalendarEvent<T> event) =>
-                                          DateUtils.isSameDay(
-                                              date, event.startTime))
-                                      .toList();
-                                  final List<List<CalendarEvent<T>>> eventList =
-                                      getEventList(events);
-                                  final double height = getTimelineHeight(
-                                      widget.timelines,
-                                      controller.cellHeight,
-                                      controller.breakHeight);
-                                  return SizedBox(
-                                    width:
-                                        size.width - controller.timelineWidth,
-                                    height: height,
-                                    child: Stack(
-                                      clipBehavior: Clip.none,
+                                AsyncSnapshot<List<CalendarEvent<T>>>
+                                    snapshot) {
+                              final List<CalendarEvent<T>> events = items
+                                  .where((CalendarEvent<T> event) =>
+                                      DateUtils.isSameDay(
+                                          date, event.startTime))
+                                  .toList();
+                              final List<List<CalendarEvent<T>>> eventList =
+                                  getEventList(events);
+                              final double height = getTimelineHeight(
+                                  widget.timelines,
+                                  controller.cellHeight,
+                                  controller.breakHeight);
+                              return SizedBox(
+                                width: size.width - controller.timelineWidth,
+                                height: height,
+                                child: Stack(
+                                  clipBehavior: Clip.none,
+                                  children: <Widget>[
+                                    Column(
                                       children: <Widget>[
-                                        Column(
-                                          children: <Widget>[
-                                            for (Period period
-                                                in widget.timelines)
-                                              TimeTableCell<T>(
-                                                  columnWidth: size.width,
-                                                  cellBuilder:
-                                                      widget.cellBuilder,
-                                                  period: period,
-                                                  isDragEnable:
-                                                      !period.isCustomeSlot,
-                                                  breakHeight:
-                                                      controller.breakHeight,
-                                                  cellHeight:
-                                                      controller.cellHeight,
-                                                  dateTime: date,
-                                                  onTap: (DateTime dateTime,
-                                                      Period p1,
-                                                      CalendarEvent<T>? p2) {
-                                                    appLog('data');
+                                        for (Period period in widget.timelines)
+                                          TimeTableCell<T>(
+                                              columnWidth: size.width,
+                                              cellBuilder: widget.cellBuilder,
+                                              period: period,
+                                              isDragEnable:
+                                                  !period.isCustomeSlot,
+                                              breakHeight:
+                                                  controller.breakHeight,
+                                              cellHeight: controller.cellHeight,
+                                              dateTime: date,
+                                              onTap: (DateTime dateTime,
+                                                  Period p1,
+                                                  CalendarEvent<T>? p2) {
+                                                appLog('data');
 
-                                                    widget.onTap!(
-                                                        dateTime, p1, p2);
-                                                  },
-                                                  onAcceptWithDetails:
-                                                      (DragTargetDetails<
-                                                              CalendarEvent<T>>
-                                                          details) {
-                                                    final CalendarEvent<T>
-                                                        event = details.data;
-                                                    final DateTime
-                                                        newStartTime = DateTime(
-                                                            date.year,
-                                                            date.month,
-                                                            date.day,
-                                                            period
-                                                                .startTime.hour,
-                                                            period.startTime
-                                                                .minute);
-                                                    final DateTime newEndTime =
-                                                        DateTime(
-                                                            date.year,
-                                                            date.month,
-                                                            date.day,
-                                                            period.endTime.hour,
-                                                            period.endTime
-                                                                .minute);
+                                                widget.onTap!(dateTime, p1, p2);
+                                              },
+                                              onAcceptWithDetails:
+                                                  (DragTargetDetails<
+                                                          CalendarEvent<T>>
+                                                      details) {
+                                                final CalendarEvent<T> event =
+                                                    details.data;
+                                                final DateTime newStartTime =
+                                                    DateTime(
+                                                        date.year,
+                                                        date.month,
+                                                        date.day,
+                                                        period.startTime.hour,
+                                                        period
+                                                            .startTime.minute);
+                                                final DateTime newEndTime =
+                                                    DateTime(
+                                                        date.year,
+                                                        date.month,
+                                                        date.day,
+                                                        period.endTime.hour,
+                                                        period.endTime.minute);
 
-                                                    final CalendarEvent<T>
-                                                        newEvent =
-                                                        CalendarEvent<T>(
-                                                            startTime:
-                                                                newStartTime,
-                                                            endTime: newEndTime,
-                                                            eventData: event
-                                                                .eventData);
-                                                    items
-                                                      ..remove(details.data)
-                                                      ..add(newEvent);
-                                                    eventNotifier.sink
-                                                        .add(items);
-                                                    widget.onEventDragged!(
-                                                        details.data, newEvent);
-                                                  },
-                                                  onWillAccept:
-                                                      (CalendarEvent<T>? data,
-                                                          Period period) {
-                                                    appLog('Dragged event'
-                                                        '${data!.toMap}');
-                                                    return widget.onWillAccept(
-                                                        data, date, period);
-                                                  })
-                                          ],
-                                        ),
-                                        for (final List<CalendarEvent<T>> events
-                                            in eventList)
-                                          for (final CalendarEvent<T> event
-                                              in events)
-                                            Builder(builder:
-                                                (BuildContext context) {
-                                              final double top =
-                                                  getEventMarginFromTop(
-                                                      widget.timelines,
-                                                      controller.cellHeight,
-                                                      controller.breakHeight,
-                                                      event.startTime);
-                                              final double bottom =
-                                                  getEventMarginFromBottom(
-                                                      widget.timelines,
-                                                      controller.cellHeight,
-                                                      controller.breakHeight,
-                                                      event.endTime);
-                                              final double initialHeight =
-                                                  height - bottom - top;
+                                                final CalendarEvent<T>
+                                                    newEvent = CalendarEvent<T>(
+                                                        startTime: newStartTime,
+                                                        endTime: newEndTime,
+                                                        eventData:
+                                                            event.eventData);
+                                                items
+                                                  ..remove(details.data)
+                                                  ..add(newEvent);
 
-                                              final double maxWidth =
-                                                  size.width - 60;
-                                              final double eventWidth =
-                                                  maxWidth / events.length;
-                                              final int index =
-                                                  events.indexOf(event);
-                                              return Positioned(
-                                                width: maxWidth -
-                                                    index * eventWidth,
-                                                left: eventWidth * index,
-                                                top: top,
-                                                bottom: bottom,
-                                                child: TimeTableEvent<T>(
-                                                  isDraggable: widget
-                                                              .isCellDraggable ==
-                                                          null ||
-                                                      widget.isCellDraggable!(
-                                                          event),
-                                                  initialHeight: initialHeight,
-                                                  onAcceptWithDetails:
-                                                      (DragTargetDetails<
-                                                              CalendarEvent<T>>
-                                                          details) {
-                                                    final CalendarEvent<T>
-                                                        myEvents = details.data;
-                                                    final DateTime
-                                                        newStartTime = DateTime(
-                                                            date.year,
-                                                            date.month,
-                                                            date.day,
-                                                            event
-                                                                .startTime.hour,
-                                                            event.startTime
-                                                                .minute);
-                                                    final DateTime newEndTime =
-                                                        DateTime(
-                                                            date.year,
-                                                            date.month,
-                                                            date.day,
-                                                            event.endTime.hour,
-                                                            event.endTime
-                                                                .minute);
-                                                    myEvents
-                                                      ..startTime = newStartTime
-                                                      ..endTime = newEndTime;
-                                                    items
-                                                      ..remove(details.data)
-                                                      ..add(myEvents);
-                                                    eventNotifier.sink
-                                                        .add(items);
-                                                    widget.onEventDragged!(
-                                                        details.data, myEvents);
-                                                  },
-                                                  onWillAccept:
-                                                      (CalendarEvent<T>?
-                                                              data) =>
-                                                          false,
-                                                  columnWidth: size.width -
-                                                      controller.timelineWidth,
-                                                  event: event,
-                                                  itemBuilder: (CalendarEvent<T>
-                                                          p0) =>
-                                                      widget.itemBuilder!(
-                                                          p0,
-                                                          index,
-                                                          events.length,
-                                                          size.width -
-                                                              controller
-                                                                  .timelineWidth),
-                                                ),
-                                              );
-                                            }),
-                                        if (widget.showNowIndicator && isToday)
-                                          StreamBuilder<DateTime>(
-                                              stream: Stream<DateTime>.periodic(
-                                                  const Duration(seconds: 60),
-                                                  (int count) => DateTime.now()
-                                                      .add(const Duration(
-                                                          minutes: 1))),
-                                              builder: (BuildContext context,
-                                                      AsyncSnapshot<DateTime>
-                                                          snapshot) =>
-                                                  TimeIndicator<T>(
-                                                      controller: controller,
-                                                      columnWidth:
-                                                          size.width - 60,
-                                                      nowIndicatorColor:
-                                                          nowIndicatorColor,
-                                                      timelines:
-                                                          widget.timelines)),
+                                                eventNotifier.sink.add(items);
+                                                widget.onEventDragged!(
+                                                    details.data,
+                                                    newEvent,
+                                                    period);
+                                              },
+                                              onWillAccept:
+                                                  (CalendarEvent<T>? data,
+                                                      Period period) {
+                                                appLog('Dragged event'
+                                                    '${data!.toMap}');
+                                                return widget.onWillAccept(
+                                                    data, date, period);
+                                              })
                                       ],
                                     ),
-                                  );
-                                }))
+                                    for (final List<CalendarEvent<T>> events
+                                        in eventList)
+                                      for (final CalendarEvent<T> event
+                                          in events)
+                                        Builder(
+                                            builder: (BuildContext context) {
+                                          final double top =
+                                              getEventMarginFromTop(
+                                                  widget.timelines,
+                                                  controller.cellHeight,
+                                                  controller.breakHeight,
+                                                  event.startTime);
+                                          final double bottom =
+                                              getEventMarginFromBottom(
+                                                  widget.timelines,
+                                                  controller.cellHeight,
+                                                  controller.breakHeight,
+                                                  event.endTime);
+                                          final double initialHeight =
+                                              height - bottom - top;
+
+                                          final double maxWidth =
+                                              size.width - 60;
+                                          final double eventWidth =
+                                              maxWidth / events.length;
+                                          final int index =
+                                              events.indexOf(event);
+                                          return Positioned(
+                                            width:
+                                                maxWidth - index * eventWidth,
+                                            left: eventWidth * index,
+                                            top: top,
+                                            bottom: bottom,
+                                            child: TimeTableEvent<T>(
+                                              isDraggable: widget
+                                                          .isCellDraggable ==
+                                                      null ||
+                                                  widget
+                                                      .isCellDraggable!(event),
+                                              initialHeight: initialHeight,
+                                              onAcceptWithDetails:
+                                                  (DragTargetDetails<
+                                                          CalendarEvent<T>>
+                                                      details) {
+                                                final CalendarEvent<T>
+                                                    myEvents = details.data;
+                                                final DateTime newStartTime =
+                                                    DateTime(
+                                                        date.year,
+                                                        date.month,
+                                                        date.day,
+                                                        event.startTime.hour,
+                                                        event.startTime.minute);
+                                                final DateTime newEndTime =
+                                                    DateTime(
+                                                        date.year,
+                                                        date.month,
+                                                        date.day,
+                                                        event.endTime.hour,
+                                                        event.endTime.minute);
+                                                myEvents
+                                                  ..startTime = newStartTime
+                                                  ..endTime = newEndTime;
+                                                widget.controller!.updateEvent(
+                                                    details.data, myEvents);
+                                                eventNotifier.sink.add(items);
+                                                widget.onEventDragged!(
+                                                    details.data,
+                                                    myEvents,
+                                                    null);
+                                              },
+                                              onWillAccept:
+                                                  (CalendarEvent<T>? data) =>
+                                                      false,
+                                              columnWidth: size.width -
+                                                  controller.timelineWidth,
+                                              event: event,
+                                              itemBuilder: (CalendarEvent<T>
+                                                      p0) =>
+                                                  widget.itemBuilder!(
+                                                      p0,
+                                                      index,
+                                                      events.length,
+                                                      size.width -
+                                                          controller
+                                                              .timelineWidth),
+                                            ),
+                                          );
+                                        }),
+                                    if (widget.showNowIndicator && isToday)
+                                      StreamBuilder<DateTime>(
+                                          stream: Stream<DateTime>.periodic(
+                                              const Duration(seconds: 60),
+                                              (int count) => DateTime.now().add(
+                                                  const Duration(minutes: 1))),
+                                          builder: (BuildContext context,
+                                                  AsyncSnapshot<DateTime>
+                                                      snapshot) =>
+                                              TimeIndicator<T>(
+                                                  controller: controller,
+                                                  columnWidth: size.width - 60,
+                                                  nowIndicatorColor:
+                                                      nowIndicatorColor,
+                                                  timelines: widget.timelines)),
+                                  ],
+                                ),
+                              );
+                            })
                       ],
                     )
                   ],

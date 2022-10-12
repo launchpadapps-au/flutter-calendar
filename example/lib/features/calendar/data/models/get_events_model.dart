@@ -424,7 +424,7 @@ class Subject {
       );
 
   ///id of the subject
-  int id;
+  dynamic id;
 
   ///color of the subject
 

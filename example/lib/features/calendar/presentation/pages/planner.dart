@@ -20,7 +20,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
-import 'package:intl/intl.dart';
 
 ///planner
 class Planner extends StatefulWidget {
@@ -59,7 +58,7 @@ class _PlannerState extends State<Planner> {
   ValueNotifier<DateTime> headerDateNotifier =
       ValueNotifier<DateTime>(dateForHeader);
   int index = 0;
-  bool showAppbar = true;
+  bool showAppbar = false;
   @override
   void initState() {
     periods = customStaticPeriods;
@@ -79,19 +78,15 @@ class _PlannerState extends State<Planner> {
       } else if (event is LoadedState) {
         debugPrint('Setting event in calendar');
 
-        for (final PlannerEvent element in event.events) {
-          if (element.eventData!.freeTime || element.eventData!.isDutyTime) {
-          } else {
-            log(element.toMap.toString());
-          }
+        if (event.events.isNotEmpty) {
+          timeTableController.addEvent(event.events, replace: true);
         }
-        timeTableController.addEvent(event.events, replace: false);
       } else if (event is EventUpdatedState) {
         debugPrint('updating events in calendar');
         timeTableController.updateEvent(event.oldEvent, event.newEvent);
       } else if (event is EventsAdded) {
         debugPrint('adding events in calendar');
-        timeTableController.addEvent(event.events, replace: false);
+        timeTableController.addEvent(event.events, replace: true);
       } else if (event is PeriodsUpdated) {
         periods = event.periods;
         setState(() {
@@ -99,6 +94,7 @@ class _PlannerState extends State<Planner> {
         });
       } else if (event is DeletedEvents) {
         timeTableController.removeEvent(event.deletedEvents);
+        debugPrint('removing events from calendar');
       }
     });
     super.initState();
@@ -108,6 +104,8 @@ class _PlannerState extends State<Planner> {
 
   ValueNotifier<CalendarViewType> viewTypeNotifer =
       ValueNotifier<CalendarViewType>(CalendarViewType.weekView);
+
+  bool sendJsonEcnoded = false;
   @override
   Widget build(BuildContext context) => Scaffold(
         key: scaffoldKey,
@@ -124,7 +122,7 @@ class _PlannerState extends State<Planner> {
                             GestureDetector(
                               onTap: () {},
                               child: Text(
-                                DateFormat('dd-MMMM-y').format(dateTime),
+                                timeTableController.events.length.toString(),
                                 style: context.termPlannerTitle,
                               ),
                             )),
@@ -146,9 +144,7 @@ class _PlannerState extends State<Planner> {
                       Icons.download,
                       color: Colors.black,
                     ),
-                    onPressed: () async {
-     
-                    },
+                    onPressed: () async {},
                   ),
                   IconButton(
                     icon: const Icon(
@@ -235,6 +231,13 @@ class _PlannerState extends State<Planner> {
                                   DayPlanner(
                                     customPeriods: periods,
                                     timetableController: timeTableController,
+                                    onEventDragged:
+                                        (CalendarEvent<EventData> old,
+                                            CalendarEvent<EventData> newEvent,
+                                            Period? period) {
+                                      BlocProvider.of<TimeTableCubit>(context)
+                                          .updateEvent(old, newEvent, period);
+                                    },
                                     onTap: (DateTime dateTime, Period? period,
                                         CalendarEvent<EventData>? event) {
                                       final TimeTableCubit cubit =
@@ -243,7 +246,8 @@ class _PlannerState extends State<Planner> {
                                       if (event == null && period != null) {
                                         cubit.nativeCallBack
                                             .sendAddEventToNativeApp(dateTime,
-                                                cubit.viewType, period);
+                                                cubit.viewType, period,
+                                                jsonEcoded: sendJsonEcnoded);
                                       } else if (event != null) {
                                         cubit.nativeCallBack
                                             .sendShowEventToNativeApp(
@@ -266,7 +270,8 @@ class _PlannerState extends State<Planner> {
                                       if (event == null && period != null) {
                                         cubit.nativeCallBack
                                             .sendAddEventToNativeApp(dateTime,
-                                                cubit.viewType, period);
+                                                cubit.viewType, period,
+                                                jsonEcoded: sendJsonEcnoded);
                                       } else if (event != null) {
                                         cubit.nativeCallBack
                                             .sendShowEventToNativeApp(
@@ -299,7 +304,8 @@ class _PlannerState extends State<Planner> {
                                       if (events == null && period == null) {
                                         cubit.nativeCallBack
                                             .sendAddEventToNativeApp(dateTime,
-                                                cubit.viewType, period);
+                                                cubit.viewType, period,
+                                                jsonEcoded: sendJsonEcnoded);
                                       } else if (events != null) {
                                         cubit.nativeCallBack
                                             .sendShowEventToNativeApp(
@@ -328,7 +334,8 @@ class _PlannerState extends State<Planner> {
                                       if (event.isEmpty) {
                                         cubit.nativeCallBack
                                             .sendAddEventToNativeApp(
-                                                dateTime, cubit.viewType, null);
+                                                dateTime, cubit.viewType, null,
+                                                jsonEcoded: sendJsonEcnoded);
                                       } else {
                                         cubit.nativeCallBack
                                             .sendShowEventToNativeApp(dateTime,

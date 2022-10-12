@@ -9,6 +9,7 @@ class Period {
       {required this.startTime,
       required this.endTime,
       this.title,
+      this.id="None",
       this.isCustomeSlot = false});
 
   ///   objet from the from the json
@@ -31,6 +32,9 @@ class Period {
   /// if this period is break then make this variable true
   /// and pass title of the break
   bool isCustomeSlot = false;
+
+  // ///id of the period,in cas eof customization
+  String id;
 
   ///to map functionality
 

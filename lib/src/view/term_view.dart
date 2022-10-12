@@ -357,7 +357,7 @@ class _SlTermViewState<T> extends State<SlTermView<T>> {
                                   calendarDay: dateRange[index],
                                   columnWidth: columnWidth,
                                   dateBuilder: widget.dateBuilder,
-                                  isDraggable: true,
+                                  isDraggable: widget.isDraggable,
                                   deadCellBuilder: widget.deadCellBuilder!,
                                   itemBuilder:
                                       (List<CalendarEvent<T>> dayEvents) =>

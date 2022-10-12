@@ -1,7 +1,9 @@
+import 'package:edgar_planner_calendar_flutter/core/calendar_utils.dart';
 import 'package:edgar_planner_calendar_flutter/core/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/constants.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/cell_border.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/single_day_event_tile.dart';
@@ -18,6 +20,7 @@ class DayPlanner extends StatefulWidget {
       {required this.timetableController,
       required this.customPeriods,
       required this.onTap,
+      required this.onEventDragged,
       this.onDateChanged,
       Key? key,
       this.id})
@@ -34,6 +37,10 @@ class DayPlanner extends StatefulWidget {
 
   ///provide calalback user tap on the cell
   final Function(DateTime dateTime, Period?, CalendarEvent<EventData>?) onTap;
+
+  ///return new and okd event
+  final Function(CalendarEvent<EventData> old,
+      CalendarEvent<EventData> newEvent, Period? periodModel)? onEventDragged;
 
   ///give new day when day is scrolled
   final Function(DateTime dateTime)? onDateChanged;
@@ -80,9 +87,10 @@ class _DayPlannerState extends State<DayPlanner> {
                   }
                 },
                 onEventDragged: (CalendarEvent<EventData> old,
-                    CalendarEvent<EventData> newEvent) {
-                  BlocProvider.of<TimeTableCubit>(context)
-                      .updateEvent(old, newEvent, null);
+                    CalendarEvent<EventData> newEvent, Period? period) {
+                  if (widget.onEventDragged != null) {
+                    widget.onEventDragged!(old, newEvent, period);
+                  }
                 },
                 onWillAccept: (CalendarEvent<EventData>? event, DateTime date,
                     Period period) {
@@ -224,13 +232,8 @@ class _DayPlannerState extends State<DayPlanner> {
                   );
                 },
                 controller: widget.timetableController,
-                isCellDraggable: (CalendarEvent<EventData> event) {
-                  if (event.eventData!.period.isCustomeSlot) {
-                    return false;
-                  } else {
-                    return true;
-                  }
-                },
+                isCellDraggable: (CalendarEvent<EventData> event) =>
+                    isCelldraggable(event),
                 itemBuilder: (CalendarEvent<EventData> item, int index,
                         int length, double width) =>
                     GestureDetector(

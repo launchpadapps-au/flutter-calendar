@@ -2,15 +2,13 @@ import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/per
 import 'package:flutter/material.dart';
 
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/term_model.dart';
- 
- 
 
 ///custom timePeriods for the timetable
 List<PeriodModel> customStaticPeriods = <PeriodModel>[
   PeriodModel(
     userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
     calendarId: 18,
-    id: 0,
+    id: '0',
     slotName: 'period1',
     stringEndTime: '09:45',
     type: 'period',
@@ -22,7 +20,7 @@ List<PeriodModel> customStaticPeriods = <PeriodModel>[
   PeriodModel(
     userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
     calendarId: 18,
-    id: 0,
+    id: '0',
     slotName: 'period2',
     type: 'period',
     stringStartTime: '09:45',
@@ -34,7 +32,7 @@ List<PeriodModel> customStaticPeriods = <PeriodModel>[
   PeriodModel(
     userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
     calendarId: 18,
-    id: 0,
+    id: '0',
     slotName: 'Recess',
     type: 'break',
     stringStartTime: '10:30',
@@ -46,7 +44,7 @@ List<PeriodModel> customStaticPeriods = <PeriodModel>[
   PeriodModel(
     userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
     calendarId: 18,
-    id: 0,
+    id: '0',
     slotName: 'period3',
     type: 'period',
     isCustomeSlot: false,
@@ -58,7 +56,7 @@ List<PeriodModel> customStaticPeriods = <PeriodModel>[
   PeriodModel(
     userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
     calendarId: 18,
-    id: 0,
+    id: '0',
     slotName: 'period4',
     type: 'period',
     isCustomeSlot: false,
@@ -70,7 +68,7 @@ List<PeriodModel> customStaticPeriods = <PeriodModel>[
   PeriodModel(
     userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
     calendarId: 18,
-    id: 0,
+    id: '0',
     slotName: 'Lunch',
     type: 'break',
     stringStartTime: '12:30',
@@ -82,7 +80,7 @@ List<PeriodModel> customStaticPeriods = <PeriodModel>[
   PeriodModel(
     userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
     calendarId: 18,
-    id: 0,
+    id: '0',
     slotName: 'period5',
     type: 'period',
     isCustomeSlot: false,
@@ -94,7 +92,7 @@ List<PeriodModel> customStaticPeriods = <PeriodModel>[
   PeriodModel(
     userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
     calendarId: 18,
-    id: 0,
+    id: '0',
     slotName: 'period6',
     stringStartTime: '14:15',
     type: 'period',
@@ -106,7 +104,7 @@ List<PeriodModel> customStaticPeriods = <PeriodModel>[
   PeriodModel(
     userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
     calendarId: 18,
-    id: 0,
+    id: '0',
     slotName: 'period6',
     stringStartTime: '15:00',
     type: 'period',
@@ -118,7 +116,7 @@ List<PeriodModel> customStaticPeriods = <PeriodModel>[
   PeriodModel(
     userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
     calendarId: 18,
-    id: 0,
+    id: '0',
     slotName: 'period6',
     stringStartTime: '16:00',
     type: 'period',
@@ -130,7 +128,7 @@ List<PeriodModel> customStaticPeriods = <PeriodModel>[
   PeriodModel(
     userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
     calendarId: 18,
-    id: 0,
+    id: '0',
     slotName: 'period6',
     stringStartTime: '16:30',
     type: 'period',
@@ -271,7 +269,7 @@ List<PeriodModel> dummyPeriods = <PeriodModel>[
   PeriodModel(
     userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
     calendarId: 18,
-    id: 0,
+    id: '0',
     slotName: 'period1',
     type: 'period',
     stringStartTime: '09:00',
@@ -283,7 +281,7 @@ List<PeriodModel> dummyPeriods = <PeriodModel>[
   PeriodModel(
     userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
     calendarId: 18,
-    id: 0,
+    id: '0',
     slotName: 'period2',
     type: 'period',
     stringStartTime: '09:45',
@@ -295,7 +293,7 @@ List<PeriodModel> dummyPeriods = <PeriodModel>[
   PeriodModel(
     userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
     calendarId: 18,
-    id: 0,
+    id: '0',
     slotName: 'Recess',
     type: 'break',
     stringStartTime: '11:00',
@@ -307,7 +305,7 @@ List<PeriodModel> dummyPeriods = <PeriodModel>[
   PeriodModel(
     userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
     calendarId: 18,
-    id: 0,
+    id: '0',
     slotName: 'period3',
     type: 'period',
     isCustomeSlot: false,
@@ -319,7 +317,7 @@ List<PeriodModel> dummyPeriods = <PeriodModel>[
   PeriodModel(
     userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
     calendarId: 18,
-    id: 0,
+    id: '0',
     slotName: 'Lunch',
     type: 'break',
     isCustomeSlot: true,
@@ -331,7 +329,7 @@ List<PeriodModel> dummyPeriods = <PeriodModel>[
   PeriodModel(
     userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
     calendarId: 18,
-    id: 0,
+    id: '0',
     slotName: 'Period 4',
     type: 'period',
     stringStartTime: '13:00',
@@ -343,7 +341,7 @@ List<PeriodModel> dummyPeriods = <PeriodModel>[
   PeriodModel(
     userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
     calendarId: 18,
-    id: 0,
+    id: '0',
     slotName: 'period5',
     type: 'period',
     isCustomeSlot: false,
@@ -355,7 +353,7 @@ List<PeriodModel> dummyPeriods = <PeriodModel>[
   PeriodModel(
     userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
     calendarId: 18,
-    id: 0,
+    id: '0',
     slotName: 'break3',
     stringStartTime: '15:00',
     type: 'break',
@@ -367,7 +365,7 @@ List<PeriodModel> dummyPeriods = <PeriodModel>[
   PeriodModel(
     userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
     calendarId: 18,
-    id: 0,
+    id: '0',
     slotName: 'perio6',
     stringStartTime: '15:30',
     type: 'period',
@@ -379,7 +377,7 @@ List<PeriodModel> dummyPeriods = <PeriodModel>[
   PeriodModel(
     userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
     calendarId: 18,
-    id: 0,
+    id: '0',
     slotName: 'period7',
     stringStartTime: '16:15',
     type: 'period',
@@ -391,7 +389,7 @@ List<PeriodModel> dummyPeriods = <PeriodModel>[
   PeriodModel(
     userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
     calendarId: 18,
-    id: 0,
+    id: '0',
     slotName: 'period8',
     stringStartTime: '17:00',
     type: 'period',

@@ -70,6 +70,7 @@ class _TermPlannerState extends State<TermPlanner> {
         return SlTermView<EventData>(
           timelines: customStaticPeriods,
           isSwipeEnable: true,
+          isDraggable: isDragEnable,
           deadCellBuilder: (DateTime current) => const Expanded(
             child: DeadCell(),
           ),

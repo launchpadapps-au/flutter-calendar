@@ -1,3 +1,4 @@
+import 'package:edgar_planner_calendar_flutter/core/calendar_utils.dart';
 import 'package:edgar_planner_calendar_flutter/core/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/constants.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
@@ -185,13 +186,8 @@ class _WeekPlannerState extends State<WeekPlanner<EventData>> {
                       ),
               );
             },
-            isCellDraggable: (CalendarEvent<EventData> event) {
-              if (event.eventData!.period.isCustomeSlot) {
-                return false;
-              } else {
-                return true;
-              }
-            },
+            isCellDraggable: (CalendarEvent<EventData> event) =>
+                isCelldraggable(event),
             controller: widget.timetableController,
             itemBuilder: (CalendarEvent<EventData> item, double width) =>
                 InkWell(

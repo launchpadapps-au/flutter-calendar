@@ -58,7 +58,7 @@ class _MonthPlannerState extends State<MonthPlanner> {
 
   ValueNotifier<DateTime> dateTimeNotifier = ValueNotifier<DateTime>(dateTime);
 
-  bool isDraggable = true;
+  bool isDraggable = false;
 
   @override
   Widget build(BuildContext context) => Scaffold(body:
@@ -67,15 +67,12 @@ class _MonthPlannerState extends State<MonthPlanner> {
 
         return SlMonthView<EventData>(
           timelines: customStaticPeriods,
-          isDraggable: true,
+          isDraggable: isDraggable,
           onMonthChanged: (Month month) {
             widget.onMonthChanged(month);
           },
           onEventDragged: (CalendarEvent<EventData> old,
-              CalendarEvent<EventData> newEvent) {
-            BlocProvider.of<TimeTableCubit>(context)
-                .updateEvent(old, newEvent, null);
-          },
+              CalendarEvent<EventData> newEvent) {},
           onWillAccept: (CalendarEvent<EventData>? event, DateTime dateTime,
               Period period) {
             if (event != null) {

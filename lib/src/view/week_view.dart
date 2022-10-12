@@ -222,6 +222,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
   }
 
   Future<void> _eventHandler(TimetableControllerEvent event) async {
+    log('No of events${widget.controller!.events.length}');
     if (event is TimetableJumpToRequested) {
       appLog('jumping to ${event.date}');
       await _jumpTo(event.date);
@@ -245,8 +246,8 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
       await adjustColumnWidth();
     }
     if (event is AddEventToTable<T>) {
-      var myevents = items;
-      List<CalendarEvent<T>> tempEvetnts = event.events;
+      List<CalendarEvent<T>> myevents = items;
+      final List<CalendarEvent<T>> tempEvetnts = event.events;
       if (event.replace) {
         myevents = tempEvetnts;
       } else {
@@ -360,6 +361,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
           height: size.height,
           child: Column(
             children: <Widget>[
+              Text(items.length.toString()),
               SizedBox(
                 height: widget.headerHeight,
                 width: size.width,
@@ -599,9 +601,6 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                                                               controller
                                                                   .breakHeight,
                                                               event.endTime);
-                                                      // final double initialHeight
-                                                      // =
-                                                      //     height - bottom - top;
 
                                                       final double maxWidth =
                                                           columnWidth;
@@ -659,6 +658,16 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                                                                   newStartTime
                                                               ..endTime =
                                                                   newEndTime;
+                                                            final int index =
+                                                                items.indexOf(
+                                                                    details
+                                                                        .data);
+
+                                                            items
+                                                              ..removeAt(index)
+                                                              ..insert(index,
+                                                                  myEvents);
+
                                                             widget.onEventDragged!(
                                                                 details.data,
                                                                 myEvents,

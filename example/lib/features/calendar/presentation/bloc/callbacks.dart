@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 
+import 'package:edgar_planner_calendar_flutter/core/calendar_utils.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/date_change_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/method_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -34,7 +37,7 @@ class NativeCallBack {
   Future<bool> onTap(DateTime dateTime, List<PlannerEvent> events) async {
     final Map<String, dynamic> data = <String, dynamic>{
       'events': events.toString(),
-      'date': dateTime.toString()
+      'date': dateTime.toString().substring(0, 10),
     };
     await sendToNativeApp(SendMethods.onTap, data);
     return true;
@@ -42,15 +45,24 @@ class NativeCallBack {
 
   ///send addEvent callback to native app
   Future<bool> sendAddEventToNativeApp(
-      DateTime dateTime, CalendarViewType viewType, Period? period) async {
+      DateTime dateTime, CalendarViewType viewType, Period? period,
+      {bool jsonEcoded = false}) async {
     final Map<String, dynamic> data = <String, dynamic>{
       'viewType': viewType.toString(),
-      'date': dateTime.toString(),
+      'date': dateTime.toString().substring(0, 10),
     };
     if (period != null) {
-      data.putIfAbsent('period', () => period.toJson().toString());
+      data
+        ..putIfAbsent('period', () => period.toJson())
+        ..putIfAbsent('slotId', () => period.id.toString());
     }
-    await sendToNativeApp(SendMethods.addEvent, data);
+    debugPrint('data: $data');
+    if (jsonEcoded) {
+      final String string = jsonEncode(data);
+      await sendToNativeApp(SendMethods.addEvent, string);
+    } else {
+      await sendToNativeApp(SendMethods.addEvent, data);
+    }
     return true;
   }
 
@@ -75,13 +87,30 @@ class NativeCallBack {
   }
 
   ///send eventDragged  to native app
-  Future<bool> sendEventDraggedToNativeApp(PlannerEvent old,
-      PlannerEvent newEvent, CalendarViewType viewType) async {
+  Future<bool> sendEventDraggedToNativeApp(
+      CalendarEvent<EventData> old,
+      CalendarEvent<EventData> newEvent,
+      CalendarViewType viewType,
+      Period? periodModel) async {
     final Map<String, dynamic> data = <String, dynamic>{
-      'oldEvent': old.toJson(),
-      'newEvent': newEvent.toJson(),
-      'viewType': viewType.toString(),
+      // "calendar_id": {{calendar_id}},
+      'slots': 92,
+      'start_date': '2022-10-26',
+      'end_date': '2022-10-26',
+      'start_time': '09:00:00',
+      'end_time': '09:45:00'
     };
+
+    // data['start_date']=newEvent.startDate
+    // final Map<String, dynamic> data = <String, dynamic>{
+    //   'event': old.toJson(),
+    //   'eventId': old.id.toString(),
+    //   'viewType': viewType.toString(),
+    // };
+
+    if (periodModel != null) {
+      data.putIfAbsent('slotId', () => periodModel.id);
+    }
     await sendToNativeApp(SendMethods.eventDragged, data);
     return true;
   }
@@ -89,13 +118,33 @@ class NativeCallBack {
   ///send showEvent callback to native app
   Future<bool> sendShowEventToNativeApp(DateTime dateTime,
       List<CalendarEvent<EventData>> events, CalendarViewType viewType) async {
-    final Map<String, dynamic> data = <String, dynamic>{
-      'viewType': viewType.toString(),
-      'date': dateTime.toString(),
-      'events': events.toString()
-    };
-    log(data.toString());
-    await sendToNativeApp(SendMethods.showEvent, data);
+    if (events.length == 1) {
+      if (isOnTapEnable(events.first)) {
+        var eventID = int.parse(events.first.eventData!.id.toString());
+        final Map<String, dynamic> data = <String, dynamic>{
+          'viewType': viewType.toString(),
+          'date': dateTime.toString().substring(0, 10),
+          'events': events.toString(),
+          'eventId': events.first.eventData!.id.toString(),
+          'eventIds': List<String>.from(events.map<String>(
+              (CalendarEvent<EventData> e) => e.eventData!.id.toString()))
+        };
+        log(data.toString());
+        await sendToNativeApp(SendMethods.showEvent, data);
+      }
+    } else {
+      final Map<String, dynamic> data = <String, dynamic>{
+        'viewType': viewType.toString(),
+        'date': dateTime.toString().substring(0, 10),
+        'events': events.toString(),
+        'eventId': events.first.eventData!.id.toString(),
+        'eventIds': List<String>.from(events.map<String>(
+            (CalendarEvent<EventData> e) => e.eventData!.id.toString()))
+      };
+      log(data.toString());
+      await sendToNativeApp(SendMethods.showEvent, data);
+    }
+
     return true;
   }
 
