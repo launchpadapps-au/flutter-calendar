@@ -9,8 +9,12 @@ class Period {
       {required this.startTime,
       required this.endTime,
       this.title,
-      this.id="None",
-      this.isCustomeSlot = false});
+      this.id = 'None',
+      this.isCustomeSlot = false}) {
+    if (id == 'None') {
+      id = startTime.toString();
+    }
+  }
 
   ///   objet from the from the json
   factory Period.fromJson(Map<String, dynamic> json) => Period(

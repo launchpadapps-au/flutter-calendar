@@ -83,7 +83,7 @@ class SlScheduleView<T> extends StatefulWidget {
   /// list of the timeline
   final List<Period> timelines;
 
-  ///return new and okd event
+  ///return new and old event
   final Function(CalendarEvent<T> old, CalendarEvent<T> newEvent)?
       onEventDragged;
 

@@ -397,7 +397,7 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
                   // physics: const NeverScrollableScrollPhysics(),
                   controller: timeScrollController,
                   children: <Widget>[
-                    Text(items.length.toString()),
+                    // Text(items.length.toString()),
                     ValueListenableBuilder<DateTime>(
                         valueListenable: headerDateNotifier,
                         builder: (BuildContext context, DateTime value,
@@ -517,11 +517,7 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
                                                         endTime: newEndTime,
                                                         eventData:
                                                             event.eventData);
-                                                items
-                                                  ..remove(details.data)
-                                                  ..add(newEvent);
 
-                                                eventNotifier.sink.add(items);
                                                 widget.onEventDragged!(
                                                     details.data,
                                                     newEvent,
@@ -583,30 +579,57 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
                                                       details) {
                                                 final CalendarEvent<T>
                                                     myEvents = details.data;
-                                                final DateTime newStartTime =
-                                                    DateTime(
-                                                        date.year,
-                                                        date.month,
-                                                        date.day,
-                                                        event.startTime.hour,
-                                                        event.startTime.minute);
-                                                final DateTime newEndTime =
-                                                    DateTime(
-                                                        date.year,
-                                                        date.month,
-                                                        date.day,
-                                                        event.endTime.hour,
-                                                        event.endTime.minute);
+                                                final DateTime start = DateTime(
+                                                    date.year,
+                                                    date.month,
+                                                    date.day,
+                                                    event.startTime.hour,
+                                                    event.startTime.minute);
+                                                final DateTime end = DateTime(
+                                                    date.year,
+                                                    date.month,
+                                                    date.day,
+                                                    event.endTime.hour,
+                                                    event.endTime.minute);
                                                 myEvents
-                                                  ..startTime = newStartTime
-                                                  ..endTime = newEndTime;
-                                                widget.controller!.updateEvent(
-                                                    details.data, myEvents);
-                                                eventNotifier.sink.add(items);
-                                                widget.onEventDragged!(
-                                                    details.data,
-                                                    myEvents,
-                                                    null);
+                                                  ..startTime = start
+                                                  ..endTime = end;
+
+                                                final List<Period> times = widget
+                                                    .timelines
+                                                    .where((Period element) =>
+                                                        isDateBeetWeen(
+                                                            DateTime(
+                                                                start.year,
+                                                                start.month,
+                                                                start.day,
+                                                                element
+                                                                    .startTime
+                                                                    .hour,
+                                                                element
+                                                                    .startTime
+                                                                    .minute),
+                                                            DateTime(
+                                                                start.year,
+                                                                start.month,
+                                                                start.day,
+                                                                element.endTime
+                                                                    .hour,
+                                                                element.endTime
+                                                                    .minute),
+                                                            start))
+                                                    .toList();
+                                                if (times.isNotEmpty) {
+                                                  widget.onEventDragged!(
+                                                      details.data,
+                                                      myEvents,
+                                                      times.first);
+                                                } else {
+                                                  widget.onEventDragged!(
+                                                      details.data,
+                                                      myEvents,
+                                                      null);
+                                                }
                                               },
                                               onWillAccept:
                                                   (CalendarEvent<T>? data) =>

@@ -361,7 +361,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
           height: size.height,
           child: Column(
             children: <Widget>[
-              Text(items.length.toString()),
+              // Text(items.length.toString()),
               SizedBox(
                 height: widget.headerHeight,
                 width: size.width,
@@ -631,7 +631,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                                                                 myEvents =
                                                                 details.data;
                                                             final DateTime
-                                                                newStartTime =
+                                                                start =
                                                                 DateTime(
                                                                     date.year,
                                                                     date.month,
@@ -642,7 +642,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                                                                     event
                                                                         .startTime
                                                                         .minute);
-                                                            final DateTime newEndTime =
+                                                            final DateTime end =
                                                                 DateTime(
                                                                     date.year,
                                                                     date.month,
@@ -655,9 +655,8 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                                                                         .minute);
                                                             myEvents
                                                               ..startTime =
-                                                                  newStartTime
-                                                              ..endTime =
-                                                                  newEndTime;
+                                                                  start
+                                                              ..endTime = end;
                                                             final int index =
                                                                 items.indexOf(
                                                                     details
