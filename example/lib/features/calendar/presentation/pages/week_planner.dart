@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:edgar_planner_calendar_flutter/core/calendar_utils.dart';
 import 'package:edgar_planner_calendar_flutter/core/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/constants.dart';
@@ -72,6 +74,7 @@ class _WeekPlannerState extends State<WeekPlanner<EventData>> {
                 CalendarEvent<EventData> newEvent, Period? period) {
               widget.onEventDragged(old, newEvent, period);
             },
+            onDateChanged: (DateTime dateTime) => log(dateTime.toString()),
             onTap: (DateTime date, Period period,
                 CalendarEvent<EventData>? event) {
               widget.onTap!(date, period, event);

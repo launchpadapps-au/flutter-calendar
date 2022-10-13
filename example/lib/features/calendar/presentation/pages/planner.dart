@@ -1,4 +1,4 @@
-import 'dart:developer';
+ 
 
 import 'package:edgar_planner_calendar_flutter/core/constants.dart';
 import 'package:edgar_planner_calendar_flutter/core/static.dart';
@@ -37,7 +37,7 @@ class Planner extends StatefulWidget {
 DateTime now = DateTime.now().subtract(const Duration(days: 1));
 
 class _PlannerState extends State<Planner> {
-  static DateTime startDate = DateTime(2022, 9);
+  static DateTime startDate = DateTime.now();
   static DateTime endDate = DateTime(2022, 12, 31);
   TimetableController<EventData> timeTableController =
       TimetableController<EventData>(
@@ -58,7 +58,7 @@ class _PlannerState extends State<Planner> {
   ValueNotifier<DateTime> headerDateNotifier =
       ValueNotifier<DateTime>(dateForHeader);
   int index = 0;
-  bool showAppbar = false;
+  bool showAppbar = true;
   @override
   void initState() {
     periods = customStaticPeriods;
@@ -103,7 +103,7 @@ class _PlannerState extends State<Planner> {
   List<Period> periods = <PeriodModel>[];
 
   ValueNotifier<CalendarViewType> viewTypeNotifer =
-      ValueNotifier<CalendarViewType>(CalendarViewType.weekView);
+      ValueNotifier<CalendarViewType>(CalendarViewType.scheduleView);
 
   bool sendJsonEcnoded = false;
   @override

@@ -37,7 +37,7 @@ class Period {
   /// and pass title of the break
   bool isCustomeSlot = false;
 
-  // ///id of the period,in cas eof customization
+  ///id of the period,in cas eof customization
   String id;
 
   ///to map functionality

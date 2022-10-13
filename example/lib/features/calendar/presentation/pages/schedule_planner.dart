@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:edgar_planner_calendar_flutter/core/calendar_utils.dart';
 import 'package:edgar_planner_calendar_flutter/core/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
@@ -7,6 +9,7 @@ import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/wi
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_calendar/generated/l10n.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 
@@ -77,6 +80,7 @@ class _SchedulePlannerState extends State<SchedulePlanner> {
         onWillAccept: (CalendarEvent<EventData>? event) => true,
         nowIndicatorColor: Colors.red,
         fullWeek: true,
+        onDateChanged: (DateTime dateTime) => log(dateTime.toString()),
         cornerBuilder: (DateTime current) => const SizedBox.shrink(),
         onTap: (DateTime dateTime, List<CalendarEvent<EventData>>? p1) {
           if (p1 == null) {
@@ -148,6 +152,33 @@ class _SchedulePlannerState extends State<SchedulePlanner> {
           item: item,
           cellHeight: cellHeight,
         ),
+        emptyMonthBuilder: (DateTime dateTime) {
+          final DateTime end = DateTime(dateTime.year, dateTime.month + 1)
+              .subtract(const Duration(days: 1));
+          return ListTile(
+            contentPadding: const EdgeInsets.only(left: 27),
+            title: Text(
+              DateFormat('MMMM').format(
+                dateTime,
+              ),
+              style: context.headline1.copyWith(color: textBlack),
+            ),
+            subtitle: Row(
+              children: [
+                Text(DateFormat('d MMMM').format(dateTime),
+                    style: context.headline1Fw500.copyWith(color: textGrey)),
+                const SizedBox(
+                  width: 8,
+                ),
+                Text(DateFormat('d MMMM').format(end),
+                    style: context.headline1Fw500.copyWith(color: textGrey)),
+              ],
+            ),
+          );
+        },
+        emptyTodayTitle: (DateTime date) => Text('Nothing Planned for today',
+            style: context.headline1Fw500.copyWith(
+                color: textGrey, fontSize: 14, fontWeight: FontWeight.w700)),
         cellBuilder: (DateTime period) => Container(
           height: cellHeight,
           decoration: BoxDecoration(

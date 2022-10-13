@@ -1,9 +1,10 @@
+import 'dart:developer';
+
 import 'package:edgar_planner_calendar_flutter/core/calendar_utils.dart';
 import 'package:edgar_planner_calendar_flutter/core/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/constants.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart'; 
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/cell_border.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/single_day_event_tile.dart';
@@ -81,11 +82,7 @@ class _DayPlannerState extends State<DayPlanner> {
                 onImageCapture: (Uint8List data) {},
                 backgroundColor: white,
                 timelines: widget.customPeriods,
-                onDateChanged: (DateTime dateTime) {
-                  if (widget.onDateChanged != null) {
-                    widget.onDateChanged!(dateTime);
-                  }
-                },
+                onDateChanged: (DateTime dateTime) => log(dateTime.toString()),
                 onEventDragged: (CalendarEvent<EventData> old,
                     CalendarEvent<EventData> newEvent, Period? period) {
                   if (widget.onEventDragged != null) {

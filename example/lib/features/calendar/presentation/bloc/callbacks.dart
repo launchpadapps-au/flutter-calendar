@@ -4,8 +4,7 @@ import 'dart:developer';
 
 import 'package:edgar_planner_calendar_flutter/core/calendar_utils.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/date_change_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart'; 
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/method_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -120,7 +119,6 @@ class NativeCallBack {
       List<CalendarEvent<EventData>> events, CalendarViewType viewType) async {
     if (events.length == 1) {
       if (isOnTapEnable(events.first)) {
-        var eventID = int.parse(events.first.eventData!.id.toString());
         final Map<String, dynamic> data = <String, dynamic>{
           'viewType': viewType.toString(),
           'date': dateTime.toString().substring(0, 10),
