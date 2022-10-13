@@ -24,6 +24,7 @@ class SlWeekView<T> extends StatefulWidget {
     this.backgroundColor = Colors.transparent,
     Key? key,
     this.onEventDragged,
+    this.onEventToEventDragged,
     this.controller,
     this.cellBuilder,
     this.headerCellBuilder,
@@ -97,6 +98,11 @@ class SlWeekView<T> extends StatefulWidget {
   final Function(
           CalendarEvent<T> old, CalendarEvent<T> newEvent, Period? period)?
       onEventDragged;
+
+  ///return existing ,old and new event when used drag and drop
+  ///the event on the existing event
+  final Function(CalendarEvent<T> existing, CalendarEvent<T> old,
+      CalendarEvent<T> newEvent, Period? periodModel)? onEventToEventDragged;
 
   /// Called to determine whether this widget is interested in receiving a given
   /// piece of data being dragged over this drag target.
@@ -667,7 +673,8 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                                                               ..insert(index,
                                                                   myEvents);
 
-                                                            widget.onEventDragged!(
+                                                            widget.onEventToEventDragged!(
+                                                                event,
                                                                 details.data,
                                                                 myEvents,
                                                                 null);

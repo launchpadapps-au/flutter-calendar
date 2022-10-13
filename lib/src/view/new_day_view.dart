@@ -23,6 +23,7 @@ class NewSlDayView<T> extends StatefulWidget {
     this.backgroundColor = Colors.transparent,
     Key? key,
     this.onEventDragged,
+    this.onEventToEventDragged,
     this.controller,
     this.cellBuilder,
     this.headerCellBuilder,
@@ -104,6 +105,11 @@ class NewSlDayView<T> extends StatefulWidget {
   final Function(
           CalendarEvent<T> old, CalendarEvent<T> newEvent, Period? periodModel)?
       onEventDragged;
+
+  ///return existing ,old and new event when used drag and drop
+  ///the event on the existing event
+  final Function(CalendarEvent<T> existing, CalendarEvent<T> old,
+      CalendarEvent<T> newEvent, Period? periodModel)? onEventToEventDragged;
 
   /// Called to determine whether this widget is interested in receiving a given
   /// piece of data being dragged over this drag target.
@@ -280,6 +286,7 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
         items
           ..removeAt(index)
           ..insert(index, event.newEvent);
+        eventNotifier.sink.add(items);
       } else {
         log('old event is not present in the list');
       }
@@ -619,13 +626,16 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
                                                                     .minute),
                                                             start))
                                                     .toList();
+                                                log("Event to eent drag");
                                                 if (times.isNotEmpty) {
-                                                  widget.onEventDragged!(
+                                                  widget.onEventToEventDragged!(
+                                                      event,
                                                       details.data,
                                                       myEvents,
                                                       times.first);
                                                 } else {
-                                                  widget.onEventDragged!(
+                                                  widget.onEventToEventDragged!(
+                                                      event,
                                                       details.data,
                                                       myEvents,
                                                       null);
