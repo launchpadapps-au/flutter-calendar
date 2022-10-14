@@ -490,6 +490,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                                   // cacheExtent: 10000.0,
 
                                   itemExtent: columnWidth,
+                                  
                                   controller: indexdController,
                                   cacheExtent: columnWidth * 7,
                                   itemBuilder:

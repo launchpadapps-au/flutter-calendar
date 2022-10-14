@@ -43,6 +43,7 @@ class _PlannerState extends State<Planner> {
       TimetableController<EventData>(
           start: startDate,
           end: endDate,
+          infiniteScrolling: false,
           timelineWidth: 60,
           breakHeight: 35,
           cellHeight: 110);

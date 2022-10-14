@@ -267,7 +267,8 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
       } else {
         myevents.addAll(tempEvetnts);
       }
-      items = myevents;      emptyIndex = null;
+      items = myevents;
+      emptyIndex = null;
       eventNotifier.sink.add(items);
       log('adding events  ${items.length}');
     }
@@ -278,7 +279,8 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
           if (items.contains(element)) {
             items.remove(element);
           }
-        }      emptyIndex = null;
+        }
+        emptyIndex = null;
         eventNotifier.sink.add(items);
         log('total events  ${items.length}');
       }
@@ -326,7 +328,7 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
                     IndexedListView.separated(
                         controller: indexdController,
                         padding: EdgeInsets.zero,
-                        cacheExtent: 0,
+                        cacheExtent: items.isEmpty ? 15 : 0,
                         emptyItemBuilder: (BuildContext context, int index) {
                           final DateTime date =
                               controller.start.add(Duration(days: index));
@@ -334,11 +336,9 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
 
                           if (date.day == 1) {
                             if (index != emptyIndex) {
-                              log('both date are same');
                               emptyIndex = index;
                               return const SizedBox.shrink();
                             } else if (widget.emptyMonthBuilder != null) {
-                              log('both date are not same');
                               emptyIndex = index;
                               return widget.emptyMonthBuilder!(date);
                             }

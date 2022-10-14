@@ -9,7 +9,6 @@ import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/wi
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_calendar/generated/l10n.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 
@@ -164,7 +163,7 @@ class _SchedulePlannerState extends State<SchedulePlanner> {
               style: context.headline1.copyWith(color: textBlack),
             ),
             subtitle: Row(
-              children: [
+              children: <Widget>[
                 Text(DateFormat('d MMMM').format(dateTime),
                     style: context.headline1Fw500.copyWith(color: textGrey)),
                 const SizedBox(

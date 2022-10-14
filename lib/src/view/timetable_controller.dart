@@ -40,6 +40,9 @@ class TimetableController<T> {
     ///List of the events
     List<CalendarEvent<T>>? events,
 
+    ///pass false if you want strinct calendar between two dates
+    bool? infiniteScrolling,
+
     /// Controller event listener.
     Function(TimetableControllerEvent)? onEvent,
   }) {
@@ -54,7 +57,8 @@ class TimetableController<T> {
     _timelineWidth = timelineWidth ?? 50;
     _breakHeight = breakHeight ?? 35;
     _visibleDateStart = _start;
-    _events = events ??<CalendarEvent<T>> [];
+    _infiniteScrolling = infiniteScrolling ?? true;
+    _events = events ?? <CalendarEvent<T>>[];
     _viewType = viewType ?? CalendarViewType.scheduleView;
     if (onEvent != null) {
       addListener(onEvent);
@@ -64,6 +68,11 @@ class TimetableController<T> {
   late DateTime _start;
 
   late DateTime _end;
+  bool _infiniteScrolling = true;
+
+  ///return true if calendar is in infinite scrolling
+  ///
+  bool get infiniteScrolling => _infiniteScrolling;
 
   /// The [start] date (first column) of the timetable.
   DateTime get start => _start;
@@ -134,7 +143,8 @@ class TimetableController<T> {
   ///List of the events
   // ignore: always_specify_types
   late List<CalendarEvent<T>> _events;
-///list of the events
+
+  ///list of the events
   List<CalendarEvent<T>> get events => _events;
 
   /// Allows listening to events dispatched from the timetable
