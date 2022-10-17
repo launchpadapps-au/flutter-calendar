@@ -159,7 +159,7 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
     monthRange = getMonthRange(controller.start, controller.end);
     dateForHeader = dateRange[0].dateTime;
     setState(() {});
-    controller.jumpTo(DateTime.now());
+    controller.jumpTo(controller.start);
   }
 
   ///get data range

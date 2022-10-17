@@ -265,7 +265,12 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
     }
     if (event is TimetableDateChanged) {
       appLog('date changed');
-      initDate();
+      final int index = dateTime.difference(controller.start).inDays;
+      log('Initial Scroll index $index');
+      indexdController = IndexedScrollController(
+          initialIndex: controller.start.difference(dateTime).inDays);
+      setState(() {});
+      // initDate();
     }
     if (event is TimetableMaxColumnsChanged) {
       appLog('max column changed');
@@ -399,7 +404,7 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
               onNotification: (ScrollNotification notification) {
                 if (notification is ScrollEndNotification) {
                   log('snapping to closest');
-                  _snapToCloset(MediaQuery.of(context).size);
+                  _snapToCloset(size);
                 }
                 return true;
               },

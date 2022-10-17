@@ -327,16 +327,15 @@ bool isTimeIsEqualOrMore(DateTime first, DateTime seconds) {
   }
 }
 
-///return true if date is same
-bool isSameDate(DateTime date) {
-  final DateTime now = DateTime.now();
+///return true if date is same 
+bool isSameDate(DateTime date, {DateTime? ref}) {
+  final DateTime now = ref ?? DateTime.now();
   if (now.year == date.year && now.month == date.month && now.day == date.day) {
     return true;
   } else {
     return false;
   }
 }
-
 ///is available for the drag
 
 bool isSlotAvlForSingleDay(List<CalendarEvent<dynamic>> myEvents,

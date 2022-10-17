@@ -46,7 +46,7 @@ class ScheduleViewEventTile extends StatelessWidget {
                       ),
                       Flexible(
                         child: Text(
-                          item.eventData!.title,
+                          item.eventData!.title + item.eventData!.period.id,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                               height: 1.2,

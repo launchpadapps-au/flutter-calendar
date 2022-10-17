@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 
@@ -7,8 +8,8 @@ String getFormattedTime(Period period, BuildContext context) =>
     ' - ${period.endTime.format(context)}';
 
 ///return true if date is same
-bool isSameDate(DateTime date) {
-  final DateTime now = DateTime.now();
+bool isSameDate(DateTime date, {DateTime? ref}) {
+  final DateTime now = ref ?? DateTime.now();
   if (now.year == date.year && now.month == date.month && now.day == date.day) {
     return true;
   } else {
@@ -72,3 +73,4 @@ List<DateTime> getMonth() {
     DateTime(now.year, 12)
   ];
 }
+ 

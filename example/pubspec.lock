@@ -114,8 +114,8 @@ packages:
   flutter_calendar:
     dependency: "direct main"
     description:
-      path: "/Users/Jemis/Desktop/launchpadapps/flutter-calendar"
-      relative: false
+      path: ".."
+      relative: true
     source: path
     version: "0.0.1"
   flutter_lints:

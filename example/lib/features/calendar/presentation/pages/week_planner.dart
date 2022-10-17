@@ -1,4 +1,4 @@
-import 'dart:developer';
+   
 
 import 'package:edgar_planner_calendar_flutter/core/calendar_utils.dart';
 import 'package:edgar_planner_calendar_flutter/core/colors.dart';
@@ -17,7 +17,9 @@ class WeekPlanner<T> extends StatefulWidget {
     required this.timetableController,
     required this.customPeriods,
     required this.onEventDragged,
+    required this.onDateChanged,
     required this.onTap,
+    this.onEventToEventDragged,
     Key? key,
   }) : super(key: key);
 
@@ -35,6 +37,17 @@ class WeekPlanner<T> extends StatefulWidget {
   final Function(
           CalendarEvent<T> old, CalendarEvent<T> newEvent, Period? period)
       onEventDragged;
+
+  ///give new day when day is scrolled
+  final Function(DateTime dateTime) onDateChanged;
+
+  ///return existing ,old and new event when used drag and drop
+  ///the event on the existing event
+  final Function(
+      CalendarEvent<EventData> existing,
+      CalendarEvent<EventData> old,
+      CalendarEvent<EventData> newEvent,
+      Period? periodModel)? onEventToEventDragged;
 
   @override
   State<WeekPlanner<EventData>> createState() => _WeekPlannerState();
@@ -74,14 +87,23 @@ class _WeekPlannerState extends State<WeekPlanner<EventData>> {
                 CalendarEvent<EventData> newEvent, Period? period) {
               widget.onEventDragged(old, newEvent, period);
             },
-            onDateChanged: (DateTime dateTime) => log(dateTime.toString()),
             onTap: (DateTime date, Period period,
                 CalendarEvent<EventData>? event) {
               widget.onTap!(date, period, event);
             },
+            onDateChanged: widget.onDateChanged,
+            onEventToEventDragged: (CalendarEvent<EventData> existing,
+                CalendarEvent<EventData> old,
+                CalendarEvent<EventData> newEvent,
+                Period? periodModel) {
+              if (widget.onEventToEventDragged != null) {
+                widget.onEventToEventDragged!(
+                    existing, old, newEvent, periodModel);
+              }
+            },
             onWillAccept: (CalendarEvent<EventData>? event, Period period) =>
                 true,
-            nowIndicatorColor: Colors.red,
+            nowIndicatorColor: timeIndicatorColor,
             cornerBuilder: (DateTime current) => Container(
               color: white,
             ),
@@ -185,6 +207,13 @@ class _WeekPlannerState extends State<WeekPlanner<EventData>> {
                               style: isMobile
                                   ? context.hourLabelMobile
                                   : context.hourLabelTablet),
+                          // const SizedBox(
+                          //   height: 8,
+                          // ),
+                          // Text(period.id,
+                          //     style: isMobile
+                          //         ? context.hourLabelMobile
+                          //         : context.hourLabelTablet),
                         ],
                       ),
               );

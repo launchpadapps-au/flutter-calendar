@@ -1,4 +1,4 @@
- 
+import 'dart:developer';
 
 import 'package:edgar_planner_calendar_flutter/core/constants.dart';
 import 'package:edgar_planner_calendar_flutter/core/static.dart';
@@ -43,7 +43,20 @@ class _PlannerState extends State<Planner> {
       TimetableController<EventData>(
           start: startDate,
           end: endDate,
-          infiniteScrolling: false,
+          timelineWidth: 60,
+          breakHeight: 35,
+          cellHeight: 110);
+  TimetableController<EventData> monthController =
+      TimetableController<EventData>(
+          start: startDate,
+          end: endDate,
+          timelineWidth: 60,
+          breakHeight: 35,
+          cellHeight: 110);
+  TimetableController<EventData> termController =
+      TimetableController<EventData>(
+          start: startDate,
+          end: endDate,
           timelineWidth: 60,
           breakHeight: 35,
           cellHeight: 110);
@@ -60,6 +73,11 @@ class _PlannerState extends State<Planner> {
       ValueNotifier<DateTime>(dateForHeader);
   int index = 0;
   bool showAppbar = true;
+
+  void onDateChange(DateTime dateTime) {
+    BlocProvider.of<TimeTableCubit>(context).setDate(dateTime);
+  }
+
   @override
   void initState() {
     periods = customStaticPeriods;
@@ -69,18 +87,35 @@ class _PlannerState extends State<Planner> {
         .listen((TimeTableState event) {
       if (event is DateUpdated) {
         debugPrint('Date is updating in calendar');
-        timeTableController.changeDate(event.startDate, event.endDate);
+        dateForHeader = event.startDate;
+        timeTableController
+          ..changeDate(event.startDate, event.endDate)
+          ..jumpTo(dateForHeader);
       } else if (event is ViewUpdated) {
         debugPrint('view updated in calendar');
+
+        timeTableController.jumpTo(dateForHeader);
+
         viewTypeNotifer.value = event.viewType;
       } else if (event is JumpToDateState) {
         debugPrint('jumping to date in calendar');
-        timeTableController.jumpTo(event.dateTime);
+        final bool isToday = isSameDate(event.dateTime);
+        if (isToday) {
+          if (viewTypeNotifer.value == CalendarViewType.monthView ||
+              viewTypeNotifer.value == CalendarViewType.termView) {
+            viewTypeNotifer.value = CalendarViewType.weekView;
+            dateForHeader = event.dateTime;
+            BlocProvider.of<TimeTableCubit>(context)
+                .changeViewType(CalendarViewType.weekView);
+          }
+        } else {}
       } else if (event is LoadedState) {
         debugPrint('Setting event in calendar');
 
         if (event.events.isNotEmpty) {
           timeTableController.addEvent(event.events, replace: true);
+          monthController.addEvent(event.events, replace: true);
+          termController.addEvent(event.events, replace: true);
         }
       } else if (event is EventUpdatedState) {
         debugPrint('updating events in calendar');
@@ -88,6 +123,8 @@ class _PlannerState extends State<Planner> {
       } else if (event is EventsAdded) {
         debugPrint('adding events in calendar');
         timeTableController.addEvent(event.events, replace: true);
+        monthController.addEvent(event.events, replace: true);
+        termController.addEvent(event.events, replace: true);
       } else if (event is PeriodsUpdated) {
         periods = event.periods;
         setState(() {
@@ -95,7 +132,15 @@ class _PlannerState extends State<Planner> {
         });
       } else if (event is DeletedEvents) {
         timeTableController.removeEvent(event.deletedEvents);
+        monthController.removeEvent(event.deletedEvents);
+        termController.removeEvent(event.deletedEvents);
         debugPrint('removing events from calendar');
+      } else if (event is TermsUpdated) {
+      } else if (event is MonthUpdated) {
+        dateForHeader = event.startDate;
+        monthController.changeDate(event.startDate, event.endDate);
+        timeTableController.jumpTo(event.startDate);
+        headerDateNotifier.value = dateForHeader;
       }
     });
     super.initState();
@@ -104,7 +149,7 @@ class _PlannerState extends State<Planner> {
   List<Period> periods = <PeriodModel>[];
 
   ValueNotifier<CalendarViewType> viewTypeNotifer =
-      ValueNotifier<CalendarViewType>(CalendarViewType.scheduleView);
+      ValueNotifier<CalendarViewType>(CalendarViewType.weekView);
 
   bool sendJsonEcnoded = false;
   @override
@@ -123,7 +168,7 @@ class _PlannerState extends State<Planner> {
                             GestureDetector(
                               onTap: () {},
                               child: Text(
-                                timeTableController.events.length.toString(),
+                                dateForHeader.toString().substring(0, 10),
                                 style: context.termPlannerTitle,
                               ),
                             )),
@@ -133,10 +178,7 @@ class _PlannerState extends State<Planner> {
                     color: Colors.black,
                   ),
                   onPressed: () {
-                    final DateTime now = DateTime.now();
-
-                    timeTableController.jumpTo(DateTime(
-                        now.year, now.month, now.day, now.hour, now.minute));
+                    scaffoldKey.currentState!.openEndDrawer();
                   },
                 ),
                 actions: <Widget>[
@@ -146,18 +188,6 @@ class _PlannerState extends State<Planner> {
                       color: Colors.black,
                     ),
                     onPressed: () async {},
-                  ),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.update,
-                      color: Colors.black,
-                    ),
-                    onPressed: () async {
-                      // final PlannerEvent oldEvent = dummyEventData.first;
-                      // final PlannerEvent newEvent = oldEvent;
-                      // newEvent.eventData!.color = Colors.red;
-                      // timeTableController.updateEvent(oldEvent, newEvent);
-                    },
                   ),
                   IconButton(
                     icon: const Icon(
@@ -188,8 +218,7 @@ class _PlannerState extends State<Planner> {
                       color: Colors.black,
                     ),
                     onPressed: () {
-                      scaffoldKey.currentState!.openEndDrawer();
-                      return;
+                      timeTableController.jumpTo(DateTime.now());
                     },
                   ),
                 ],
@@ -232,12 +261,32 @@ class _PlannerState extends State<Planner> {
                                   DayPlanner(
                                     customPeriods: periods,
                                     timetableController: timeTableController,
+                                    onDateChanged: (DateTime dateTime) {
+                                      dateForHeader = dateTime;
+                                      headerDateNotifier.value = dateForHeader;
+                                      onDateChange(dateTime);
+                                    },
                                     onEventDragged:
                                         (CalendarEvent<EventData> old,
                                             CalendarEvent<EventData> newEvent,
                                             Period? period) {
                                       BlocProvider.of<TimeTableCubit>(context)
-                                          .updateEvent(old, newEvent, period);
+                                          .onEventDragged(
+                                              old, newEvent, period);
+                                    },
+                                    onEventToEventDragged:
+                                        (CalendarEvent<EventData> existing,
+                                            CalendarEvent<EventData> old,
+                                            CalendarEvent<EventData> newEvent,
+                                            Period? periodModel) {
+                                      final Period period =
+                                          existing.eventData!.period;
+                                      final CalendarEvent<EventData>
+                                          eventToUpdate = newEvent
+                                            ..eventData!.period;
+                                      BlocProvider.of<TimeTableCubit>(context)
+                                          .onEventDragged(
+                                              old, eventToUpdate, period);
                                     },
                                     onTap: (DateTime dateTime, Period? period,
                                         CalendarEvent<EventData>? event) {
@@ -263,6 +312,11 @@ class _PlannerState extends State<Planner> {
                                   WeekPlanner<EventData>(
                                     customPeriods: periods,
                                     timetableController: timeTableController,
+                                    onDateChanged: (DateTime dateTime) {
+                                      dateForHeader = dateTime;
+                                      headerDateNotifier.value = dateForHeader;
+                                      onDateChange(dateTime);
+                                    },
                                     onTap: (DateTime dateTime, Period? period,
                                         CalendarEvent<EventData>? event) {
                                       final TimeTableCubit cubit =
@@ -287,14 +341,44 @@ class _PlannerState extends State<Planner> {
                                         (CalendarEvent<EventData> old,
                                             CalendarEvent<EventData> newEvent,
                                             Period? period) {
+                                      log(old.toMap.toString());
+                                      log(newEvent.toMap.toString());
+
                                       BlocProvider.of<TimeTableCubit>(context)
-                                          .updateEvent(old, newEvent, period);
+                                          .onEventDragged(
+                                              old, newEvent, period);
+                                    },
+                                    onEventToEventDragged:
+                                        (CalendarEvent<EventData> existing,
+                                            CalendarEvent<EventData> old,
+                                            CalendarEvent<EventData> newEvent,
+                                            Period? periodModel) {
+                                      final Period period =
+                                          existing.eventData!.period;
+                                      final CalendarEvent<EventData>
+                                          eventToUpdate = newEvent
+                                            ..eventData!.period;
+                                      BlocProvider.of<TimeTableCubit>(context)
+                                          .onEventDragged(
+                                              old, eventToUpdate, period);
                                     },
                                   ),
-                                  SchedulePlanner(
+                                  SchedulePlanner<EventData>(
                                     customPeriods: periods,
                                     timetableController: timeTableController,
                                     isMobile: isMobile,
+                                    onDateChanged: (DateTime dateTime) {
+                                      dateForHeader = dateTime;
+                                      headerDateNotifier.value = dateForHeader;
+                                      onDateChange(dateTime);
+                                    },
+                                    onEventDragged:
+                                        (CalendarEvent<EventData> old,
+                                            CalendarEvent<EventData> newEvent) {
+                                      BlocProvider.of<TimeTableCubit>(context)
+                                          .onEventDragged(old, newEvent,
+                                              old.eventData!.period);
+                                    },
                                     onTap: (DateTime dateTime,
                                         Period? period,
                                         List<CalendarEvent<EventData>>?
@@ -318,9 +402,23 @@ class _PlannerState extends State<Planner> {
                                         //         cubit.viewType);
                                       }
                                     },
+                                    onEventToEventDragged:
+                                        (CalendarEvent<EventData> existing,
+                                            CalendarEvent<EventData> old,
+                                            CalendarEvent<EventData> newEvent,
+                                            Period? periodModel) {
+                                      final Period period =
+                                          existing.eventData!.period;
+                                      final CalendarEvent<EventData>
+                                          eventToUpdate = newEvent
+                                            ..eventData!.period;
+                                      BlocProvider.of<TimeTableCubit>(context)
+                                          .onEventDragged(
+                                              old, eventToUpdate, period);
+                                    },
                                   ),
                                   MonthPlanner(
-                                    timetableController: timeTableController,
+                                    timetableController: monthController,
                                     onMonthChanged: (Month month) {
                                       setState(() {
                                         dateTime = DateTime(
@@ -345,7 +443,7 @@ class _PlannerState extends State<Planner> {
                                     },
                                   ),
                                   TermPlanner(
-                                    timetableController: timeTableController,
+                                    timetableController: termController,
                                     onMonthChanged: (Month month) {
                                       setState(() {
                                         dateTime = DateTime(

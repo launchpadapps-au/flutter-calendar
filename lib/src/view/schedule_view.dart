@@ -257,7 +257,13 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
     }
     if (event is TimetableDateChanged) {
       appLog('date changed');
-      initDate();
+      appLog('date changed');
+      final int index = dateTime.difference(controller.start).inDays;
+      log('Initial Scroll index $index');
+      indexdController = IndexedScrollController(
+          initialIndex: controller.start.difference(dateTime).inDays);
+      setState(() {});
+      // initDate();
     }
     if (event is AddEventToTable<T>) {
       List<CalendarEvent<T>> myevents = items;
@@ -384,19 +390,14 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
                                 )
                               : ListTile(
                                   key: Key(date.toString().substring(0, 10)),
-                                  onTap: () {
-                                    if (widget.onTap != null) {
-                                      widget.onTap!(
-                                          date, events.isEmpty ? null : events);
-                                    }
-                                  },
                                   leading: widget.headerCellBuilder!(date),
                                   title: events.isEmpty
                                       ? DragTarget<CalendarEvent<T>>(
                                           onWillAccept: (CalendarEvent<T>? data) =>
                                               widget.onWillAccept(data),
-                                          onAcceptWithDetails: (DragTargetDetails<CalendarEvent<T>>
-                                              details) {
+                                          onAcceptWithDetails:
+                                              (DragTargetDetails<CalendarEvent<T>>
+                                                  details) {
                                             final CalendarEvent<T> event =
                                                 details.data;
                                             final DateTime newStartTime =
@@ -434,7 +435,8 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
                                                   onWillAccept: (CalendarEvent<T>? data) =>
                                                       widget.onWillAccept(data),
                                                   onAcceptWithDetails:
-                                                      (DragTargetDetails<CalendarEvent<T>>
+                                                      (DragTargetDetails<
+                                                              CalendarEvent<T>>
                                                           details) {
                                                     final CalendarEvent<T>
                                                         event = details.data;
@@ -471,20 +473,25 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
                                                         newEvent,
                                                         null);
                                                   },
-                                                  builder: (BuildContext content,
-                                                          List<Object?> obj,
-                                                          List<dynamic> data) =>
-                                                      Draggable<CalendarEvent<T>>(
-                                                          ignoringFeedbackSemantics: false,
-                                                          data: e,
-                                                          maxSimultaneousDrags: widget.isCellDraggable == null
+                                                  builder: (BuildContext content, List<Object?> obj, List<dynamic> data) => Draggable<CalendarEvent<T>>(
+                                                      ignoringFeedbackSemantics: false,
+                                                      data: e,
+                                                      maxSimultaneousDrags: widget.isCellDraggable == null
+                                                          ? 1
+                                                          : widget.isCellDraggable!(e)
                                                               ? 1
-                                                              : widget.isCellDraggable!(e)
-                                                                  ? 1
-                                                                  : 0,
-                                                          childWhenDragging: widget.cellBuilder(date),
-                                                          feedback: Material(child: widget.itemBuilder!(e)),
-                                                          child: widget.itemBuilder!(e))))
+                                                              : 0,
+                                                      childWhenDragging: widget.cellBuilder(date),
+                                                      feedback: Material(child: widget.itemBuilder!(e)),
+                                                      child: GestureDetector(
+                                                          onTap: () {
+                                                            if (widget.onTap !=
+                                                                null) {
+                                                              widget.onTap!(
+                                                                  date, [e]);
+                                                            }
+                                                          },
+                                                          child: widget.itemBuilder!(e)))))
                                               .toList()),
                                 );
                         })),

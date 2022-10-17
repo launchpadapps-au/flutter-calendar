@@ -66,6 +66,11 @@ class EventTile extends StatelessWidget {
                       style: context.subtitle,
                     ),
                   ),
+            // Text(
+            //   item.eventData!.period.id,
+            //   overflow: TextOverflow.ellipsis,
+            //   style: context.subtitle,
+            // ),
             item.eventData!.freeTime || item.eventData!.isDutyTime
                 ? const SizedBox.shrink()
                 : const Spacer(),
@@ -85,29 +90,6 @@ class EventTile extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: context.subtitle,
                     ))
-
-            // item.eventData!.freeTime
-            //     ? const SizedBox.shrink()
-            //     : item.eventData!.documents.isNotEmpty
-            //         ? Wrap(
-            //             runSpacing: 8,
-            //             spacing: 8,
-            //             children: <String>[
-            //               item.eventData!.documents.first.documentName
-            //             ]
-            //                 .map((String e) => Container(
-            //                     width: MediaQuery.of(context).size.width,
-            //                     padding: const EdgeInsets.symmetric(
-            //                         horizontal: 4, vertical: 2),
-            //                     decoration: BoxDecoration(
-            //                         color: Colors.white,
-            //                         borderRadius: BorderRadius.circular(20)),
-            //                     child: Text(
-            //                       e,
-            //                       style: context.subtitle,
-            //                     )))
-            //                 .toList())
-            //         : const SizedBox.shrink(),
           ],
         ),
       );

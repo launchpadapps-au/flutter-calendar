@@ -1,10 +1,8 @@
-import 'dart:developer';
-
 import 'package:edgar_planner_calendar_flutter/core/calendar_utils.dart';
 import 'package:edgar_planner_calendar_flutter/core/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/constants.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart'; 
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/cell_border.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/single_day_event_tile.dart';
@@ -22,7 +20,8 @@ class DayPlanner extends StatefulWidget {
       required this.customPeriods,
       required this.onTap,
       required this.onEventDragged,
-      this.onDateChanged,
+      required this.onDateChanged,
+      this.onEventToEventDragged,
       Key? key,
       this.id})
       : super(key: key);
@@ -41,10 +40,19 @@ class DayPlanner extends StatefulWidget {
 
   ///return new and okd event
   final Function(CalendarEvent<EventData> old,
-      CalendarEvent<EventData> newEvent, Period? periodModel)? onEventDragged;
+      CalendarEvent<EventData> newEvent, Period periodModel)? onEventDragged;
+
+  ///return existing ,old and new event when used drag and drop
+  ///the event on the existing event
+  final Function(
+      CalendarEvent<EventData> existing,
+      CalendarEvent<EventData> old,
+      CalendarEvent<EventData> newEvent,
+      Period? periodModel)? onEventToEventDragged;
 
   ///give new day when day is scrolled
-  final Function(DateTime dateTime)? onDateChanged;
+  final Function(DateTime dateTime) onDateChanged;
+
   @override
   State<DayPlanner> createState() => _DayPlannerState();
 }
@@ -82,11 +90,20 @@ class _DayPlannerState extends State<DayPlanner> {
                 onImageCapture: (Uint8List data) {},
                 backgroundColor: white,
                 timelines: widget.customPeriods,
-                onDateChanged: (DateTime dateTime) => log(dateTime.toString()),
+                onDateChanged: widget.onDateChanged,
                 onEventDragged: (CalendarEvent<EventData> old,
                     CalendarEvent<EventData> newEvent, Period? period) {
                   if (widget.onEventDragged != null) {
-                    widget.onEventDragged!(old, newEvent, period);
+                    widget.onEventDragged!(old, newEvent, period!);
+                  }
+                },
+                onEventToEventDragged: (CalendarEvent<EventData> existing,
+                    CalendarEvent<EventData> old,
+                    CalendarEvent<EventData> newEvent,
+                    Period? periodModel) {
+                  if (widget.onEventToEventDragged != null) {
+                    widget.onEventToEventDragged!(
+                        existing, old, newEvent, periodModel);
                   }
                 },
                 onWillAccept: (CalendarEvent<EventData>? event, DateTime date,
@@ -146,7 +163,10 @@ class _DayPlannerState extends State<DayPlanner> {
                           ),
                         ],
                       )
-                    : Column(
+                    : const SizedBox.shrink(),
+                headerTitleBuilder: (DateTime date) => isMobile
+                    ? const SizedBox.shrink()
+                    : Row(
                         children: <Widget>[
                           Expanded(
                             child: Container(
@@ -160,8 +180,9 @@ class _DayPlannerState extends State<DayPlanner> {
                                   child: Row(
                                     children: <Widget>[
                                       SizedBox(
-                                        width: widget
-                                            .timetableController.timelineWidth,
+                                        width: widget.timetableController
+                                                .timelineWidth /
+                                            4,
                                       ),
                                       Text(
                                         DateFormat('EEEE')
@@ -224,6 +245,13 @@ class _DayPlannerState extends State<DayPlanner> {
                                   style: isMobile
                                       ? context.hourLabelMobile
                                       : context.hourLabelTablet),
+                              // const SizedBox(
+                              //   height: 8,
+                              // ),
+                              // Text(period.id,
+                              //     style: isMobile
+                              //         ? context.hourLabelMobile
+                              //         : context.hourLabelTablet),
                             ],
                           ),
                   );

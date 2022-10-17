@@ -103,10 +103,14 @@ class Terms {
 ///Term class
 class Term {
   ///initilized term
-  Term({required this.startDate, required this.endDate});
+  Term({
+    required this.startDate,
+    required this.endDate,
+    this.type,
+  });
 
   ///create term object from the String data
-  factory Term.fromString(String data) {
+  factory Term.fromString(String data, {int? year,String ?type}) {
     final DateTime now = DateTime.now();
     final List<String> objects = data.split('|').toList();
     final String first = objects.first;
@@ -119,13 +123,24 @@ class Term {
     final int endDate = int.parse(enddateObject.first);
 
     return Term(
-        startDate: DateTime(now.year, startMonth, startDate),
-        endDate: DateTime(now.year, endMonth, endDate));
+        type:type?? data,
+        startDate: DateTime(year ?? now.year, startMonth, startDate),
+        endDate: DateTime(year ?? now.year, endMonth, endDate));
   }
 
   ///start date of the term
   DateTime startDate;
 
+///type of the term
+  String? type = '';
+
   ///end date of the term
   DateTime endDate;
+
+  @override
+  String toString() => <String, String>{
+      'startDate': startDate.toString(),
+      'endDate': endDate.toString(),
+      'type': type ?? ''
+    }.toString();
 }

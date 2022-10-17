@@ -9,7 +9,7 @@ import 'package:edgar_planner_calendar_flutter/core/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/date_extension.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_calendar/flutter_calendar.dart'; 
+import 'package:flutter_calendar/flutter_calendar.dart';
 // ///get events from json encoded string
 // GetEvents getEventsFromJson(String str) =>
 // GetEvents.fromJson(json.decode(str));
@@ -93,7 +93,7 @@ class PlannerEvent implements CalendarEvent<EventData> {
 
     final TimeOfDay startTime = getFromString(json['start_time']);
 
-    final TimeOfDay endTime =getFromString(json['end_time']);
+    final TimeOfDay endTime = getFromString(json['end_time']);
 
     return PlannerEvent(
       id: json['id'].toString(),
@@ -182,6 +182,7 @@ class EventData {
     this.eventLinks,
   }) {
     if (type == 'freetime') {
+      title = 'Free Time';
       freeTime = true;
       isDutyTime = false;
       color = const Color(0xFFCBCE42).withOpacity(0.58);
@@ -190,6 +191,7 @@ class EventData {
       isDutyTime = true;
       freeTime = false;
     } else if (type == 'lesson') {
+ 
       if (subject != null) {
         color = subject!.colorCode;
       }
@@ -224,25 +226,26 @@ class EventData {
   ///create object from the json
   factory EventData.fromJsonWithPeriod(
       Map<String, dynamic> json, List<PeriodModel> periods) {
-    PeriodModel? periodModel;
+    late PeriodModel periodModel;
     try {
       final Iterable<PeriodModel> ps = periods.where((PeriodModel element) =>
-          element.id.toString() == json['id'].toString());
+          element.id.toString() == json['slots'].toString());
       if (ps.isNotEmpty) {
         periodModel = ps.first;
       }
     } on Exception catch (e) {
       log('Error: $e');
+      final Map<String, dynamic> data = <String, dynamic>{
+        'id': 62,
+        'calendar_id': 32,
+        'user_id': '92673d4e-c2f3-48d8-9da6-5c452f40b3fa',
+        'slot_name': 'period_6',
+        'type': 'period',
+        'start_time': json['start_time'],
+        'end_time': json['end_time']
+      };
+      PeriodModel.fromJson(data);
     }
-    final Map<String, dynamic> data = <String, dynamic>{
-      'id': 62,
-      'calendar_id': 32,
-      'user_id': '92673d4e-c2f3-48d8-9da6-5c452f40b3fa',
-      'slot_name': 'period_6',
-      'type': 'period',
-      'start_time': json['start_time'],
-      'end_time': json['end_time']
-    };
 
     return EventData(
       id: json['id'].toString(),
@@ -257,7 +260,7 @@ class EventData {
       remindBefore: json['remind_before'],
       reminderEnabled: json['reminder_enabled'],
       slots: json['slots'].toString(),
-      period: periodModel ?? PeriodModel.fromJson(data),
+      period: periodModel,
       recurrenceUntil: json['recurrence_until'],
       recurringEventId: json['recurring_event_id'],
       recurrenceFreq: json['recurrence_freq'],

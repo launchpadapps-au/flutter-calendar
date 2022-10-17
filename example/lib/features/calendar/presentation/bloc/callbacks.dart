@@ -4,7 +4,8 @@ import 'dart:developer';
 
 import 'package:edgar_planner_calendar_flutter/core/calendar_utils.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/date_change_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart'; 
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/term_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/method_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -91,26 +92,28 @@ class NativeCallBack {
       CalendarEvent<EventData> newEvent,
       CalendarViewType viewType,
       Period? periodModel) async {
+    Period? period = periodModel;
+    period ??= newEvent.eventData!.period;
+    log(periodModel.toString());
+    final int id = int.parse(period.id.toString());
+    final int eventId = int.parse(newEvent.eventData!.id);
     final Map<String, dynamic> data = <String, dynamic>{
-      // "calendar_id": {{calendar_id}},
-      'slots': 92,
-      'start_date': '2022-10-26',
-      'end_date': '2022-10-26',
-      'start_time': '09:00:00',
-      'end_time': '09:45:00'
-    };
-
-    // data['start_date']=newEvent.startDate
-    // final Map<String, dynamic> data = <String, dynamic>{
-    //   'event': old.toJson(),
-    //   'eventId': old.id.toString(),
-    //   'viewType': viewType.toString(),
-    // };
-
-    if (periodModel != null) {
-      data.putIfAbsent('slotId', () => periodModel.id);
-    }
+      'start_date': newEvent.startTime.toString().substring(0, 10),
+      'end_date': newEvent.startTime.toString().substring(0, 10),
+      'start_time': newEvent.startTime.toString().substring(11, 19),
+      'end_time': newEvent.endTime.toString().substring(11, 19),
+      'eventId': eventId
+    }..putIfAbsent('slotId', () => id);
+    debugPrint('Data: $data');
     await sendToNativeApp(SendMethods.eventDragged, data);
+    return true;
+  }
+
+  ///send visible date changed to native app
+  Future<bool> sendVisibleDateChnged(DateTime dateTime) async {
+    log(dateTime.toString().substring(0, 10));
+    await sendToNativeApp(SendMethods.visibleDateChanged,
+        <String, String>{'date': dateTime.toString().substring(0, 10)});
     return true;
   }
 
@@ -119,11 +122,12 @@ class NativeCallBack {
       List<CalendarEvent<EventData>> events, CalendarViewType viewType) async {
     if (events.length == 1) {
       if (isOnTapEnable(events.first)) {
+        final int eventID = int.parse(events.first.eventData!.id.toString());
         final Map<String, dynamic> data = <String, dynamic>{
           'viewType': viewType.toString(),
           'date': dateTime.toString().substring(0, 10),
           'events': events.toString(),
-          'eventId': events.first.eventData!.id.toString(),
+          'eventId': eventID,
           'eventIds': List<String>.from(events.map<String>(
               (CalendarEvent<EventData> e) => e.eventData!.id.toString()))
         };
@@ -143,6 +147,17 @@ class NativeCallBack {
       await sendToNativeApp(SendMethods.showEvent, data);
     }
 
+    return true;
+  }
+
+  ///ask native app to fetch more data between speceffic date
+
+  Future<bool> sendFetchDataToNativeApp(Term term) async {
+    final Map<String, String> data = <String, String>{
+      'startDate': term.startDate.toString().substring(0, 10),
+      'endDate': term.endDate.toString().substring(0, 10)
+    };
+    await sendToNativeApp(SendMethods.fetchData, data);
     return true;
   }
 

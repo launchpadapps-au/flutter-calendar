@@ -47,7 +47,7 @@ dependencies:
       url: https://github.com/SachinGanesh/screenshot
   flutter_calendar:
   # local path only for the development,replace it with pub.dev or github
-    path: /Users/Jemis/Desktop/launchpadapps/flutter-calendar
+    path: ../
 
     # git:
     #   url: https://github.com/launchpadapps-au/flutter-calendar

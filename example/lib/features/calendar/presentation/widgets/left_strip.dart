@@ -25,25 +25,25 @@ class LeftStrip extends StatelessWidget {
         child: BlocConsumer<TimeTableCubit, TimeTableState>(
           listener: (BuildContext context, TimeTableState state) {},
           builder: (BuildContext context, TimeTableState state) {
-            final int currentMonth =
-                BlocProvider.of<TimeTableCubit>(context).startDate.month;
+            final int month =
+                BlocProvider.of<TimeTableCubit>(context).date.month;
+            final int year = BlocProvider.of<TimeTableCubit>(context).date.year;
             return Column(
               children: getMonth()
                   .map((DateTime e) => Expanded(
                         child: GestureDetector(
                           onTap: () {
-                            final DateTime firstDate =
-                                DateTime(e.year, e.month);
+                            final DateTime firstDate = DateTime(year, e.month);
                             final DateTime lastDate =
-                                DateTime(e.year, e.month + 1)
+                                DateTime(year, e.month + 1)
                                     .subtract(const Duration(days: 1));
 
                             BlocProvider.of<TimeTableCubit>(context)
-                                .changeDate(firstDate, lastDate);
+                                .setMonth(firstDate, lastDate);
                           },
                           child: Container(
                             decoration: BoxDecoration(
-                                color: e.month == currentMonth
+                                color: e.month == month
                                     ? grey
                                     : Colors.transparent,
                                 border: Border.all(color: lightGrey),
@@ -56,7 +56,7 @@ class LeftStrip extends StatelessWidget {
                                     child: Text(
                                   DateFormat('MMM').format(e),
                                   style: context.stripsTheme.copyWith(
-                                      color: e.month == currentMonth
+                                      color: e.month == month
                                           ? Colors.black
                                           : null),
                                 ))),

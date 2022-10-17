@@ -1,24 +1,23 @@
-import 'dart:developer';
-
 import 'package:edgar_planner_calendar_flutter/core/calendar_utils.dart';
 import 'package:edgar_planner_calendar_flutter/core/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/schedule_view_event_tile.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 
 ///planner
-class SchedulePlanner extends StatefulWidget {
+class SchedulePlanner<T> extends StatefulWidget {
   /// initialize schedule planner
   const SchedulePlanner({
     required this.timetableController,
     required this.customPeriods,
     required this.onTap,
+    required this.onDateChanged,
+    this.onEventDragged,
+    this.onEventToEventDragged,
     Key? key,
     this.id,
     this.isMobile = true,
@@ -31,6 +30,21 @@ class SchedulePlanner extends StatefulWidget {
   final Function(
       DateTime dateTime, Period?, List<CalendarEvent<EventData>>? events) onTap;
 
+  ///return new and okd event
+  final Function(CalendarEvent<T> old, CalendarEvent<T> newEvent)?
+      onEventDragged;
+
+  ///return existing ,old and new event when used drag and drop
+  ///the event on the existing event
+  final Function(
+      CalendarEvent<EventData> existing,
+      CalendarEvent<EventData> old,
+      CalendarEvent<EventData> newEvent,
+      Period? periodModel)? onEventToEventDragged;
+
+  ///give new day when day is scrolled
+  final Function(DateTime dateTime) onDateChanged;
+
   ///id that we will received from native ios
   final String? id;
 
@@ -41,10 +55,10 @@ class SchedulePlanner extends StatefulWidget {
   final TimetableController<EventData> timetableController;
 
   @override
-  State<SchedulePlanner> createState() => _SchedulePlannerState();
+  State<SchedulePlanner<EventData>> createState() => _SchedulePlannerState();
 }
 
-class _SchedulePlannerState extends State<SchedulePlanner> {
+class _SchedulePlannerState extends State<SchedulePlanner<EventData>> {
   static DateTime dateTime = DateTime.now();
 
   @override
@@ -71,21 +85,25 @@ class _SchedulePlannerState extends State<SchedulePlanner> {
         backgroundColor: white,
         timelines: widget.customPeriods,
         cellHeight: cellHeight,
-        onEventDragged:
-            (CalendarEvent<EventData> old, CalendarEvent<EventData> newEvent) {
-          BlocProvider.of<TimeTableCubit>(context)
-              .updateEvent(old, newEvent, null);
-        },
+        onDateChanged: widget.onDateChanged,
+        onEventDragged: widget.onEventDragged,
         onWillAccept: (CalendarEvent<EventData>? event) => true,
-        nowIndicatorColor: Colors.red,
+        nowIndicatorColor: timeIndicatorColor,
         fullWeek: true,
-        onDateChanged: (DateTime dateTime) => log(dateTime.toString()),
         cornerBuilder: (DateTime current) => const SizedBox.shrink(),
         onTap: (DateTime dateTime, List<CalendarEvent<EventData>>? p1) {
           if (p1 == null) {
             widget.onTap(dateTime, null, null);
           } else {
             widget.onTap(dateTime, null, p1);
+          }
+        },
+        onEventToEventDragged: (CalendarEvent<EventData> existing,
+            CalendarEvent<EventData> old,
+            CalendarEvent<EventData> newEvent,
+            Period? periodModel) {
+          if (widget.onEventToEventDragged != null) {
+            widget.onEventToEventDragged!(existing, old, newEvent, periodModel);
           }
         },
         headerHeight: widget.isMobile ? 38 : 40,
@@ -98,8 +116,9 @@ class _SchedulePlannerState extends State<SchedulePlanner> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(
-                DateFormat('E').format(date),
-                style: context.subtitle,
+                DateFormat('E').format(date).toUpperCase(),
+                style: context.subtitle
+                    .copyWith(color: isSameDate(date) ? primaryPink : null),
               ),
               Container(
                   width: 24,
@@ -144,13 +163,6 @@ class _SchedulePlannerState extends State<SchedulePlanner> {
                   ),
           );
         },
-        isCellDraggable: (CalendarEvent<EventData> event) =>
-            isCelldraggable(event),
-        controller: widget.timetableController,
-        itemBuilder: (CalendarEvent<EventData> item) => ScheduleViewEventTile(
-          item: item,
-          cellHeight: cellHeight,
-        ),
         emptyMonthBuilder: (DateTime dateTime) {
           final DateTime end = DateTime(dateTime.year, dateTime.month + 1)
               .subtract(const Duration(days: 1));
@@ -169,7 +181,7 @@ class _SchedulePlannerState extends State<SchedulePlanner> {
                 const SizedBox(
                   width: 8,
                 ),
-                Text(DateFormat('d MMMM').format(end),
+                Text(DateFormat(' - d MMMM').format(end),
                     style: context.headline1Fw500.copyWith(color: textGrey)),
               ],
             ),
@@ -178,6 +190,13 @@ class _SchedulePlannerState extends State<SchedulePlanner> {
         emptyTodayTitle: (DateTime date) => Text('Nothing Planned for today',
             style: context.headline1Fw500.copyWith(
                 color: textGrey, fontSize: 14, fontWeight: FontWeight.w700)),
+        isCellDraggable: (CalendarEvent<EventData> event) =>
+            isCelldraggable(event),
+        controller: widget.timetableController,
+        itemBuilder: (CalendarEvent<EventData> item) => ScheduleViewEventTile(
+          item: item,
+          cellHeight: cellHeight,
+        ),
         cellBuilder: (DateTime period) => Container(
           height: cellHeight,
           decoration: BoxDecoration(

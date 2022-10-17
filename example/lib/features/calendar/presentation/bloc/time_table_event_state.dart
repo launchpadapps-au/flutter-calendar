@@ -18,6 +18,18 @@ class LoadingState extends TimeTableState {
   List<Object> get props => <Object>[];
 }
 
+///loading state
+class CurrrentDateUpdated extends TimeTableState {
+  ///intialize
+  CurrrentDateUpdated({required this.currentDate});
+
+  ///date time
+  final DateTime currentDate;
+
+  @override
+  List<Object> get props => <Object>[currentDate];
+}
+
 /// jumto date state
 class JumpToDateState extends TimeTableState {
   ///initilize the state
@@ -211,6 +223,40 @@ class TermsUpdated implements TimeTableState {
 
   @override
   List<Object> get props => <Object>[periods, viewType, events, termModel];
+
+  @override
+  bool? get stringify => false;
+}
+
+///MonthUpdated event state
+class MonthUpdated implements TimeTableState {
+  ///initialize start
+  MonthUpdated(this.periods, this.events, this.viewType, this.termModel,
+      this.startDate, this.endDate);
+
+  ///list of events
+  final List<PlannerEvent> events;
+
+  /// view type of the calendar
+  final CalendarViewType viewType;
+
+  ///list of the period
+
+  final List<Period> periods;
+
+  ///terms model
+
+  final TermModel termModel;
+
+  ///startDate
+  final DateTime startDate;
+
+  ///end date
+  final DateTime endDate;
+
+  @override
+  List<Object> get props =>
+      <Object>[periods, viewType, events, termModel, startDate, endDate];
 
   @override
   bool? get stringify => false;

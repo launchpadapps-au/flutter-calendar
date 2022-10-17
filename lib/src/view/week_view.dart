@@ -270,7 +270,13 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
     }
     if (event is TimetableDateChanged) {
       appLog('date changed');
-      initDate();
+      appLog('date changed');
+      final int index = dateTime.difference(controller.start).inDays;
+      log('Initial Scroll index $index');
+      indexdController = IndexedScrollController(
+          initialIndex: controller.start.difference(dateTime).inDays);
+      setState(() {});
+      // initDate();
     }
     if (event is TimetableMaxColumnsChanged) {
       appLog('max column changed');
@@ -775,7 +781,6 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
           ),
         );
       });
-  final Duration _animationDuration = const Duration(milliseconds: 300);
   final Curve _animationCurve = Curves.linear;
 
   bool _isSnapping = false;

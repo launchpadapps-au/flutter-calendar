@@ -52,6 +52,10 @@ class SendMethods {
 
   static const String showEvent = 'showEvent';
 
+
+  /// showEvent method called when user tan on cell which have events
+
+  static const String visibleDateChanged = 'visibleDateChanged';
   ///dateChanged method called when user ch tap on the side strips
 
   static const String dateChanged = 'dateChanged';
@@ -68,4 +72,9 @@ class SendMethods {
   /// the right side strip on tablet view
 
   static const String showRecord = 'showRecord';
+
+
+  ///this is newaly generated method for fetching data termwise
+  ///specificaly used for edgar planner project
+  static const String fetchData='fetchData';
 }
