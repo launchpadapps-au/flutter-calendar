@@ -5,7 +5,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 /// Indexed List View
-///
 /// ListView that lets you jump instantly to any index.
 /// Only works for lists with infinite extent.
 class IndexedListView extends StatefulWidget {
@@ -299,9 +298,12 @@ class _AlwaysScrollableScrollPhysics extends ScrollPhysics {
 
 // -------------------------------------------------------------------------------------------------
 
-/// Provides scroll with infinite bounds, and keeps a scroll-position and a origin-index.
-/// The scroll-position is the number of pixels of scroll, considering the item at origin-index
-/// as the origin (0.0). So, for example, if you have scroll-position 10.0 and origin-index 15,
+/// Provides scroll with infinite bounds, and keeps a
+/// scroll-position and a origin-index.
+/// The scroll-position is the number of pixels of scroll,
+///  considering the item at origin-index
+/// as the origin (0.0). So, for example,
+/// if you have scroll-position 10.0 and origin-index 15,
 /// then you are 10 pixels after the 15th item.
 ///
 /// Besides regular [ScrollController] methods,
@@ -528,5 +530,3 @@ class _IndexedScrollPosition extends ScrollPositionWithSingleContext {
   @override
   double get maxScrollExtent => double.infinity;
 }
-
-// -------------------------------------------------------------------------------------------------

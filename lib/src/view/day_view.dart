@@ -171,7 +171,9 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
           dateTime.day == dateForHeader.day) {
       } else {
         dateTime = dateForHeader;
-        widget.onDateChanged!(dateTime);
+        if (!isScrolling) {
+          widget.onDateChanged!(dateTime);
+        }
       }
     });
     _listenerId = controller.addListener(_eventHandler);
@@ -385,6 +387,7 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
   ScrollController timeScrollController = ScrollController();
 
   // static const int maxPage = 10000;
+  bool isScrolling = false;
   @override
   Widget build(BuildContext context) => LayoutBuilder(
       key: _key,
@@ -422,14 +425,7 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
                     final DateTime date =
                         controller.start.add(Duration(days: index));
                     dateForHeader = date;
-                    // dateForHeader = date
-                    //     .subtract(Duration(days: index.isNegative ? -5 : 5));
-
-                    // if (date.isBefore(dateForHeader)) {
-                    //   dateForHeader = date.subtract(const Duration(days: -5));
-                    // } else {
-                    //   dateForHeader = date.subtract(const Duration(days: 5));
-                    // }
+ 
 
                     final DateTime now = DateTime.now();
                     final bool isToday =
@@ -788,6 +784,7 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
 
   ///jump to given date
   Future<dynamic> _jumpTo(DateTime date) async {
+    isScrolling = true;
     final double hourPosition = getTimeIndicatorFromTop(
         widget.timelines, controller.cellHeight, controller.breakHeight);
     final double height = getTimelineHeight(
@@ -811,11 +808,15 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
           .then((void value) async {
         /// Scrolling to the current time.
         await Future<void>.delayed(const Duration(milliseconds: 150))
-            .then((void value) => timeScrollController.animateTo(
+            .then((void value) => timeScrollController
+                    .animateTo(
                   scrollTo,
                   duration: animationDuration,
                   curve: animationCurve,
-                ));
+                )
+                    .then((value) {
+                  isScrolling = false;
+                }));
       });
     }
   }

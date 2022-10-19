@@ -15,6 +15,7 @@ class SlScheduleView<T> extends StatefulWidget {
     required this.onWillAccept,
     required this.cellBuilder,
     this.emptyMonthBuilder,
+    this.enableEmptyBuilder = false,
     this.emptyTodayTitle,
     this.onDateChanged,
     this.backgroundColor = Colors.transparent,
@@ -119,6 +120,9 @@ class SlScheduleView<T> extends StatefulWidget {
   ///background color
   final Color backgroundColor;
 
+  ///bool enable empty builder
+  final bool enableEmptyBuilder;
+
   ///hegiht of cell
   final double heightOfTheCell;
 
@@ -164,7 +168,9 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
           dateTime.day == dateForHeader.day) {
       } else {
         dateTime = dateForHeader;
-        widget.onDateChanged!(dateTime);
+        if (!isScrolling) {
+          widget.onDateChanged!(dateTime);
+        }
       }
     });
     _listenerId = controller.addListener(_eventHandler);
@@ -322,6 +328,7 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
 
   bool isSavingTimeTable = false;
   int? emptyIndex;
+  bool isScrolling = false;
   @override
   Widget build(BuildContext context) => LayoutBuilder(
       key: _key,
@@ -334,12 +341,20 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
                     IndexedListView.separated(
                         controller: indexdController,
                         padding: EdgeInsets.zero,
-                        cacheExtent: items.isEmpty ? 15 : 0,
+                        cacheExtent: widget.enableEmptyBuilder
+                            ? items.isEmpty
+                                ? 15
+                                : 0
+                            : 0,
                         emptyItemBuilder: (BuildContext context, int index) {
                           final DateTime date =
                               controller.start.add(Duration(days: index));
                           emptyIndex ??= index;
-
+                          if (widget.enableEmptyBuilder) {
+                            if (widget.onDateChanged != null) {
+                              widget.onDateChanged!(date);
+                            }
+                          }
                           if (date.day == 1) {
                             if (index != emptyIndex) {
                               emptyIndex = index;
@@ -353,8 +368,16 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
                           }
                           return null;
                         },
-                        maxItemCount: items.isEmpty ? 0 : null,
-                        minItemCount: items.isEmpty ? 0 : null,
+                        maxItemCount: widget.enableEmptyBuilder
+                            ? items.isEmpty
+                                ? 0
+                                : null
+                            : null,
+                        minItemCount: widget.enableEmptyBuilder
+                            ? items.isEmpty
+                                ? 0
+                                : null
+                            : null,
                         physics: isSavingTimeTable
                             ? const NeverScrollableScrollPhysics()
                             : null,
@@ -381,7 +404,7 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
                           //       date.subtract(const Duration(days: 5));
                           // }
 
-                          return items.isEmpty
+                          return items.isEmpty && widget.enableEmptyBuilder
                               ? ListTile(
                                   leading: widget.headerCellBuilder!(date),
                                   title: widget.emptyTodayTitle == null
@@ -498,8 +521,12 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
           ));
 
   Future<dynamic> _jumpTo(DateTime date) async {
-    await indexdController.animateToIndex(
-        date.difference(controller.start).inDays,
-        curve: animationCurve);
+    isScrolling = true;
+    await indexdController
+        .animateToIndex(date.difference(controller.start).inDays,
+            curve: animationCurve)
+        .then((value) {
+      isScrolling = false;
+    });
   }
 }

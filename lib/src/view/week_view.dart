@@ -38,7 +38,7 @@ class SlWeekView<T> extends StatefulWidget {
     this.showNowIndicator = true,
     this.showActiveDateIndicator = true,
     this.cornerBuilder,
-    this.snapToDay = true,
+    this.snapToDay = false,
     this.onTap,
   }) : super(key: key);
 
@@ -148,9 +148,9 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
   static DateTime dateForHeader = DateTime.now();
   DateTime dateTime = DateTime.now();
   IndexedScrollController indexdController =
-      IndexedScrollController(initialIndex: 75, initialScrollOffset: 0);
+      IndexedScrollController(initialIndex: 75);
   IndexedScrollController indexdHeaderController =
-      IndexedScrollController(initialIndex: 75, initialScrollOffset: 0);
+      IndexedScrollController(initialIndex: 75);
   @override
   void initState() {
     controller = widget.controller ?? controller;
@@ -167,7 +167,9 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
           dateTime.day == dateForHeader.day) {
       } else {
         dateTime = dateForHeader;
-        widget.onDateChanged!(dateTime);
+        if (!isScrolling) {
+          widget.onDateChanged!(dateTime);
+        }
       }
     });
     controller = widget.controller ?? controller;
@@ -381,7 +383,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
 
   bool _isTableScrolling = false;
   bool _isHeaderScrolling = false;
-
+  bool isScrolling = false;
   bool isDragEnable(CalendarEvent<T> event) =>
       widget.isCellDraggable == null || widget.isCellDraggable!(event);
   @override
@@ -496,7 +498,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                                   // cacheExtent: 10000.0,
 
                                   itemExtent: columnWidth,
-                                  
+
                                   controller: indexdController,
                                   cacheExtent: columnWidth * 7,
                                   itemBuilder:
@@ -803,6 +805,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
 
   ///jump to given date
   Future<dynamic> _jumpTo(DateTime date) async {
+    isScrolling = true;
     final double hourPosition = getTimeIndicatorFromTop(
         widget.timelines, controller.cellHeight, controller.breakHeight);
     final double height = getTimelineHeight(
@@ -822,11 +825,15 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
         .then((void value) async {
       /// Scrolling to the current time.
       await Future<void>.delayed(const Duration(milliseconds: 150))
-          .then((void value) => timeScrollController.animateTo(
+          .then((void value) => timeScrollController
+                  .animateTo(
                 scrollTo,
                 duration: animationDuration,
                 curve: animationCurve,
-              ));
+              )
+                  .then((dynamic value) {
+                isScrolling = false;
+              }));
     });
   }
 }
