@@ -38,13 +38,14 @@ DateTime now = DateTime.now().subtract(const Duration(days: 1));
 
 class _PlannerState extends State<Planner> {
   static DateTime startDate = DateTime.now();
-  static DateTime endDate = DateTime(2022, 12, 31);
+  static DateTime endDate = DateTime.now().add(Duration(days: 20));
   TimetableController<EventData> timeTableController =
       TimetableController<EventData>(
           start: startDate,
           end: endDate,
           timelineWidth: 60,
           breakHeight: 35,
+          infiniteScrolling: false,
           cellHeight: 110);
   TimetableController<EventData> monthController =
       TimetableController<EventData>(

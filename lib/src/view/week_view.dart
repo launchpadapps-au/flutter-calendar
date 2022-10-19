@@ -266,8 +266,12 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
       final DateTime prev = controller.visibleDateStart;
       final DateTime now = DateTime.now();
       await adjustColumnWidth();
-      await _jumpTo(
-          DateTime(prev.year, prev.month, prev.day, now.hour, now.minute));
+        indexdController = IndexedScrollController(
+          initialIndex: controller.start.difference(dateTime).inDays);
+            indexdHeaderController = IndexedScrollController(
+          initialIndex: controller.start.difference(dateTime).inDays);
+      // await _jumpTo(
+      //     DateTime(prev.year, prev.month, prev.day, now.hour, now.minute));
       return;
     }
     if (event is TimetableDateChanged) {
