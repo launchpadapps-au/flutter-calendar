@@ -360,9 +360,11 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
                     itemCount: monthRange.length,
                     itemBuilder: (BuildContext context, int index) {
                       final Month month = monthRange[index];
-                      List<CalendarDay> dates =
-                          getDatesForMonth(month, monthRange, dateRange);
-                      dates = addPaddingDate(dates);
+                      final List<CalendarDay> dates =
+                          getMonthDates(month.month);
+
+                      //     getDatesForMonth(month, monthRange, dateRange);
+                      // dates = addPaddingDate(dates, length: 42);
                       return StreamBuilder<List<CalendarEvent<T>>>(
                           stream: eventNotifier.stream,
                           builder: (BuildContext context,

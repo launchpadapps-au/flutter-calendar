@@ -38,7 +38,7 @@ DateTime now = DateTime.now().subtract(const Duration(days: 1));
 
 class _PlannerState extends State<Planner> {
   static DateTime startDate = DateTime.now();
-  static DateTime endDate = DateTime.now().add(Duration(days: 20));
+  static DateTime endDate = DateTime.now().add(const Duration(days: 20));
   TimetableController<EventData> timeTableController =
       TimetableController<EventData>(
           start: startDate,
@@ -140,6 +140,7 @@ class _PlannerState extends State<Planner> {
       } else if (event is MonthUpdated) {
         dateForHeader = event.startDate;
         monthController.changeDate(event.startDate, event.endDate);
+
         timeTableController.jumpTo(event.startDate);
         headerDateNotifier.value = dateForHeader;
       }

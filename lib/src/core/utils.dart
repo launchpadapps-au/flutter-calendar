@@ -327,7 +327,7 @@ bool isTimeIsEqualOrMore(DateTime first, DateTime seconds) {
   }
 }
 
-///return true if date is same 
+///return true if date is same
 bool isSameDate(DateTime date, {DateTime? ref}) {
   final DateTime now = ref ?? DateTime.now();
   if (now.year == date.year && now.month == date.month && now.day == date.day) {
@@ -336,6 +336,7 @@ bool isSameDate(DateTime date, {DateTime? ref}) {
     return false;
   }
 }
+
 ///is available for the drag
 
 bool isSlotAvlForSingleDay(List<CalendarEvent<dynamic>> myEvents,
@@ -478,7 +479,8 @@ List<CalendarDay> getDatesForCurrentView(
 
 ///add extra date at start end end
 
-List<CalendarDay> addPaddingDate(List<CalendarDay> myDateRange) {
+List<CalendarDay> addPaddingDate(List<CalendarDay> myDateRange,
+    {int length = 35}) {
   final List<CalendarDay> dateRange = myDateRange;
   final DateTime firstDay = dateRange.first.dateTime;
   if (firstDay.weekday == 1) {
@@ -506,7 +508,64 @@ List<CalendarDay> addPaddingDate(List<CalendarDay> myDateRange) {
           deadCell: true, dateTime: lastDay.add(Duration(days: i))));
     }
   }
+  if (dateRange.length < length) {
+    int dif = length - dateRange.length;
+    DateTime l = dateRange.last.dateTime;
+    for (int i = 0; i <= dif; i++) {
+      dateRange
+          .add(CalendarDay(deadCell: true, dateTime: l.add(Duration(days: i))));
+    }
+  }
+
   return dateRange;
+}
+
+List<CalendarDay> getMonthDates(int month) {
+  final List<CalendarDay> dates = [];
+  var now = DateTime.now();
+  var firstDate = DateTime(now.year, month);
+  var lastDate = DateTime(now.year, month + 1).subtract(Duration(days: 1));
+
+  var dif = lastDate.difference(firstDate).inDays;
+  for (int i = 0; i <= dif; i++) {
+    dates.add(CalendarDay(dateTime: firstDate.add(Duration(days: i))));
+  }
+  var firstDay = dates.first.dateTime;
+  if (firstDay.weekday == 1) {
+    log('first day is monday');
+  } else {
+    log('First day is${firstDay.weekday}');
+    final int diff = 7 - firstDay.weekday;
+    log('Negative diff is $diff');
+
+    for (int i = 1; i < firstDay.weekday; i++) {
+      dates.insert(
+          0,
+          CalendarDay(
+              deadCell: true, dateTime: firstDay.subtract(Duration(days: i))));
+    }
+  }
+
+  final DateTime lastDay = dates.last.dateTime;
+  if (lastDay.weekday == 7) {
+    log('lazy day is sunday');
+  } else {
+    final int diff = 7 - lastDay.weekday;
+
+    for (int i = 1; i <= diff; i++) {
+      dates.add(CalendarDay(
+          deadCell: true, dateTime: lastDay.add(Duration(days: i))));
+    }
+  }
+
+  if (dates.length < 42) {
+    var dif = lastDate.difference(firstDate).inDays;
+    for (int i = 0; i <= dif; i++) {
+      dates.add(CalendarDay(
+          dateTime: firstDate.add(Duration(days: i)), deadCell: true));
+    }
+  }
+  return dates.take(42).toList();
 }
 
 ///.convert string to TimeOfTheDay
