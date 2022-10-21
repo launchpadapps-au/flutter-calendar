@@ -85,6 +85,7 @@ class _SchedulePlannerState extends State<SchedulePlanner<EventData>> {
         backgroundColor: white,
         timelines: widget.customPeriods,
         cellHeight: cellHeight,
+        showOnlyEventDates: true,
         onDateChanged: widget.onDateChanged,
         onEventDragged: widget.onEventDragged,
         onWillAccept: (CalendarEvent<EventData>? event) => true,

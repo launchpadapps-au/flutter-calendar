@@ -38,7 +38,7 @@ DateTime now = DateTime.now().subtract(const Duration(days: 1));
 
 class _PlannerState extends State<Planner> {
   static DateTime startDate = DateTime(2022, 10);
-  static DateTime endDate = startDate.add(const Duration(days: 31));
+  static DateTime endDate = startDate.add(const Duration(days: 30));
   TimetableController<EventData> timeTableController =
       TimetableController<EventData>(
           start: startDate,

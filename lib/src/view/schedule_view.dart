@@ -29,6 +29,7 @@ class SlScheduleView<T> extends StatefulWidget {
     this.itemBuilder,
     this.isDraggable = true,
     this.fullWeek = false,
+    this.showOnlyEventDates = false,
     this.headerHeight = 45,
     this.cellHeight = 51,
     this.hourLabelBuilder,
@@ -67,6 +68,9 @@ class SlScheduleView<T> extends StatefulWidget {
 
   /// Snap to hour column. Default is `true`.
   final bool snapToDay;
+
+  ///show only event dates
+  final bool showOnlyEventDates;
 
   ///show now indicator,default is true
   final bool showNowIndicator;
@@ -212,7 +216,7 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
     appLog('Setting dates');
     final int diff = controller.end.difference(controller.start).inDays;
     dateRange.clear();
-    for (int i = 0; i < diff; i++) {
+    for (int i = 0; i <= diff; i++) {
       final DateTime date = controller.start.add(Duration(days: i));
       if (widget.fullWeek) {
         dateRange.add(date);
