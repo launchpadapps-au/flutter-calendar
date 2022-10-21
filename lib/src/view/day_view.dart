@@ -195,7 +195,7 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
     appLog('Setting dates');
     final int diff = controller.end.difference(controller.start).inDays;
     dateRange.clear();
-    for (int i = 0; i < diff; i++) {
+    for (int i = 0; i <= diff; i++) {
       final DateTime date = controller.start.add(Duration(days: i));
       if (widget.fullWeek) {
         dateRange.add(date);
