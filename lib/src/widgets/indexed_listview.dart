@@ -106,12 +106,12 @@ class IndexedListView extends StatefulWidget {
           addRepaintBoundaries: addRepaintBoundaries,
         ),
         super(key: key);
-
+///defualt empty builder for the view
   static Widget defaultEmptyItemBuilder(BuildContext context, int index) =>
       const SizedBox(width: 5, height: 5);
-
+///empty builder for the lsitview
   final IndexedWidgetBuilderOrNull emptyItemBuilder;
-
+///pass tru if items are sperated
   final bool separated;
 
   /// See: [ScrollView.scrollDirection]
@@ -145,7 +145,7 @@ class IndexedListView extends StatefulWidget {
   _IndexedListViewState createState() => _IndexedListViewState();
 }
 
-// -------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 
 /// The builder should create a widget for the given index.
 /// When the builder returns `null`, the list will ask the `emptyItemBuilder`
@@ -153,7 +153,7 @@ class IndexedListView extends StatefulWidget {
 typedef IndexedWidgetBuilderOrNull = Widget? Function(
     BuildContext context, int index);
 
-// -------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 class _IndexedListViewState extends State<IndexedListView> {
   //
@@ -195,7 +195,7 @@ class _IndexedListViewState extends State<IndexedListView> {
       physics: scrollPhysics,
       viewportBuilder: (BuildContext context, ViewportOffset offset) =>
           Builder(builder: (BuildContext context) {
-        // Build negative [ScrollPosition] for the negative scrolling [Viewport].
+        // Build negative [ScrollPosition] for the negative scrolling [Viewport]
         final ScrollableState state = Scrollable.of(context)!;
         final _IndexedScrollPosition negativeOffset = _IndexedScrollPosition(
           physics: scrollPhysics,
@@ -204,7 +204,8 @@ class _IndexedListViewState extends State<IndexedListView> {
           keepScrollOffset: false,
         );
 
-        // Keep the negative scrolling [Viewport] positioned to the [ScrollPosition].
+        // Keep the negative scrolling [Viewport] positioned to the
+        // [ScrollPosition].
         offset.addListener(() {
           negativeOffset._forceNegativePixels(offset.pixels);
         });
@@ -281,7 +282,7 @@ class _IndexedListViewState extends State<IndexedListView> {
   }
 }
 
-// -------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 class _AlwaysScrollableScrollPhysics extends ScrollPhysics {
   /// Creates scroll physics that always lets the user scroll.
@@ -296,7 +297,7 @@ class _AlwaysScrollableScrollPhysics extends ScrollPhysics {
   bool shouldAcceptUserOffset(ScrollMetrics position) => true;
 }
 
-// -------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /// Provides scroll with infinite bounds, and keeps a
 /// scroll-position and a origin-index.
@@ -309,8 +310,9 @@ class _AlwaysScrollableScrollPhysics extends ScrollPhysics {
 /// Besides regular [ScrollController] methods,
 /// offers [IndexedScrollController.jumpToIndex]
 /// and [IndexedScrollController.animateToIndex].
-///
+ 
 class IndexedScrollController extends ScrollController {
+  ///initilize the scroll controller
   IndexedScrollController({
     this.initialIndex = 0,
     double initialScrollOffset = 0.0,
@@ -322,12 +324,12 @@ class IndexedScrollController extends ScrollController {
           keepScrollOffset: keepScrollOffset,
           debugLabel: debugLabel,
         );
-  //
+  ///initila index 
   final int initialIndex;
 
   /// the origin-index changes as the list jumps by index.
   int _originIndex = 0;
-
+///orgin index 
   int get originIndex => _originIndex;
 
   @override
@@ -336,7 +338,8 @@ class IndexedScrollController extends ScrollController {
 
   double? _initialScrollOffset;
 
-  /// Jumps the origin-index to the given [index], and the scroll-position to [offset],
+  /// Jumps the origin-index to the given [index],
+  ///  and the scroll-position to [offset],
   /// without animation, and without checking if the new value is in range.
   ///
   /// Any active animation is canceled. If the user is currently scrolling, that
@@ -357,7 +360,8 @@ class IndexedScrollController extends ScrollController {
     }
   }
 
-  /// Jumps the origin-index to the given [index], and the scroll-position to 0.0,
+  ///Jumps the origin-index to the given [index], 
+  ///and the scroll-position to 0.0,
   /// without animation, and without checking if the new value is in range.
   ///
   /// Any active animation is canceled. If the user is currently scrolling, that
@@ -410,7 +414,8 @@ class IndexedScrollController extends ScrollController {
           index: index, offset: 0, duration: duration, curve: curve);
 
   /// Goes to origin-index 0,
-  /// and then jumps the scroll position from its current value to the given [offset],
+  /// and then jumps the scroll position 
+  /// from its current value to the given [offset],
   /// without animation, and without checking if the new value is in range.
   ///
   /// Any active animation is canceled. If the user is currently scrolling, that
@@ -428,7 +433,8 @@ class IndexedScrollController extends ScrollController {
   }
 
   /// Goes to origin-index 0,
-  /// and then animates the position from its current value to the given [offset].
+  /// and then animates the position from its
+  ///  current value to the given [offset].
   ///
   /// Any active animation is canceled. If the user is currently scrolling, that
   /// action is canceled.
@@ -501,7 +507,7 @@ class IndexedScrollController extends ScrollController {
       );
 }
 
-// -------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 class _IndexedScrollPosition extends ScrollPositionWithSingleContext {
   _IndexedScrollPosition({

@@ -38,7 +38,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
     } on MissingPluginException {
       debugPrint('Project is running as app');
       standAlone = true;
-      await getDummyData(addDummyEvent: false);
+      await getDummyData();
     }
   }
 

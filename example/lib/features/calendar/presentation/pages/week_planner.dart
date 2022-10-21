@@ -82,6 +82,7 @@ class _WeekPlannerState extends State<WeekPlanner<EventData>> {
           color: white,
           child: SlWeekView<EventData>(
             backgroundColor: white,
+            fullWeek: true,
             timelines: widget.customPeriods,
             onEventDragged: (CalendarEvent<EventData> old,
                 CalendarEvent<EventData> newEvent, Period? period) {

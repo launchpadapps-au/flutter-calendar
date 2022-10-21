@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_calendar/src/core/constants.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:flutter_calendar/src/core/app_log.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 /// The [SlScheduleView] widget displays calendar like view of the events
 /// that scrolls
@@ -135,7 +136,10 @@ class SlScheduleView<T> extends StatefulWidget {
 }
 
 class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
-  final ScrollController dayScrollController = ScrollController();
+  final ScrollController scrollController = ScrollController();
+  final ItemScrollController itemScrollController = ItemScrollController();
+  final ItemPositionsListener itemPositionsListener =
+      ItemPositionsListener.create();
   double columnWidth = 50;
   TimetableController<T> controller = TimetableController<T>();
   final GlobalKey<State<StatefulWidget>> _key = GlobalKey();
@@ -179,6 +183,25 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
       items.sort((CalendarEvent<T> a, CalendarEvent<T> b) =>
           a.startTime.compareTo(b.startTime));
       eventNotifier.sink.add(items);
+    }
+    if (!controller.infiniteScrolling) {
+      itemPositionsListener.itemPositions.addListener(() {
+        final Iterable<ItemPosition> items =
+            itemPositionsListener.itemPositions.value;
+        if (items.isNotEmpty) {
+          /// Declaring a variable called var.
+          DateTime dateTime = dateRange[items.first.index];
+          if (dateTime.year == dateForHeader.year &&
+              dateTime.month == dateForHeader.month &&
+              dateTime.day == dateForHeader.day) {
+          } else {
+            dateTime = dateForHeader;
+            if (!isScrolling) {
+              // widget.onDateChanged!(dateTime);
+            }
+          }
+        }
+      });
     }
     initDate();
     super.initState();
@@ -241,9 +264,10 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
     if (_listenerId != null) {
       controller.removeListener(_listenerId!);
     }
-    dayScrollController.dispose();
+    scrollController.dispose();
     indexdController.dispose();
     eventNotifier.close();
+
     super.dispose();
   }
 
@@ -269,7 +293,7 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
       indexdController = IndexedScrollController(
           initialIndex: controller.start.difference(dateTime).inDays);
       setState(() {});
-      // initDate();
+      initDate();
     }
     if (event is AddEventToTable<T>) {
       List<CalendarEvent<T>> myevents = items;
@@ -338,195 +362,235 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
                 stream: eventNotifier.stream,
                 builder: (BuildContext context,
                         AsyncSnapshot<List<CalendarEvent<T>>> snapshot) =>
-                    IndexedListView.separated(
-                        controller: indexdController,
-                        padding: EdgeInsets.zero,
-                        cacheExtent: widget.enableEmptyBuilder
-                            ? items.isEmpty
-                                ? 15
-                                : 0
-                            : 0,
-                        emptyItemBuilder: (BuildContext context, int index) {
-                          final DateTime date =
-                              controller.start.add(Duration(days: index));
-                          emptyIndex ??= index;
-                          if (widget.enableEmptyBuilder) {
-                            if (widget.onDateChanged != null) {
-                              widget.onDateChanged!(date);
-                            }
-                          }
-                          if (date.day == 1) {
-                            if (index != emptyIndex) {
-                              emptyIndex = index;
-                              return const SizedBox.shrink();
-                            } else if (widget.emptyMonthBuilder != null) {
-                              emptyIndex = index;
-                              return widget.emptyMonthBuilder!(date);
-                            }
-                          } else {
-                            return const SizedBox.shrink();
-                          }
-                          return null;
-                        },
-                        maxItemCount: widget.enableEmptyBuilder
-                            ? items.isEmpty
-                                ? 0
-                                : null
-                            : null,
-                        minItemCount: widget.enableEmptyBuilder
-                            ? items.isEmpty
-                                ? 0
-                                : null
-                            : null,
-                        physics: isSavingTimeTable
-                            ? const NeverScrollableScrollPhysics()
-                            : null,
-                        separatorBuilder: (BuildContext context, int index) =>
-                            const SizedBox(
-                              height: 3,
-                            ),
-                        itemBuilder: (BuildContext context, int index) {
-                          final DateTime date =
-                              controller.start.add(Duration(days: index));
-                          dateForHeader = date;
-                          // dateForHeader = date.subtract(
-                          //     Duration(days: index.isNegative ? -5 : 5));
-                          final List<CalendarEvent<T>> events = items
-                              .where((CalendarEvent<T> event) =>
-                                  DateUtils.isSameDay(date, event.startTime))
-                              .toList();
+                    !controller.infiniteScrolling
+                        ? ScrollablePositionedList.separated(
+                            itemScrollController: itemScrollController,
+                            itemPositionsListener: itemPositionsListener,
+                            padding: EdgeInsets.zero,
+                            minCacheExtent: 0,
+                            itemCount: dateRange.length,
+                            physics: isSavingTimeTable
+                                ? const NeverScrollableScrollPhysics()
+                                : null,
+                            separatorBuilder:
+                                (BuildContext context, int index) =>
+                                    const SizedBox(
+                                      height: 3,
+                                    ),
+                            itemBuilder: (BuildContext context, int index) {
+                              final DateTime date = dateRange[index];
+                              dateForHeader = date;
 
-                          // if (date.isBefore(dateForHeader)) {
-                          //   dateForHeader =
-                          //       date.subtract(const Duration(days: -5));
-                          // } else {
-                          //   dateForHeader =
-                          //       date.subtract(const Duration(days: 5));
-                          // }
+                              final bool isToday =
+                                  DateUtils.isSameDay(date, DateTime.now());
 
-                          return items.isEmpty && widget.enableEmptyBuilder
-                              ? ListTile(
-                                  leading: widget.headerCellBuilder!(date),
-                                  title: widget.emptyTodayTitle == null
-                                      ? const Text('Nothing planed for today')
-                                      : widget.emptyTodayTitle!(date),
-                                )
-                              : ListTile(
-                                  key: Key(date.toString().substring(0, 10)),
-                                  leading: widget.headerCellBuilder!(date),
-                                  title: events.isEmpty
-                                      ? DragTarget<CalendarEvent<T>>(
-                                          onWillAccept: (CalendarEvent<T>? data) =>
-                                              widget.onWillAccept(data),
-                                          onAcceptWithDetails:
-                                              (DragTargetDetails<CalendarEvent<T>>
-                                                  details) {
-                                            final CalendarEvent<T> event =
-                                                details.data;
-                                            final DateTime newStartTime =
-                                                DateTime(
-                                                    date.year,
-                                                    date.month,
-                                                    date.day,
-                                                    event.startTime.hour,
-                                                    event.startTime.minute);
-                                            final DateTime newEndTime =
-                                                DateTime(
-                                                    date.year,
-                                                    date.month,
-                                                    date.day,
-                                                    event.endTime.hour,
-                                                    event.endTime.minute);
+                              final List<CalendarEvent<T>> events = items
+                                  .where((CalendarEvent<T> event) =>
+                                      DateUtils.isSameDay(
+                                          date, event.startTime))
+                                  .toList();
 
-                                            final CalendarEvent<T> newEvent =
-                                                CalendarEvent<T>(
-                                                    startTime: newStartTime,
-                                                    endTime: newEndTime,
-                                                    eventData: event.eventData);
+                              return buildView(date, events, isToday: isToday);
+                            })
+                        : IndexedListView.separated(
+                            controller: indexdController,
+                            padding: EdgeInsets.zero,
+                            cacheExtent: widget.enableEmptyBuilder
+                                ? items.isEmpty
+                                    ? 15
+                                    : 0
+                                : 0,
+                            emptyItemBuilder:
+                                (BuildContext context, int index) {
+                              final DateTime date =
+                                  controller.start.add(Duration(days: index));
+                              emptyIndex ??= index;
+                              if (widget.enableEmptyBuilder) {
+                                if (widget.onDateChanged != null) {
+                                  widget.onDateChanged!(date);
+                                }
+                              }
+                              if (date.day == 1) {
+                                if (index != emptyIndex) {
+                                  emptyIndex = index;
+                                  return const SizedBox.shrink();
+                                } else if (widget.emptyMonthBuilder != null) {
+                                  emptyIndex = index;
+                                  return widget.emptyMonthBuilder!(date);
+                                }
+                              } else {
+                                return const SizedBox.shrink();
+                              }
+                              return null;
+                            },
+                            maxItemCount: widget.enableEmptyBuilder
+                                ? items.isEmpty
+                                    ? 0
+                                    : null
+                                : null,
+                            minItemCount: widget.enableEmptyBuilder
+                                ? items.isEmpty
+                                    ? 0
+                                    : null
+                                : null,
+                            physics: isSavingTimeTable
+                                ? const NeverScrollableScrollPhysics()
+                                : null,
+                            separatorBuilder:
+                                (BuildContext context, int index) =>
+                                    const SizedBox(
+                                      height: 3,
+                                    ),
+                            itemBuilder: (BuildContext context, int index) {
+                              final DateTime date =
+                                  controller.start.add(Duration(days: index));
+                              dateForHeader = date;
 
-                                            widget.onEventDragged!(
-                                                details.data, newEvent);
-                                          },
-                                          builder: (BuildContext content,
-                                                  List<Object?> obj,
-                                                  List<dynamic> data) =>
-                                              widget.cellBuilder(date))
-                                      : Column(
-                                          children: events
-                                              .map((CalendarEvent<T> e) => DragTarget<
-                                                      CalendarEvent<T>>(
-                                                  onWillAccept: (CalendarEvent<T>? data) =>
-                                                      widget.onWillAccept(data),
-                                                  onAcceptWithDetails:
-                                                      (DragTargetDetails<
-                                                              CalendarEvent<T>>
-                                                          details) {
-                                                    final CalendarEvent<T>
-                                                        event = details.data;
-                                                    final DateTime
-                                                        newStartTime = DateTime(
-                                                            date.year,
-                                                            date.month,
-                                                            date.day,
-                                                            event
-                                                                .startTime.hour,
-                                                            event.startTime
-                                                                .minute);
-                                                    final DateTime newEndTime =
-                                                        DateTime(
-                                                            date.year,
-                                                            date.month,
-                                                            date.day,
-                                                            event.endTime.hour,
-                                                            event.endTime
-                                                                .minute);
+                              final bool isToday =
+                                  DateUtils.isSameDay(date, DateTime.now());
+                              // dateForHeader = date.subtract(
+                              //     Duration(days: index.isNegative ? -5 : 5));
+                              final List<CalendarEvent<T>> events = items
+                                  .where((CalendarEvent<T> event) =>
+                                      DateUtils.isSameDay(
+                                          date, event.startTime))
+                                  .toList();
 
-                                                    final CalendarEvent<T>
-                                                        newEvent =
-                                                        CalendarEvent<T>(
-                                                            startTime:
-                                                                newStartTime,
-                                                            endTime: newEndTime,
-                                                            eventData: event
-                                                                .eventData);
+                              // if (date.isBefore(dateForHeader)) {
+                              //   dateForHeader =
+                              //       date.subtract(const Duration(days: -5));
+                              // } else {
+                              //   dateForHeader =
+                              //       date.subtract(const Duration(days: 5));
+                              // }
 
-                                                    widget.onEventToEventDragged!(
-                                                        e,
-                                                        details.data,
-                                                        newEvent,
-                                                        null);
-                                                  },
-                                                  builder: (BuildContext content, List<Object?> obj, List<dynamic> data) => Draggable<CalendarEvent<T>>(
-                                                      ignoringFeedbackSemantics: false,
-                                                      data: e,
-                                                      maxSimultaneousDrags: widget.isCellDraggable == null
-                                                          ? 1
-                                                          : widget.isCellDraggable!(e)
-                                                              ? 1
-                                                              : 0,
-                                                      childWhenDragging: widget.cellBuilder(date),
-                                                      feedback: Material(child: widget.itemBuilder!(e)),
-                                                      child: GestureDetector(
-                                                          onTap: () {
-                                                            if (widget.onTap !=
-                                                                null) {
-                                                              widget.onTap!(
-                                                                  date, [e]);
-                                                            }
-                                                          },
-                                                          child: widget.itemBuilder!(e)))))
-                                              .toList()),
-                                );
-                        })),
+                              return buildView(date, events, isToday: isToday);
+                            })),
           ));
 
+  Widget buildView(DateTime date, List<CalendarEvent<T>> events,
+          {required bool isToday}) =>
+      items.isEmpty && widget.enableEmptyBuilder
+          ? ListTile(
+              leading: widget.headerCellBuilder!(date),
+              title: widget.emptyTodayTitle == null
+                  ? const Text('Nothing planed for today')
+                  : widget.emptyTodayTitle!(date),
+            )
+          : ListTile(
+              key: Key(date.toString().substring(0, 10)),
+              leading: widget.headerCellBuilder!(date),
+              title: events.isEmpty
+                  ? DragTarget<CalendarEvent<T>>(
+                      onWillAccept: (CalendarEvent<T>? data) =>
+                          widget.onWillAccept(data),
+                      onAcceptWithDetails:
+                          (DragTargetDetails<CalendarEvent<T>> details) {
+                        final CalendarEvent<T> event = details.data;
+                        final DateTime newStartTime = DateTime(
+                            date.year,
+                            date.month,
+                            date.day,
+                            event.startTime.hour,
+                            event.startTime.minute);
+                        final DateTime newEndTime = DateTime(
+                            date.year,
+                            date.month,
+                            date.day,
+                            event.endTime.hour,
+                            event.endTime.minute);
+
+                        final CalendarEvent<T> newEvent = CalendarEvent<T>(
+                            startTime: newStartTime,
+                            endTime: newEndTime,
+                            eventData: event.eventData);
+
+                        widget.onEventDragged!(details.data, newEvent);
+                      },
+                      builder: (BuildContext content, List<Object?> obj,
+                              List<dynamic> data) =>
+                          widget.cellBuilder(date))
+                  : Column(
+                      children: events
+                          .map((CalendarEvent<T> e) => DragTarget<
+                                  CalendarEvent<T>>(
+                              onWillAccept: (CalendarEvent<T>? data) =>
+                                  widget.onWillAccept(data),
+                              onAcceptWithDetails:
+                                  (DragTargetDetails<CalendarEvent<T>>
+                                      details) {
+                                final CalendarEvent<T> event = details.data;
+                                final DateTime newStartTime = DateTime(
+                                    date.year,
+                                    date.month,
+                                    date.day,
+                                    event.startTime.hour,
+                                    event.startTime.minute);
+                                final DateTime newEndTime = DateTime(
+                                    date.year,
+                                    date.month,
+                                    date.day,
+                                    event.endTime.hour,
+                                    event.endTime.minute);
+
+                                final CalendarEvent<T> newEvent =
+                                    CalendarEvent<T>(
+                                        startTime: newStartTime,
+                                        endTime: newEndTime,
+                                        eventData: event.eventData);
+
+                                widget.onEventToEventDragged!(
+                                    e, details.data, newEvent, null);
+                              },
+                              builder: (BuildContext content, List<Object?> obj,
+                                      List<dynamic> data) =>
+                                  Draggable<CalendarEvent<T>>(
+                                      ignoringFeedbackSemantics: false,
+                                      data: e,
+                                      maxSimultaneousDrags: widget.isCellDraggable == null
+                                          ? 1
+                                          : widget.isCellDraggable!(e)
+                                              ? 1
+                                              : 0,
+                                      childWhenDragging: widget.cellBuilder(date),
+                                      feedback: Material(child: widget.itemBuilder!(e)),
+                                      child: GestureDetector(
+                                          onTap: () {
+                                            if (widget.onTap != null) {
+                                              widget.onTap!(
+                                                  date, <CalendarEvent<T>>[e]);
+                                            }
+                                          },
+                                          child: widget.itemBuilder!(e)))))
+                          .toList()),
+            );
+
   Future<dynamic> _jumpTo(DateTime date) async {
-    isScrolling = true;
-    await indexdController
-        .animateToIndex(date.difference(controller.start).inDays,
-            curve: animationCurve)
-        .then((value) {
-      isScrolling = false;
-    });
+    if (controller.infiniteScrolling) {
+      isScrolling = true;
+      await indexdController
+          .animateToIndex(date.difference(controller.start).inDays,
+              curve: animationCurve)
+          .then((dynamic value) {
+        isScrolling = false;
+      });
+    } else {
+      try {
+        isScrolling = true;
+        final DateTime d = dateRange.firstWhere(
+            (DateTime element) => DateUtils.isSameDay(date, element));
+        final int index = dateRange.indexOf(d);
+        await itemScrollController
+            .scrollTo(
+                index: index,
+                duration: animationDuration,
+                curve: animationCurve)
+            .then((dynamic value) {
+          isScrolling = false;
+        });
+      } on Exception {
+        log('');
+      }
+    }
   }
 }

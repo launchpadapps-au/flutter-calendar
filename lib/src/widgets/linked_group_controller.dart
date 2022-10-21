@@ -1,12 +1,5 @@
-// Copyright 2018 the Dart project authors.
-//
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file or at
-// https://developers.google.com/open-source/licenses/bsd
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_calendar/flutter_calendar.dart';
 
 /// Sets up a collection of scroll controllers that mirror their movements to
 /// each other.
@@ -20,36 +13,34 @@ import 'package:flutter_calendar/flutter_calendar.dart';
 /// object the corresponding scrollables should be given unique keys.
 /// Without the keys, Flutter may reuse a controller after it has been disposed,
 /// which can cause the controller offsets to fall out of sync.
-class LinkedIndexedScrollControllerGroup {
-  ///initilize
-  LinkedIndexedScrollControllerGroup() {
-    _offsetNotifier = _LinkedIndexedScrollControllerGroupOffsetNotifier(this);
+class LinkedScrollControllerGroup {
+  ///initialize
+  LinkedScrollControllerGroup() {
+    _offsetNotifier = _LinkedScrollControllerGroupOffsetNotifier(this);
   }
 
-  final List<_LinkedIndexedScrollController> _allControllers =
-      <_LinkedIndexedScrollController>[];
+  final List<_LinkedScrollController> _allControllers =
+      <_LinkedScrollController>[];
 
-  late _LinkedIndexedScrollControllerGroupOffsetNotifier _offsetNotifier;
+  late _LinkedScrollControllerGroupOffsetNotifier _offsetNotifier;
 
   /// The current scroll offset of the group.
   double get offset {
     assert(
       _attachedControllers.isNotEmpty,
-      'LinkedIndexedScrollControllerGroup does not have any scroll controllers '
+      'LinkedScrollControllerGroup does not have any scroll controllers '
       'attached.',
     );
     return _attachedControllers.first.offset;
   }
 
   /// Creates a new controller that is linked to any existing ones.
-
-  IndexedScrollController addAndGet() {
+  ScrollController addAndGet() {
     final double initialScrollOffset = _attachedControllers.isEmpty
         ? 0.0
         : _attachedControllers.first.position.pixels;
-    final _LinkedIndexedScrollController controller =
-        _LinkedIndexedScrollController(this,
-            initialScrollOffset: initialScrollOffset);
+    final _LinkedScrollController controller =
+        _LinkedScrollController(this, initialScrollOffset: initialScrollOffset);
     _allControllers.add(controller);
     controller.addListener(_offsetNotifier.notifyListeners);
     return controller;
@@ -65,9 +56,8 @@ class LinkedIndexedScrollControllerGroup {
     _offsetNotifier.removeListener(listener);
   }
 
-  Iterable<_LinkedIndexedScrollController> get _attachedControllers =>
-      _allControllers.where(
-          (_LinkedIndexedScrollController controller) => controller.hasClients);
+  Iterable<_LinkedScrollController> get _attachedControllers => _allControllers
+      .where((_LinkedScrollController controller) => controller.hasClients);
 
   /// Animates the scroll position of all linked controllers to [offset].
   Future<void> animateTo(
@@ -76,8 +66,7 @@ class LinkedIndexedScrollControllerGroup {
     required Duration duration,
   }) async {
     final List<Future<void>> animations = <Future<void>>[];
-    for (final _LinkedIndexedScrollController controller
-        in _attachedControllers) {
+    for (final _LinkedScrollController controller in _attachedControllers) {
       animations
           .add(controller.animateTo(offset, duration: duration, curve: curve));
     }
@@ -86,8 +75,7 @@ class LinkedIndexedScrollControllerGroup {
 
   /// Jumps the scroll position of all linked controllers to [value].
   void jumpTo(double value) {
-    for (final _LinkedIndexedScrollController controller
-        in _attachedControllers) {
+    for (final _LinkedScrollController controller in _attachedControllers) {
       controller.jumpTo(value);
     }
   }
@@ -98,16 +86,15 @@ class LinkedIndexedScrollControllerGroup {
   }
 }
 
-/// This class provides change notification
-/// for [LinkedIndexedScrollControllerGroup]'s
+/// This class provides change notification for [LinkedScrollControllerGroup]'s
 /// scroll offset.
 ///
 /// This change notifier de-duplicates change events by only firing listeners
 /// when the scroll offset of the group has changed.
-class _LinkedIndexedScrollControllerGroupOffsetNotifier extends ChangeNotifier {
-  _LinkedIndexedScrollControllerGroupOffsetNotifier(this.controllerGroup);
+class _LinkedScrollControllerGroupOffsetNotifier extends ChangeNotifier {
+  _LinkedScrollControllerGroupOffsetNotifier(this.controllerGroup);
 
-  final LinkedIndexedScrollControllerGroup controllerGroup;
+  final LinkedScrollControllerGroup controllerGroup;
 
   /// The cached offset for the group.
   ///
@@ -125,13 +112,13 @@ class _LinkedIndexedScrollControllerGroupOffsetNotifier extends ChangeNotifier {
 }
 
 /// A scroll controller that mirrors its movements to a peer, which must also
-/// be a [_LinkedIndexedScrollController].
-class _LinkedIndexedScrollController extends IndexedScrollController {
-  _LinkedIndexedScrollController(this._controllers,
+/// be a [_LinkedScrollController].
+class _LinkedScrollController extends ScrollController {
+  _LinkedScrollController(this._controllers,
       {required double initialScrollOffset})
       : super(
             initialScrollOffset: initialScrollOffset, keepScrollOffset: false);
-  final LinkedIndexedScrollControllerGroup _controllers;
+  final LinkedScrollControllerGroup _controllers;
   @override
   void dispose() {
     _controllers._allControllers.remove(this);
@@ -142,7 +129,7 @@ class _LinkedIndexedScrollController extends IndexedScrollController {
   void attach(ScrollPosition position) {
     assert(
         position is _LinkedScrollPosition,
-        '_LinkedIndexedScrollControllers can only be used with'
+        '_LinkedScrollControllers can only be used with'
         ' _LinkedScrollPositions.');
     final _LinkedScrollPosition linkedPosition =
         position as _LinkedScrollPosition;
@@ -170,16 +157,16 @@ class _LinkedIndexedScrollController extends IndexedScrollController {
   @override
   _LinkedScrollPosition get position => super.position as _LinkedScrollPosition;
 
-  Iterable<_LinkedIndexedScrollController> get _allPeersWithClients =>
+  Iterable<_LinkedScrollController> get _allPeersWithClients =>
       _controllers._attachedControllers
-          .where((_LinkedIndexedScrollController peer) => peer != this);
+          .where((_LinkedScrollController peer) => peer != this);
 
   bool get canLinkWithPeers => _allPeersWithClients.isNotEmpty;
 
   Iterable<_LinkedScrollActivity> linkWithPeers(_LinkedScrollPosition driver) {
     assert(canLinkWithPeers);
     return _allPeersWithClients
-        .map((_LinkedIndexedScrollController peer) => peer.link(driver))
+        .map((_LinkedScrollController peer) => peer.link(driver))
         .expand((Iterable<_LinkedScrollActivity> e) => e);
   }
 
@@ -215,14 +202,15 @@ class _LinkedScrollPosition extends ScrollPositionWithSingleContext {
           initialPixels: initialPixels,
           oldPosition: oldPosition,
         );
-  final _LinkedIndexedScrollController owner;
+
+  final _LinkedScrollController owner;
 
   final Set<_LinkedScrollActivity> _peerActivities = <_LinkedScrollActivity>{};
 
   // We override hold to propagate it to all peer controllers.
   @override
   ScrollHoldController hold(VoidCallback holdCancelCallback) {
-    for (final _LinkedIndexedScrollController controller
+    for (final _LinkedScrollController controller
         in owner._allPeersWithClients) {
       controller.position._holdInternal();
     }
@@ -362,7 +350,6 @@ class _LinkedScrollActivity extends ScrollActivity {
         commonDirection = ScrollDirection.idle;
       }
     }
-
     delegate.updateUserScrollDirection(commonDirection);
   }
 

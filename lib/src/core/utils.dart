@@ -509,8 +509,8 @@ List<CalendarDay> addPaddingDate(List<CalendarDay> myDateRange,
     }
   }
   if (dateRange.length < length) {
-    int dif = length - dateRange.length;
-    DateTime l = dateRange.last.dateTime;
+    final int dif = length - dateRange.length;
+    final DateTime l = dateRange.last.dateTime;
     for (int i = 0; i <= dif; i++) {
       dateRange
           .add(CalendarDay(deadCell: true, dateTime: l.add(Duration(days: i))));
@@ -520,17 +520,19 @@ List<CalendarDay> addPaddingDate(List<CalendarDay> myDateRange,
   return dateRange;
 }
 
+///return dates for the month
 List<CalendarDay> getMonthDates(int month) {
-  final List<CalendarDay> dates = [];
-  var now = DateTime.now();
-  var firstDate = DateTime(now.year, month);
-  var lastDate = DateTime(now.year, month + 1).subtract(Duration(days: 1));
+  final List<CalendarDay> dates = <CalendarDay>[];
+  final DateTime now = DateTime.now();
+  final DateTime firstDate = DateTime(now.year, month);
+  final DateTime lastDate =
+      DateTime(now.year, month + 1).subtract(const Duration(days: 1));
 
-  var dif = lastDate.difference(firstDate).inDays;
+  final int dif = lastDate.difference(firstDate).inDays;
   for (int i = 0; i <= dif; i++) {
     dates.add(CalendarDay(dateTime: firstDate.add(Duration(days: i))));
   }
-  var firstDay = dates.first.dateTime;
+  final DateTime firstDay = dates.first.dateTime;
   if (firstDay.weekday == 1) {
     log('first day is monday');
   } else {
@@ -559,7 +561,7 @@ List<CalendarDay> getMonthDates(int month) {
   }
 
   if (dates.length < 42) {
-    var dif = lastDate.difference(firstDate).inDays;
+    final int dif = lastDate.difference(firstDate).inDays;
     for (int i = 0; i <= dif; i++) {
       dates.add(CalendarDay(
           dateTime: firstDate.add(Duration(days: i)), deadCell: true));

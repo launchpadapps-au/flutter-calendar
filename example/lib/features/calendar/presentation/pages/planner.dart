@@ -37,8 +37,8 @@ class Planner extends StatefulWidget {
 DateTime now = DateTime.now().subtract(const Duration(days: 1));
 
 class _PlannerState extends State<Planner> {
-  static DateTime startDate = DateTime.now();
-  static DateTime endDate = DateTime.now().add(const Duration(days: 20));
+  static DateTime startDate = DateTime(2022, 10);
+  static DateTime endDate = startDate.add(const Duration(days: 31));
   TimetableController<EventData> timeTableController =
       TimetableController<EventData>(
           start: startDate,
@@ -76,6 +76,7 @@ class _PlannerState extends State<Planner> {
   bool showAppbar = true;
 
   void onDateChange(DateTime dateTime) {
+    log(dateTime.toString());
     BlocProvider.of<TimeTableCubit>(context).setDate(dateTime);
   }
 
@@ -156,6 +157,14 @@ class _PlannerState extends State<Planner> {
   bool sendJsonEcnoded = false;
   @override
   Widget build(BuildContext context) => Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            final DateTime now = DateTime.now();
+            final DateTime date = DateTime(2022, 10, 19, now.hour, now.minute);
+            log(date.toUtc().toIso8601String());
+          },
+          child: const Icon(Icons.monetization_on),
+        ),
         key: scaffoldKey,
         appBar: showAppbar
             ? AppBar(
@@ -208,10 +217,11 @@ class _PlannerState extends State<Planner> {
                       color: Colors.black,
                     ),
                     onPressed: () async {
-                      //   final List<PlannerEvent> events = dummyEventData;
-                      //   timeTableController.addEvent(
-                      //     events,
-                      //   );
+                      final DateTime startDate = DateTime(2022, 9);
+                      final DateTime endDate =
+                          startDate.add(const Duration(days: 30));
+                      timeTableController..changeDate(startDate, endDate)
+                      ..jumpTo(startDate);
                     },
                   ),
                   IconButton(
@@ -234,7 +244,8 @@ class _PlannerState extends State<Planner> {
             setState(() {
               startDate = start;
               endDate = end;
-              timeTableController.changeDate(startDate, endDate);
+              timeTableController..changeDate(startDate, endDate)
+              ..jumpTo(startDate);
             });
           },
         ),
