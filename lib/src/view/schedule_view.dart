@@ -547,28 +547,32 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
                                     e, details.data, newEvent, null);
                               },
                               builder: (BuildContext content, List<Object?> obj,
-                                      List<dynamic> data) =>
-                                  Draggable<CalendarEvent<T>>(
-                                      ignoringFeedbackSemantics: false,
-                                      data: e,
-                                      maxSimultaneousDrags: widget.isCellDraggable == null
-                                          ? 1
-                                          : widget.isCellDraggable!(e)
-                                              ? 1
-                                              : 0,
-                                      childWhenDragging: widget.cellBuilder(date),
-                                      feedback: Material(child: widget.itemBuilder!(e)),
-                                      child: GestureDetector(
-                                          onTap: () {
-                                            if (widget.onTap != null) {
-                                              widget.onTap!(
-                                                  date, <CalendarEvent<T>>[e]);
-                                            }
-                                          },
-                                          child: widget.itemBuilder!(e)))))
+                                  List<dynamic> data) {
+                                log('');
+                                return Draggable<CalendarEvent<T>>(
+                                    ignoringFeedbackSemantics: false,
+                                    data: e,
+                                    maxSimultaneousDrags: maxDrag(e),
+                                    childWhenDragging: widget.cellBuilder(date),
+                                    feedback:
+                                        Material(child: widget.itemBuilder!(e)),
+                                    child: GestureDetector(
+                                        onTap: () {
+                                          if (widget.onTap != null) {
+                                            widget.onTap!(
+                                                date, <CalendarEvent<T>>[e]);
+                                          }
+                                        },
+                                        child: widget.itemBuilder!(e)));
+                              }))
                           .toList()),
             );
 
+  int maxDrag(CalendarEvent<T> e) => widget.isCellDraggable == null
+      ? 1
+      : widget.isCellDraggable!(e)
+          ? 1
+          : 0;
   Future<dynamic> _jumpTo(DateTime date) async {
     if (controller.infiniteScrolling) {
       isScrolling = true;
