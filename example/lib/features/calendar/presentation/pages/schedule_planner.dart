@@ -61,19 +61,6 @@ class SchedulePlanner<T> extends StatefulWidget {
 class _SchedulePlannerState extends State<SchedulePlanner<EventData>> {
   static DateTime dateTime = DateTime.now();
 
-  @override
-  void initState() {
-    setState(() {});
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      currentMonth = widget.timetableController.visibleDateStart;
-      setState(() {});
-      Future<dynamic>.delayed(const Duration(milliseconds: 100), () {
-        widget.timetableController.jumpTo(dateTime);
-      });
-    });
-    super.initState();
-  }
-
   DateTime currentMonth = DateTime.now();
 
   ValueNotifier<DateTime> dateTimeNotifier = ValueNotifier<DateTime>(dateTime);
@@ -85,7 +72,6 @@ class _SchedulePlannerState extends State<SchedulePlanner<EventData>> {
         backgroundColor: white,
         timelines: widget.customPeriods,
         cellHeight: cellHeight,
-        showOnlyEventDates: true,
         onDateChanged: widget.onDateChanged,
         onEventDragged: widget.onEventDragged,
         onWillAccept: (CalendarEvent<EventData>? event) => true,
@@ -125,7 +111,7 @@ class _SchedulePlannerState extends State<SchedulePlanner<EventData>> {
                   width: 24,
                   height: 24,
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12.5),
+                      borderRadius: BorderRadius.circular(12),
                       color:
                           isSameDate(date) ? primaryPink : Colors.transparent),
                   child: Center(

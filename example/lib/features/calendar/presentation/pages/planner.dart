@@ -4,8 +4,8 @@ import 'package:edgar_planner_calendar_flutter/core/constants.dart';
 import 'package:edgar_planner_calendar_flutter/core/static.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/term_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/method_name.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_event_state.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/month_planner.dart';
@@ -15,6 +15,7 @@ import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pa
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/term_planner.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/week_planner.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/left_strip.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/linear_indicator.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/right_strip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -37,15 +38,21 @@ class Planner extends StatefulWidget {
 DateTime now = DateTime.now().subtract(const Duration(days: 1));
 
 class _PlannerState extends State<Planner> {
-  static DateTime startDate = DateTime(2022, 10);
-  static DateTime endDate = startDate.add(const Duration(days: 30));
+  static DateTime startDate = DateTime.now();
+  static DateTime endDate = DateTime(2022, 12, 31);
   TimetableController<EventData> timeTableController =
       TimetableController<EventData>(
           start: startDate,
           end: endDate,
           timelineWidth: 60,
           breakHeight: 35,
-          infiniteScrolling: false,
+          cellHeight: 110);
+  TimetableController<EventData> scheduleController =
+      TimetableController<EventData>(
+          start: startDate,
+          end: endDate,
+          timelineWidth: 60,
+          breakHeight: 35,
           cellHeight: 110);
   TimetableController<EventData> monthController =
       TimetableController<EventData>(
@@ -76,55 +83,142 @@ class _PlannerState extends State<Planner> {
   bool showAppbar = true;
 
   void onDateChange(DateTime dateTime) {
-    log(dateTime.toString());
+    log('date changed $dateTime');
     BlocProvider.of<TimeTableCubit>(context).setDate(dateTime);
   }
 
+  
+
   @override
   void initState() {
-    periods = customStaticPeriods;
-    setState(() {});
-    BlocProvider.of<TimeTableCubit>(context)
-        .stream
-        .listen((TimeTableState event) {
+    final TimeTableCubit cubit = BlocProvider.of<TimeTableCubit>(context);
+    cubit.stream.listen((TimeTableState event) {
       if (event is DateUpdated) {
-        debugPrint('Date is updating in calendar');
+        debugPrint('Date is updating in calendar: date updaed');
         dateForHeader = event.startDate;
-        timeTableController
-          ..changeDate(event.startDate, event.endDate)
-          ..jumpTo(dateForHeader);
+        headerDateNotifier.value = dateForHeader;
+
+        // timeTableController.jumpTo(dateForHeader);
+      }
+      if (event is CurrrentDateUpdated) {
+        dateForHeader = event.currentDate;
+        headerDateNotifier.value = dateForHeader;
       } else if (event is ViewUpdated) {
         debugPrint('view updated in calendar');
 
-        timeTableController.jumpTo(dateForHeader);
-
-        viewTypeNotifer.value = event.viewType;
+        final CalendarViewType requstedView = event.viewType;
+        viewTypeNotifer.value = requstedView;
+        timeTableController.jumpTo(cubit.date);
+        scheduleController.jumpTo(cubit.date);
+        monthController.jumpTo(cubit.date);
+        termController.jumpTo(cubit.date);
+        // if (currentView == CalendarViewType.dayView) {
+        //   if (requstedView == CalendarViewType.weekView) {
+        //     viewTypeNotifer.value = requstedView;
+        //     cubit.snapToCloseMonday(cubit.date);
+        //   } else if (requstedView == CalendarViewType.scheduleView) {
+        //     timeTableController.jumpTo(dateForHeader);
+        //     viewTypeNotifer.value = requstedView;
+        //   } else if (requstedView == CalendarViewType.monthView) {
+        //     viewTypeNotifer.value = requstedView;
+        //     cubit.setMonthFromDate(cubit.date);
+        //   } else if (requstedView == CalendarViewType.termView) {
+        //     viewTypeNotifer.value = requstedView;
+        //     cubit.snapToCloseMonday(cubit.date);
+        //   }
+        // } else if (currentView == CalendarViewType.weekView) {
+        //   if (requstedView == CalendarViewType.dayView) {
+        //     timeTableController.jumpTo(dateForHeader);
+        //     viewTypeNotifer.value = requstedView;
+        //   } else if (requstedView == CalendarViewType.scheduleView) {
+        //     timeTableController.jumpTo(dateForHeader);
+        //     viewTypeNotifer.value = requstedView;
+        //   } else if (requstedView == CalendarViewType.monthView) {
+        //     viewTypeNotifer.value = requstedView;
+        //     cubit.setMonthFromDate(cubit.date);
+        //   } else if (requstedView == CalendarViewType.termView) {
+        //     viewTypeNotifer.value = requstedView;
+        //     cubit.snapToCloseMonday(cubit.date);
+        //   }
+        // } else if (currentView == CalendarViewType.monthView) {
+        //   if (requstedView == CalendarViewType.weekView) {
+        //     viewTypeNotifer.value = requstedView;
+        //     cubit.snapToCloseMonday(cubit.date);
+        //   } else if (requstedView == CalendarViewType.scheduleView) {
+        //     timeTableController.jumpTo(dateForHeader);
+        //     viewTypeNotifer.value = requstedView;
+        //   } else if (requstedView == CalendarViewType.monthView) {
+        //     viewTypeNotifer.value = requstedView;
+        //     cubit.setMonthFromDate(cubit.date);
+        //   } else if (requstedView == CalendarViewType.termView) {
+        //     viewTypeNotifer.value = requstedView;
+        //     cubit.snapToCloseMonday(cubit.date);
+        //   }
+        // } else if (currentView == CalendarViewType.termView) {
+        //   if (requstedView == CalendarViewType.weekView) {
+        //     viewTypeNotifer.value = requstedView;
+        //     cubit.snapToCloseMonday(cubit.date);
+        //   } else if (requstedView == CalendarViewType.scheduleView) {
+        //     timeTableController.jumpTo(dateForHeader);
+        //     viewTypeNotifer.value = requstedView;
+        //   } else if (requstedView == CalendarViewType.monthView) {
+        //     viewTypeNotifer.value = requstedView;
+        //     cubit.setMonthFromDate(cubit.date);
+        //   } else if (requstedView == CalendarViewType.termView) {
+        //     viewTypeNotifer.value = requstedView;
+        //     cubit.snapToCloseMonday(cubit.date);
+        //   }
+        // }
       } else if (event is JumpToDateState) {
-        debugPrint('jumping to date in calendar');
-        final bool isToday = isSameDate(event.dateTime);
-        if (isToday) {
-          if (viewTypeNotifer.value == CalendarViewType.monthView ||
-              viewTypeNotifer.value == CalendarViewType.termView) {
-            viewTypeNotifer.value = CalendarViewType.weekView;
-            dateForHeader = event.dateTime;
-            BlocProvider.of<TimeTableCubit>(context)
-                .changeViewType(CalendarViewType.weekView);
-          }
-        } else {}
+        debugPrint('jumping to date in calendar ${event.dateTime}');
+        timeTableController.jumpTo(event.dateTime);
+        scheduleController.jumpTo(event.dateTime);
+        dateForHeader = event.dateTime;
+        headerDateNotifier.value = dateForHeader;
+        monthController.jumpTo(event.dateTime);
+        termController.jumpTo(event.dateTime);
+        // final bool isToday = isSameDate(event.dateTime);
+        // if (isToday) {
+        //   if (viewTypeNotifer.value == CalendarViewType.monthView ||
+        //       viewTypeNotifer.value == CalendarViewType.termView) {
+        //     viewTypeNotifer.value = CalendarViewType.weekView;
+        //     dateForHeader = event.dateTime;
+        //     BlocProvider.of<TimeTableCubit>(context)
+        //         .changeViewType(CalendarViewType.weekView);
+        //   }
+        // } else {
+        //   timeTableController.jumpTo(event.dateTime);
+        //   dateForHeader = event.dateTime;
+        //   headerDateNotifier.value = dateForHeader;
+        // }
       } else if (event is LoadedState) {
         debugPrint('Setting event in calendar');
 
         if (event.events.isNotEmpty) {
           timeTableController.addEvent(event.events, replace: true);
+          final List<PlannerEvent> e = event.events;
+          scheduleController.addEvent(
+              e
+                  .where((PlannerEvent element) => element.eventData!.isLesson)
+                  .toList(),
+              replace: true);
           monthController.addEvent(event.events, replace: true);
           termController.addEvent(event.events, replace: true);
         }
       } else if (event is EventUpdatedState) {
         debugPrint('updating events in calendar');
         timeTableController.updateEvent(event.oldEvent, event.newEvent);
+        scheduleController.updateEvent(event.oldEvent, event.newEvent);
       } else if (event is EventsAdded) {
         debugPrint('adding events in calendar');
         timeTableController.addEvent(event.events, replace: true);
+        final List<PlannerEvent> e = event.events;
+        scheduleController.addEvent(
+            e
+                .where((PlannerEvent element) => element.eventData!.isLesson)
+                .toList(),
+            replace: true);
+
         monthController.addEvent(event.events, replace: true);
         termController.addEvent(event.events, replace: true);
       } else if (event is PeriodsUpdated) {
@@ -134,37 +228,41 @@ class _PlannerState extends State<Planner> {
         });
       } else if (event is DeletedEvents) {
         timeTableController.removeEvent(event.deletedEvents);
+        scheduleController.removeEvent(event.deletedEvents);
         monthController.removeEvent(event.deletedEvents);
         termController.removeEvent(event.deletedEvents);
         debugPrint('removing events from calendar');
       } else if (event is TermsUpdated) {
+        final Term term = BlocProvider.of<TimeTableCubit>(context).term;
+        debugPrint('Current Term:$term');
+        termController.changeDate(term.startDate, term.endDate);
+        monthController.changeDate(term.startDate, term.endDate);
+        // timeTableController.jumpTo(term.startDate);
       } else if (event is MonthUpdated) {
+        debugPrint('Month Updated');
         dateForHeader = event.startDate;
         monthController.changeDate(event.startDate, event.endDate);
-
         timeTableController.jumpTo(event.startDate);
+        scheduleController.jumpTo(event.startDate);
         headerDateNotifier.value = dateForHeader;
       }
     });
     super.initState();
   }
 
-  List<Period> periods = <PeriodModel>[];
+  List<Period> periods = customStaticPeriods;
 
   ValueNotifier<CalendarViewType> viewTypeNotifer =
       ValueNotifier<CalendarViewType>(CalendarViewType.weekView);
 
   bool sendJsonEcnoded = false;
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) => Scaffold(
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            final DateTime now = DateTime.now();
-            final DateTime date = DateTime(2022, 10, 19, now.hour, now.minute);
-            log(date.toUtc().toIso8601String());
-          },
-          child: const Icon(Icons.monetization_on),
-        ),
         key: scaffoldKey,
         appBar: showAppbar
             ? AppBar(
@@ -172,17 +270,73 @@ class _PlannerState extends State<Planner> {
                 elevation: 0,
                 systemOverlayStyle: SystemUiOverlayStyle.dark,
                 centerTitle: true,
-                title: ValueListenableBuilder<DateTime>(
-                    valueListenable: headerDateNotifier,
-                    builder:
-                        (BuildContext context, DateTime value, Widget? child) =>
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back_ios_new,
+                        color: Colors.black,
+                      ),
+                      onPressed: () {
+                        final CalendarViewType view = viewTypeNotifer.value;
+                        final TimeTableCubit cubit =
+                            BlocProvider.of<TimeTableCubit>(context);
+                        if (view == CalendarViewType.dayView) {
+                          cubit.mockObject
+                              .invokeMethod(ReceiveMethods.previousDay, null);
+                        } else if (view == CalendarViewType.weekView) {
+                          cubit.mockObject
+                              .invokeMethod(ReceiveMethods.previousWeek, null);
+                        } else if (view == CalendarViewType.monthView) {
+                          cubit.mockObject
+                              .invokeMethod(ReceiveMethods.previousMonth, null);
+                        } else if (view == CalendarViewType.termView) {
+                          cubit.mockObject
+                              .invokeMethod(ReceiveMethods.previousTerm, null);
+                        }
+                      },
+                    ),
+                    ValueListenableBuilder<DateTime>(
+                        valueListenable: headerDateNotifier,
+                        builder: (BuildContext context, DateTime value,
+                                Widget? child) =>
                             GestureDetector(
                               onTap: () {},
                               child: Text(
-                                dateForHeader.toString().substring(0, 10),
+                                BlocProvider.of<TimeTableCubit>(context)
+                                    .date
+                                    .toString()
+                                    .substring(0, 10),
                                 style: context.termPlannerTitle,
                               ),
                             )),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.arrow_forward_ios,
+                        color: Colors.black,
+                      ),
+                      onPressed: () {
+                        final CalendarViewType view = viewTypeNotifer.value;
+                        final TimeTableCubit cubit =
+                            BlocProvider.of<TimeTableCubit>(context);
+                        if (view == CalendarViewType.dayView) {
+                          cubit.mockObject
+                              .invokeMethod(ReceiveMethods.nextDay, null);
+                        } else if (view == CalendarViewType.weekView) {
+                          cubit.mockObject
+                              .invokeMethod(ReceiveMethods.nextWeek, null);
+                        } else if (view == CalendarViewType.monthView) {
+                          cubit.mockObject
+                              .invokeMethod(ReceiveMethods.nextMonth, null);
+                        } else if (view == CalendarViewType.termView) {
+                          cubit.mockObject
+                              .invokeMethod(ReceiveMethods.nextTerm, null);
+                        }
+                      },
+                    ),
+                  ],
+                ),
                 leading: IconButton(
                   icon: const Icon(
                     Icons.menu,
@@ -195,44 +349,27 @@ class _PlannerState extends State<Planner> {
                 actions: <Widget>[
                   IconButton(
                     icon: const Icon(
-                      Icons.download,
-                      color: Colors.black,
-                    ),
-                    onPressed: () async {},
-                  ),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.delete_forever,
-                      color: Colors.black,
-                    ),
-                    onPressed: () async {
-                      // final List<PlannerEvent> events =
-                      //dummyEventData.sublist(0, 1);
-                      // timeTableController.removeEvent(events);
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(
                       Icons.search,
                       color: Colors.black,
                     ),
                     onPressed: () async {
-                      final DateTime startDate = DateTime(2022, 9);
-                      final DateTime endDate =
-                          startDate.add(const Duration(days: 30));
-                      timeTableController..changeDate(startDate, endDate)
-                      ..jumpTo(startDate);
+                      //   final List<PlannerEvent> events = dummyEventData;
+                      //   timeTableController.addEvent(
+                      //     events,
+                      //   );
                     },
                   ),
                   IconButton(
-                    icon: const Icon(
-                      Icons.calendar_month,
-                      color: Colors.black,
-                    ),
-                    onPressed: () {
-                      timeTableController.jumpTo(DateTime.now());
-                    },
-                  ),
+                      icon: const Icon(
+                        Icons.calendar_month,
+                        color: Colors.black,
+                      ),
+                      onPressed: () {
+                        BlocProvider.of<TimeTableCubit>(context)
+                            .mockObject
+                            .invokeMethod(
+                                ReceiveMethods.jumpToCurrentDate, null);
+                      }),
                 ],
               )
             : null,
@@ -244,8 +381,8 @@ class _PlannerState extends State<Planner> {
             setState(() {
               startDate = start;
               endDate = end;
-              timeTableController..changeDate(startDate, endDate)
-              ..jumpTo(startDate);
+              timeTableController.changeDate(startDate, endDate);
+              scheduleController.changeDate(startDate, endDate);
             });
           },
         ),
@@ -258,230 +395,256 @@ class _PlannerState extends State<Planner> {
               children: <Widget>[
                 isMobile ? const SizedBox.shrink() : const LeftStrip(),
                 Expanded(
-                    child: ValueListenableBuilder<CalendarViewType>(
-                        valueListenable: viewTypeNotifer,
-                        builder: (BuildContext context,
-                                CalendarViewType viewType, Widget? child) =>
-                            AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 500),
-                              transitionBuilder:
-                                  (Widget child, Animation<double> animation) =>
-                                      ScaleTransition(
-                                          scale: animation, child: child),
-                              child: IndexedStack(
-                                index: getIndex(viewType),
-                                children: <Widget>[
-                                  DayPlanner(
-                                    customPeriods: periods,
-                                    timetableController: timeTableController,
-                                    onDateChanged: (DateTime dateTime) {
-                                      dateForHeader = dateTime;
-                                      headerDateNotifier.value = dateForHeader;
-                                      onDateChange(dateTime);
-                                    },
-                                    onEventDragged:
-                                        (CalendarEvent<EventData> old,
-                                            CalendarEvent<EventData> newEvent,
-                                            Period? period) {
-                                      BlocProvider.of<TimeTableCubit>(context)
-                                          .onEventDragged(
-                                              old, newEvent, period);
-                                    },
-                                    onEventToEventDragged:
-                                        (CalendarEvent<EventData> existing,
-                                            CalendarEvent<EventData> old,
-                                            CalendarEvent<EventData> newEvent,
-                                            Period? periodModel) {
-                                      final Period period =
-                                          existing.eventData!.period;
-                                      final CalendarEvent<EventData>
-                                          eventToUpdate = newEvent
-                                            ..eventData!.period;
-                                      BlocProvider.of<TimeTableCubit>(context)
-                                          .onEventDragged(
-                                              old, eventToUpdate, period);
-                                    },
-                                    onTap: (DateTime dateTime, Period? period,
-                                        CalendarEvent<EventData>? event) {
-                                      final TimeTableCubit cubit =
-                                          BlocProvider.of<TimeTableCubit>(
-                                              context);
-                                      if (event == null && period != null) {
-                                        cubit.nativeCallBack
-                                            .sendAddEventToNativeApp(dateTime,
-                                                cubit.viewType, period,
-                                                jsonEcoded: sendJsonEcnoded);
-                                      } else if (event != null) {
-                                        cubit.nativeCallBack
-                                            .sendShowEventToNativeApp(
-                                                dateTime,
-                                                <CalendarEvent<EventData>>[
-                                                  event
-                                                ],
-                                                cubit.viewType);
-                                      }
-                                    },
-                                  ),
-                                  WeekPlanner<EventData>(
-                                    customPeriods: periods,
-                                    timetableController: timeTableController,
-                                    onDateChanged: (DateTime dateTime) {
-                                      dateForHeader = dateTime;
-                                      headerDateNotifier.value = dateForHeader;
-                                      onDateChange(dateTime);
-                                    },
-                                    onTap: (DateTime dateTime, Period? period,
-                                        CalendarEvent<EventData>? event) {
-                                      final TimeTableCubit cubit =
-                                          BlocProvider.of<TimeTableCubit>(
-                                              context);
-                                      if (event == null && period != null) {
-                                        cubit.nativeCallBack
-                                            .sendAddEventToNativeApp(dateTime,
-                                                cubit.viewType, period,
-                                                jsonEcoded: sendJsonEcnoded);
-                                      } else if (event != null) {
-                                        cubit.nativeCallBack
-                                            .sendShowEventToNativeApp(
-                                                dateTime,
-                                                <CalendarEvent<EventData>>[
-                                                  event
-                                                ],
-                                                cubit.viewType);
-                                      }
-                                    },
-                                    onEventDragged:
-                                        (CalendarEvent<EventData> old,
-                                            CalendarEvent<EventData> newEvent,
-                                            Period? period) {
-                                      log(old.toMap.toString());
-                                      log(newEvent.toMap.toString());
+                    child: Column(
+                  children: <Widget>[
+                    const LinearIndicator(),
+                    Expanded(
+                      child: ValueListenableBuilder<CalendarViewType>(
+                          valueListenable: viewTypeNotifer,
+                          builder: (BuildContext context,
+                                  CalendarViewType viewType, Widget? child) =>
+                              AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 500),
+                                transitionBuilder: (Widget child,
+                                        Animation<double> animation) =>
+                                    ScaleTransition(
+                                        scale: animation, child: child),
+                                child: IndexedStack(
+                                  index: getIndex(viewType),
+                                  children: <Widget>[
+                                    DayPlanner(
+                                      customPeriods: periods,
+                                      timetableController: timeTableController,
+                                      onDateChanged: (DateTime dateTime) {
+                                        dateForHeader = dateTime;
+                                        headerDateNotifier.value =
+                                            dateForHeader;
+                                        onDateChange(dateTime);
+                                      },
+                                      onEventDragged:
+                                          (CalendarEvent<EventData> old,
+                                              CalendarEvent<EventData> newEvent,
+                                              Period? period) {
+                                        BlocProvider.of<TimeTableCubit>(context)
+                                            .onEventDragged(
+                                                old, newEvent, period);
+                                      },
+                                      onEventToEventDragged:
+                                          (CalendarEvent<EventData> existing,
+                                              CalendarEvent<EventData> old,
+                                              CalendarEvent<EventData> newEvent,
+                                              Period? periodModel) {
+                                        final CalendarEvent<EventData>
+                                            eventToUpdate = newEvent
+                                              ..eventData!.slots =
+                                                  existing.eventData!.slots;
+                                        BlocProvider.of<TimeTableCubit>(context)
+                                            .onEventDragged(old, eventToUpdate,
+                                                periodModel);
+                                      },
+                                      onTap: (DateTime dateTime, Period? period,
+                                          CalendarEvent<EventData>? event) {
+                                        final TimeTableCubit cubit =
+                                            BlocProvider.of<TimeTableCubit>(
+                                                context);
+                                        if (event == null && period != null) {
+                                          if (!period.isCustomeSlot) {
+                                            cubit.nativeCallBack
+                                                .sendAddEventToNativeApp(
+                                                    dateTime,
+                                                    cubit.viewType,
+                                                    period,
+                                                    jsonEcoded:
+                                                        sendJsonEcnoded);
+                                          }
+                                        } else if (event != null) {
+                                          cubit.nativeCallBack
+                                              .sendShowEventToNativeApp(
+                                                  dateTime,
+                                                  <CalendarEvent<EventData>>[
+                                                    event
+                                                  ],
+                                                  cubit.viewType);
+                                        }
+                                      },
+                                    ),
+                                    WeekPlanner<EventData>(
+                                      customPeriods: periods,
+                                      timetableController: timeTableController,
+                                      onDateChanged: (DateTime dateTime) {
+                                        dateForHeader = dateTime;
+                                        headerDateNotifier.value =
+                                            dateForHeader;
+                                        onDateChange(dateTime);
+                                      },
+                                      onTap: (DateTime dateTime, Period? period,
+                                          CalendarEvent<EventData>? event) {
+                                        final TimeTableCubit cubit =
+                                            BlocProvider.of<TimeTableCubit>(
+                                                context);
+                                        if (event == null && period != null) {
+                                          if (!period.isCustomeSlot) {
+                                            cubit.nativeCallBack
+                                                .sendAddEventToNativeApp(
+                                                    dateTime,
+                                                    cubit.viewType,
+                                                    period,
+                                                    jsonEcoded:
+                                                        sendJsonEcnoded);
+                                          }
+                                        } else if (event != null) {
+                                          cubit.nativeCallBack
+                                              .sendShowEventToNativeApp(
+                                                  dateTime,
+                                                  <CalendarEvent<EventData>>[
+                                                    event
+                                                  ],
+                                                  cubit.viewType);
+                                        }
+                                      },
+                                      onEventDragged:
+                                          (CalendarEvent<EventData> old,
+                                              CalendarEvent<EventData> newEvent,
+                                              Period? period) {
+                                        log(old.toMap.toString());
+                                        log(newEvent.toMap.toString());
 
-                                      BlocProvider.of<TimeTableCubit>(context)
-                                          .onEventDragged(
-                                              old, newEvent, period);
-                                    },
-                                    onEventToEventDragged:
-                                        (CalendarEvent<EventData> existing,
-                                            CalendarEvent<EventData> old,
-                                            CalendarEvent<EventData> newEvent,
-                                            Period? periodModel) {
-                                      final Period period =
-                                          existing.eventData!.period;
-                                      final CalendarEvent<EventData>
-                                          eventToUpdate = newEvent
-                                            ..eventData!.period;
-                                      BlocProvider.of<TimeTableCubit>(context)
-                                          .onEventDragged(
-                                              old, eventToUpdate, period);
-                                    },
-                                  ),
-                                  SchedulePlanner<EventData>(
-                                    customPeriods: periods,
-                                    timetableController: timeTableController,
-                                    isMobile: isMobile,
-                                    onDateChanged: (DateTime dateTime) {
-                                      dateForHeader = dateTime;
-                                      headerDateNotifier.value = dateForHeader;
-                                      onDateChange(dateTime);
-                                    },
-                                    onEventDragged:
-                                        (CalendarEvent<EventData> old,
-                                            CalendarEvent<EventData> newEvent) {
-                                      BlocProvider.of<TimeTableCubit>(context)
-                                          .onEventDragged(old, newEvent,
-                                              old.eventData!.period);
-                                    },
-                                    onTap: (DateTime dateTime,
-                                        Period? period,
-                                        List<CalendarEvent<EventData>>?
-                                            events) {
-                                      final TimeTableCubit cubit =
-                                          BlocProvider.of<TimeTableCubit>(
-                                              context);
-                                      if (events == null && period == null) {
-                                        cubit.nativeCallBack
-                                            .sendAddEventToNativeApp(dateTime,
-                                                cubit.viewType, period,
-                                                jsonEcoded: sendJsonEcnoded);
-                                      } else if (events != null) {
-                                        cubit.nativeCallBack
-                                            .sendShowEventToNativeApp(
-                                                dateTime, events, viewType);
-                                        // cubit.nativeCallBack
-                                        //     .sendShowEventToNativeApp(
-                                        //         dateTime,
-                                        //        ,events,
-                                        //         cubit.viewType);
-                                      }
-                                    },
-                                    onEventToEventDragged:
-                                        (CalendarEvent<EventData> existing,
-                                            CalendarEvent<EventData> old,
-                                            CalendarEvent<EventData> newEvent,
-                                            Period? periodModel) {
-                                      final Period period =
-                                          existing.eventData!.period;
-                                      final CalendarEvent<EventData>
-                                          eventToUpdate = newEvent
-                                            ..eventData!.period;
-                                      BlocProvider.of<TimeTableCubit>(context)
-                                          .onEventDragged(
-                                              old, eventToUpdate, period);
-                                    },
-                                  ),
-                                  MonthPlanner(
-                                    timetableController: monthController,
-                                    onMonthChanged: (Month month) {
-                                      setState(() {
-                                        dateTime = DateTime(
-                                            month.year, month.month, 15);
-                                      });
-                                    },
-                                    onTap: (DateTime dateTime,
-                                        List<CalendarEvent<EventData>> event) {
-                                      final TimeTableCubit cubit =
-                                          BlocProvider.of<TimeTableCubit>(
-                                              context);
-                                      if (event.isEmpty) {
-                                        cubit.nativeCallBack
-                                            .sendAddEventToNativeApp(
-                                                dateTime, cubit.viewType, null,
-                                                jsonEcoded: sendJsonEcnoded);
-                                      } else {
-                                        cubit.nativeCallBack
-                                            .sendShowEventToNativeApp(dateTime,
-                                                event, cubit.viewType);
-                                      }
-                                    },
-                                  ),
-                                  TermPlanner(
-                                    timetableController: termController,
-                                    onMonthChanged: (Month month) {
-                                      setState(() {
-                                        dateTime = DateTime(
-                                            month.year, month.month, 15);
-                                      });
-                                    },
-                                    onTap: (DateTime dateTime,
-                                        List<CalendarEvent<EventData>> event) {
-                                      final TimeTableCubit cubit =
-                                          BlocProvider.of<TimeTableCubit>(
-                                              context);
-                                      if (event.isEmpty) {
-                                        cubit.nativeCallBack
-                                            .sendAddEventToNativeApp(
-                                                dateTime, cubit.viewType, null);
-                                      } else {
-                                        cubit.nativeCallBack
-                                            .sendShowEventToNativeApp(dateTime,
-                                                event, cubit.viewType);
-                                      }
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ))),
+                                        BlocProvider.of<TimeTableCubit>(context)
+                                            .onEventDragged(
+                                                old, newEvent, period);
+                                      },
+                                      onEventToEventDragged:
+                                          (CalendarEvent<EventData> existing,
+                                              CalendarEvent<EventData> old,
+                                              CalendarEvent<EventData> newEvent,
+                                              Period? periodModel) {
+                                        final CalendarEvent<EventData>
+                                            eventToUpdate = newEvent
+                                              ..eventData!.slots =
+                                                  existing.eventData!.slots;
+                                        BlocProvider.of<TimeTableCubit>(context)
+                                            .onEventDragged(old, eventToUpdate,
+                                                periodModel);
+                                      },
+                                    ),
+                                    SchedulePlanner<EventData>(
+                                      customPeriods: periods,
+                                      timetableController: scheduleController,
+                                      isMobile: isMobile,
+                                      onDateChanged: (DateTime dateTime) {
+                                        dateForHeader = dateTime;
+                                        headerDateNotifier.value =
+                                            dateForHeader;
+                                        onDateChange(dateTime);
+                                      },
+                                      onEventDragged: (CalendarEvent<EventData>
+                                              old,
+                                          CalendarEvent<EventData> newEvent) {
+                                        BlocProvider.of<TimeTableCubit>(context)
+                                            .onEventDragged(
+                                                old, newEvent, null);
+                                      },
+                                      onTap: (DateTime dateTime,
+                                          Period? period,
+                                          List<CalendarEvent<EventData>>?
+                                              events) {
+                                        final TimeTableCubit cubit =
+                                            BlocProvider.of<TimeTableCubit>(
+                                                context);
+                                        if (events == null && period == null) {
+                                          cubit.nativeCallBack
+                                              .sendAddEventToNativeApp(dateTime,
+                                                  cubit.viewType, period,
+                                                  jsonEcoded: sendJsonEcnoded);
+                                        } else if (events != null) {
+                                          cubit.nativeCallBack
+                                              .sendShowEventToNativeApp(
+                                                  dateTime,
+                                                  events,
+                                                  cubit.viewType);
+
+                                          // cubit.nativeCallBack
+                                          //     .sendShowEventToNativeApp(
+                                          //         dateTime,
+                                          //        ,events,
+                                          //         cubit.viewType);
+                                        }
+                                      },
+                                      onEventToEventDragged:
+                                          (CalendarEvent<EventData> existing,
+                                              CalendarEvent<EventData> old,
+                                              CalendarEvent<EventData> newEvent,
+                                              Period? periodModel) {
+                                        final CalendarEvent<EventData>
+                                            eventToUpdate = newEvent
+                                              ..eventData!.slots =
+                                                  existing.eventData!.slots;
+                                        BlocProvider.of<TimeTableCubit>(context)
+                                            .onEventDragged(old, eventToUpdate,
+                                                periodModel);
+                                      },
+                                    ),
+                                    MonthPlanner(
+                                      timetableController: monthController,
+                                      onMonthChanged: (Month month) {
+                                        setState(() {
+                                          dateTime = DateTime(
+                                              month.year, month.month, 15);
+                                        });
+                                      },
+                                      onTap: (DateTime dateTime,
+                                          List<CalendarEvent<EventData>>
+                                              event) {
+                                        final TimeTableCubit cubit =
+                                            BlocProvider.of<TimeTableCubit>(
+                                                context);
+                                        if (event.isEmpty) {
+                                          cubit.nativeCallBack
+                                              .sendAddEventToNativeApp(dateTime,
+                                                  cubit.viewType, null,
+                                                  jsonEcoded: sendJsonEcnoded);
+                                        } else {
+                                          cubit.nativeCallBack
+                                              .sendShowEventToNativeApp(
+                                                  dateTime,
+                                                  event,
+                                                  cubit.viewType);
+                                        }
+                                      },
+                                    ),
+                                    TermPlanner(
+                                      timetableController: termController,
+                                      onMonthChanged: (Month month) {
+                                        setState(() {
+                                          dateTime = DateTime(
+                                              month.year, month.month, 15);
+                                        });
+                                      },
+                                      onTap: (DateTime dateTime,
+                                          List<CalendarEvent<EventData>>
+                                              event) {
+                                        final TimeTableCubit cubit =
+                                            BlocProvider.of<TimeTableCubit>(
+                                                context);
+                                        if (event.isEmpty) {
+                                          cubit.nativeCallBack
+                                              .sendAddEventToNativeApp(dateTime,
+                                                  cubit.viewType, null);
+                                        } else {
+                                          cubit.nativeCallBack
+                                              .sendShowEventToNativeApp(
+                                                  dateTime,
+                                                  event,
+                                                  cubit.viewType);
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              )),
+                    ),
+                  ],
+                )),
                 isMobile
                     ? const SizedBox.shrink()
                     : BlocConsumer<TimeTableCubit, TimeTableState>(

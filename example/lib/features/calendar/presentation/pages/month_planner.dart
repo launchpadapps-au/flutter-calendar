@@ -45,14 +45,7 @@ DateTime now = DateTime.now();
 class _MonthPlannerState extends State<MonthPlanner> {
   static DateTime dateTime = DateTime.now();
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      currentMonth = widget.timetableController.visibleDateStart;
-      setState(() {});
-    });
-  }
+ 
 
   DateTime currentMonth = DateTime.now();
 

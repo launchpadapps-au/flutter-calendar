@@ -39,14 +39,14 @@ class ScheduleViewEventTile extends StatelessWidget {
                       const Icon(
                         Icons.circle,
                         color: Colors.black,
-                        size: 10,
+                        size: 6,
                       ),
                       const SizedBox(
                         width: 4,
                       ),
                       Flexible(
                         child: Text(
-                          item.eventData!.title + item.eventData!.period.id,
+                          item.eventData!.title,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                               height: 1.2,
@@ -64,7 +64,11 @@ class ScheduleViewEventTile extends StatelessWidget {
                 SizedBox(
                   width: 100,
                   child: Text(
-                    utils.getFormattedTime(item.eventData!.period, context),
+                    utils.getFormattedTime(
+                        Period(
+                            startTime: TimeOfDay.fromDateTime(item.startTime),
+                            endTime: TimeOfDay.fromDateTime(item.endTime)),
+                        context),
                     style: const TextStyle(
                         height: 1.2, fontSize: 10, fontWeight: FontWeight.w500),
                   ),

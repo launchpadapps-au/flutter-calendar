@@ -1,4 +1,5 @@
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
+import 'package:edgar_planner_calendar_flutter/core/url.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
@@ -78,18 +79,25 @@ class EventTile extends StatelessWidget {
                     item.eventData!.eventLinks == null ||
                     item.eventData!.eventLinks.toString() == ''
                 ? const SizedBox.shrink()
-                : Container(
-                    width: MediaQuery.of(context).size.width,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20)),
-                    child: Text(
-                      '${item.eventData!.eventLinks}',
-                      overflow: TextOverflow.ellipsis,
-                      style: context.subtitle,
-                    ))
+                : GestureDetector(
+                    onTap: () {
+                      launchLink(item.eventData!.eventLinks);
+                    },
+                    child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 4, vertical: 2),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20)),
+                        child: Center(
+                          child: Text(
+                            '${item.eventData!.eventLinks}',
+                            overflow: TextOverflow.ellipsis,
+                            style: context.subtitle,
+                          ),
+                        )),
+                  )
           ],
         ),
       );

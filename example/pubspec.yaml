@@ -41,13 +41,15 @@ dependencies:
  
   # screenshot: ^1.2.3
   path: ^1.8.2
-  path_provider: ^2.0.11
+  path_provider: ^2.0.11 
   screenshot:
     git:
       url: https://github.com/SachinGanesh/screenshot
   flutter_calendar:
   # local path only for the development,replace it with pub.dev or github
     path: ../
+  jiffy: ^5.0.0
+  url_launcher: ^6.1.6
 
     # git:
     #   url: https://github.com/launchpadapps-au/flutter-calendar
@@ -58,6 +60,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+  
   solutelabs_lint:
     git:
       url: https://github.com/solutelabs/solutelabs_lint

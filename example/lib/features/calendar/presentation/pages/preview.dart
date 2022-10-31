@@ -155,13 +155,8 @@ class Preview {
                                   ),
                           );
                         },
-                        isCellDraggable: (CalendarEvent<EventData> event) {
-                          if (event.eventData!.period.isCustomeSlot) {
-                            return false;
-                          } else {
-                            return true;
-                          }
-                        },
+                        isCellDraggable: (CalendarEvent<EventData> event) =>
+                            event.eventData!.isDraggable,
                         controller: simpleController,
                         itemBuilder:
                             (CalendarEvent<EventData> item, double width) =>
@@ -169,13 +164,13 @@ class Preview {
                           margin: const EdgeInsets.all(4),
                           child: Container(
                               padding: const EdgeInsets.all(6),
-                              height: item.eventData!.period.isCustomeSlot
+                              height: item.eventData!.isDuty
                                   ? simpleController.breakHeight
                                   : simpleController.cellHeight,
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(6),
                                   color: item.eventData!.color),
-                              child: item.eventData!.period.isCustomeSlot
+                              child: item.eventData!.isDuty
                                   ? SizedBox(
                                       height: simpleController.breakHeight,
                                       child: Center(
@@ -186,14 +181,14 @@ class Preview {
                                     )
                                   : EventTile(
                                       item: item,
-                                      height:
-                                          item.eventData!.period.isCustomeSlot
-                                              ? simpleController.breakHeight
-                                              : simpleController.cellHeight,
+                                      height: item.eventData!.isDuty
+                                          ? simpleController.breakHeight
+                                          : simpleController.cellHeight,
                                       width: width,
                                     )),
                         ),
-                        cellBuilder: (Period period) => Container(
+                        cellBuilder: (Period period, DateTime dateTime) =>
+                            Container(
                           height: period.isCustomeSlot
                               ? simpleController.breakHeight
                               : simpleController.cellHeight,

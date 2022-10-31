@@ -12,5 +12,8 @@ export 'src/view/schedule_view.dart';
 export 'src/view/term_view.dart';
 export 'src/view/timetable_controller.dart';
 export 'src/view/week_view.dart';
+export 'src/view/week_view_new.dart';
 export 'src/view/day_view.dart';
 export 'src/widgets/indexed_listview.dart';
+export 'src/widgets/infinite_listview.dart';
+export 'src/widgets/linfinite_group_controller.dart';

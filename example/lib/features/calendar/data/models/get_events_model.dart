@@ -155,49 +155,6 @@ extension ColorExtension on Color {
 
 ///event data class
 class EventData {
-  ///initialize the event
-  EventData({
-    required this.id,
-    required this.title,
-    required this.location,
-    required this.startDate,
-    required this.endDate,
-    required this.startTime,
-    required this.endTime,
-    required this.reminderEnabled,
-    required this.slots,
-    required this.type,
-    required this.updatedAt,
-    required this.lessonPlans,
-    required this.googleDriveFiles,
-    required this.period,
-    this.subject,
-    this.color = lessonPink,
-    this.freeTime = false,
-    this.isDutyTime = false,
-    this.remindBefore,
-    this.recurrenceUntil,
-    this.recurringEventId,
-    this.recurrenceFreq,
-    this.eventLinks,
-  }) {
-    if (type == 'freetime') {
-      title = 'Free Time';
-      freeTime = true;
-      isDutyTime = false;
-      color = const Color(0xFFCBCE42).withOpacity(0.58);
-    } else if (type == 'duty') {
-      color = const Color(0xFFE0E0E0);
-      isDutyTime = true;
-      freeTime = false;
-    } else if (type == 'lesson') {
- 
-      if (subject != null) {
-        color = subject!.colorCode;
-      }
-    }
-  }
-
   // ///create object from the json
   // factory EventData.fromJson(Map<String, dynamic> json) => EventData(
   //       id: json['id'],
@@ -222,17 +179,57 @@ class EventData {
   //           json['google_drive_files'].map<dynamic>((dynamic x) => x)),
   //       eventLinks: json['event_links'],
   //     );
+  ///initialize the event
+  EventData({
+    required this.id,
+    required this.title,
+    required this.location,
+    required this.startDate,
+    required this.endDate,
+    required this.startTime,
+    required this.endTime,
+    required this.reminderEnabled,
+    required this.slots,
+    required this.type,
+    required this.updatedAt,
+    required this.lessonPlans,
+    required this.googleDriveFiles,
+    this.event,
+    // required this.period,
+    this.subject,
+    this.color = grey,
+    this.freeTime = false,
+    this.isDutyTime = false,
+    this.remindBefore,
+    this.recurrenceUntil,
+    this.recurringEventId,
+    this.recurrenceFreq,
+    this.eventLinks,
+  }) {
+    if (type == 'freetime') {
+      title = 'Free Time';
+      freeTime = true;
+      isDutyTime = false;
+      color = const Color(0xFFCBCE42).withOpacity(0.58);
+    } else if (type == 'duty') {
+      color = const Color(0xFFE0E0E0);
+      isDutyTime = true;
+      freeTime = false;
+    } else if (type == 'lesson') {
+      if (subject != null) {
+        color = subject!.colorCode;
+      }
+    }
+  }
 
   ///create object from the json
   factory EventData.fromJsonWithPeriod(
       Map<String, dynamic> json, List<PeriodModel> periods) {
-    late PeriodModel periodModel;
     try {
       final Iterable<PeriodModel> ps = periods.where((PeriodModel element) =>
           element.id.toString() == json['slots'].toString());
       if (ps.isNotEmpty) {
-        periodModel = ps.first;
-      }
+      } else {}
     } on Exception catch (e) {
       log('Error: $e');
       final Map<String, dynamic> data = <String, dynamic>{
@@ -253,6 +250,8 @@ class EventData {
       location: json['location'],
       subject:
           json['subject'] == null ? null : Subject.fromJson(json['subject']),
+      event: json['event'] == null ? null : EdgarEvent.fromJson(json['event']),
+
       startDate: DateTime.parse(json['start_date']),
       endDate: DateTime.parse(json['end_date']),
       startTime: json['start_time'],
@@ -260,7 +259,7 @@ class EventData {
       remindBefore: json['remind_before'],
       reminderEnabled: json['reminder_enabled'],
       slots: json['slots'].toString(),
-      period: periodModel,
+      // period: periodModel,
       recurrenceUntil: json['recurrence_until'],
       recurringEventId: json['recurring_event_id'],
       recurrenceFreq: json['recurrence_freq'],
@@ -275,6 +274,18 @@ class EventData {
       eventLinks: json['event_links'],
     );
   }
+
+  ///if type is lesson then return true
+  bool get isDraggable => type == 'lesson';
+
+  ///if type is lesson then return true
+  bool get isDuty => type == 'duty';
+
+  ///if type is lesson then return true
+  bool get isFreeTime => type == 'freetime';
+
+  ///if type is lesson then return true
+  bool get isLesson => type == 'lesson';
 
   ///id of the event
   dynamic id;
@@ -308,8 +319,8 @@ class EventData {
   ///slot number
   String slots;
 
-  ///Period model of the events
-  Period period;
+  // ///Period model of the events
+  // Period period;
 
   ///if event is freetime
   bool freeTime;
@@ -335,7 +346,7 @@ class EventData {
   ///last updated at
   DateTime updatedAt;
 
-  ///lession plan of the event
+  ///lesson plan of the event
   List<dynamic> lessonPlans;
 
   ///list of google drive url
@@ -343,6 +354,9 @@ class EventData {
 
   ///any external link for the event
   dynamic eventLinks;
+
+  ///object of the edgar event
+  EdgarEvent? event;
 
   ///convert json object from the model
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -361,6 +375,7 @@ class EventData {
         'remind_before': remindBefore,
         'reminder_enabled': reminderEnabled,
         'slots': slots,
+        'event': event == null ? <String, dynamic>{} : event!.toJson(),
         'recurrence_until': recurrenceUntil,
         'recurring_event_id': recurringEventId,
         'recurrence_freq': recurrenceFreq,
@@ -459,4 +474,44 @@ class HexColor extends Color {
     }
     return int.parse(hexColor, radix: 16);
   }
+}
+
+///Edgar Event model
+class EdgarEvent {
+  ///initialize the model
+  EdgarEvent({
+    required this.id,
+    required this.isRecurringEvent,
+    required this.recurrenceUntil,
+    required this.recurrenceFreq,
+  });
+
+  ///cretae object fron the json
+  factory EdgarEvent.fromJson(Map<String, dynamic> json) => EdgarEvent(
+      id: json['id'],
+      isRecurringEvent: json['is_recurring_event'],
+      recurrenceUntil: DateTime.parse(json['recurrence_until']),
+      recurrenceFreq: json['recurrence_freq']);
+
+  ///id of the subject
+  String id;
+
+  ///color of the subject
+
+  bool isRecurringEvent;
+
+  ///recurring until
+  DateTime recurrenceUntil;
+
+  ///frequendy of the event
+  String recurrenceFreq;
+
+  ///create json from the
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'id': id,
+        'is_recurring_event': isRecurringEvent,
+        'recurrence_until': recurrenceUntil,
+        'recurrence_freq': recurrenceFreq,
+      };
 }

@@ -46,16 +46,7 @@ DateTime now = DateTime.now();
 
 class _TermPlannerState extends State<TermPlanner> {
   static DateTime dateTime = DateTime.now();
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      currentMonth = widget.timetableController.visibleDateStart;
-      setState(() {});
-    });
-  }
-
+ 
   DateTime currentMonth = DateTime.now();
 
   ValueNotifier<DateTime> dateTimeNotifier = ValueNotifier<DateTime>(dateTime);

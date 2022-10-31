@@ -60,19 +60,6 @@ class DayPlanner extends StatefulWidget {
 class _DayPlannerState extends State<DayPlanner> {
   static DateTime dateTime = DateTime.now();
 
-  @override
-  void initState() {
-    super.initState();
-    setState(() {});
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      currentMonth = widget.timetableController.visibleDateStart;
-      setState(() {});
-      Future<dynamic>.delayed(const Duration(milliseconds: 100), () {
-        widget.timetableController.jumpTo(dateTime);
-      });
-    });
-  }
-
   DateTime currentMonth = DateTime.now();
 
   ValueNotifier<DateTime> dateTimeNotifier = ValueNotifier<DateTime>(dateTime);
@@ -131,8 +118,9 @@ class _DayPlannerState extends State<DayPlanner> {
                                   Text(
                                     DateFormat('E').format(date).toUpperCase(),
                                     style: context.hourLabelMobile.copyWith(
-                                      color:
-                                          isSameDate(date) ? primaryPink : null,
+                                      color: isSameDate(date)
+                                          ? primaryPink
+                                          : textBlack,
                                     ),
                                   ),
                                   Container(
@@ -266,18 +254,17 @@ class _DayPlannerState extends State<DayPlanner> {
                     widget.onTap(item.startTime, null, item);
                   },
                   child: SingleDayEventTile(
-                      border: item.eventData!.period.isCustomeSlot
+                      border: item.eventData!.isDuty
                           ? null
                           : Border.all(color: white, width: 2),
                       cellWidth:
                           size.width - widget.timetableController.timelineWidth,
                       item: item,
                       isDraggable: false,
-                      period: item.eventData!.period,
                       breakHeight: widget.timetableController.breakHeight,
                       cellHeight: widget.timetableController.cellHeight),
                 ),
-                cellBuilder: (Period period) => CellBorder(
+                cellBuilder: (Period period,DateTime dateTime) => CellBorder(
                     borderWidth: 1,
                     borderRadius: 0,
                     color: period.isCustomeSlot

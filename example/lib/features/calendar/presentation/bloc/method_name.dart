@@ -36,6 +36,30 @@ class ReceiveMethods {
 
   ///jumpToCurrentDate
   static const String jumpToCurrentDate = 'jumpToCurrentDate';
+
+  ///nextday
+  static const String nextDay = 'nextDay';
+
+  ///prvious day
+  static const String previousDay = 'previousDay';
+
+  ///next month
+  static const String nextMonth = 'nextMonth';
+
+  ///previous month
+  static const String previousMonth = 'previousMonth';
+
+  ///next term
+  static const String nextTerm = 'nextTerm';
+
+  ///previous term
+  static const String previousTerm = 'previousTerm';
+
+  ///next week
+  static const String nextWeek = 'nextWeek';
+
+  ///previous week
+  static const String previousWeek = 'previousWeek';
 }
 
 ///class which contain static method name which used to send data to native app
@@ -52,10 +76,10 @@ class SendMethods {
 
   static const String showEvent = 'showEvent';
 
-
   /// showEvent method called when user tan on cell which have events
 
   static const String visibleDateChanged = 'visibleDateChanged';
+
   ///dateChanged method called when user ch tap on the side strips
 
   static const String dateChanged = 'dateChanged';
@@ -73,8 +97,7 @@ class SendMethods {
 
   static const String showRecord = 'showRecord';
 
-
   ///this is newaly generated method for fetching data termwise
   ///specificaly used for edgar planner project
-  static const String fetchData='fetchData';
+  static const String fetchData = 'fetchData';
 }

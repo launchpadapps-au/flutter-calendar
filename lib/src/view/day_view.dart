@@ -48,7 +48,7 @@ class NewSlDayView<T> extends StatefulWidget {
 
   /// Renders for the cells the represent each hour that provides
   /// that [DateTime] for that hour
-  final Widget Function(Period)? cellBuilder;
+  final Widget Function(Period,DateTime dateTime)? cellBuilder;
 
   /// Renders for the header that provides the [DateTime] for the day
   final Widget Function(DateTime)? headerCellBuilder;
@@ -473,7 +473,7 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
                     DecoratedBox(
                       decoration: widget.headerDecoration == null
                           ? const BoxDecoration()
-                          : widget.headerDecoration!(dateForHeader),
+                          : widget.headerDecoration!(date),
                       child: Row(
                         children: <Widget>[
                           SizedBox(
@@ -565,14 +565,20 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
                                             period.endTime.hour,
                                             period.endTime.minute);
 
-                                        final CalendarEvent<T> newEvent =
-                                            CalendarEvent<T>(
-                                                startTime: newStartTime,
-                                                endTime: newEndTime,
-                                                eventData: event.eventData);
+                                        event
+                                          ..startTime = newStartTime
+                                          ..endTime = newEndTime;
+
+                                        final int index =
+                                            items.indexOf(details.data);
+
+                                        items
+                                          ..removeAt(index)
+                                          ..insert(index, event);
+                                        eventNotifier.sink.add(items);
 
                                         widget.onEventDragged!(
-                                            details.data, newEvent, period);
+                                            details.data, event, period);
                                       },
                                       onWillAccept: (CalendarEvent<T>? data,
                                           Period period) {
@@ -635,6 +641,14 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
                                         myEvents
                                           ..startTime = start
                                           ..endTime = end;
+
+                                        final int index =
+                                            items.indexOf(details.data);
+
+                                        items
+                                          ..removeAt(index)
+                                          ..insert(index, myEvents);
+                                        eventNotifier.sink.add(items);
 
                                         final List<Period> times = widget
                                             .timelines

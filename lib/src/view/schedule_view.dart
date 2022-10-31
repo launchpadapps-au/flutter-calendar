@@ -504,12 +504,18 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
                             event.endTime.hour,
                             event.endTime.minute);
 
-                        final CalendarEvent<T> newEvent = CalendarEvent<T>(
-                            startTime: newStartTime,
-                            endTime: newEndTime,
-                            eventData: event.eventData);
+                        event
+                          ..startTime = newStartTime
+                          ..endTime = newEndTime;
 
-                        widget.onEventDragged!(details.data, newEvent);
+                        final int index = items.indexOf(details.data);
+
+                        items
+                          ..removeAt(index)
+                          ..insert(index, event);
+                        eventNotifier.sink.add(items);
+
+                        widget.onEventDragged!(details.data, event);
                       },
                       builder: (BuildContext content, List<Object?> obj,
                               List<dynamic> data) =>
@@ -537,14 +543,18 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
                                     event.endTime.hour,
                                     event.endTime.minute);
 
-                                final CalendarEvent<T> newEvent =
-                                    CalendarEvent<T>(
-                                        startTime: newStartTime,
-                                        endTime: newEndTime,
-                                        eventData: event.eventData);
+                                event
+                                  ..startTime = newStartTime
+                                  ..endTime = newEndTime;
 
+                                final int index = items.indexOf(details.data);
+
+                                items
+                                  ..removeAt(index)
+                                  ..insert(index, event);
+                                eventNotifier.sink.add(items);
                                 widget.onEventToEventDragged!(
-                                    e, details.data, newEvent, null);
+                                    e, details.data, event, null);
                               },
                               builder: (BuildContext content, List<Object?> obj,
                                   List<dynamic> data) {

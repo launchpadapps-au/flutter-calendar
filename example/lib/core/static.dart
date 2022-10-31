@@ -150,6 +150,21 @@ TermModel defaultTermModel = TermModel(
         term4: '01-10|31-12',
         territory: 'default'),
     id: '0');
+///static json for the terms
+Map<String, dynamic> /// A map of string to dynamic.
+staticJsonForTheTerm = <String, dynamic>{
+  'term': <String,dynamic>{
+    'id': 2,
+    'territory': 'Victoria',
+    'term1': '28-01|08-04',
+    'term2': '26-04|24-06',
+    'term3': '11-07|16-09',
+    'term4': '03-10|20-12'
+  },
+  'id': '82a9c68b-3024-4206-8c93-579cfec3e45e'
+};
+///static term that derived from [staticJsonForTheTerm]
+TermModel termFromJson = TermModel.fromJson(staticJsonForTheTerm);
 
 ///dummy list with non uniform slpts
 List<Map<String, String>> list = <Map<String, String>>[

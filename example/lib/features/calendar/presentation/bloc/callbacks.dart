@@ -92,17 +92,28 @@ class NativeCallBack {
       CalendarEvent<EventData> newEvent,
       CalendarViewType viewType,
       Period? periodModel) async {
-    Period? period = periodModel;
-    period ??= newEvent.eventData!.period;
+    final Period? period = periodModel;
+
+    final String sid = period == null ? newEvent.eventData!.slots : period.id;
     log(periodModel.toString());
-    final int id = int.parse(period.id.toString());
+    final int id = int.parse(sid);
     final int eventId = int.parse(newEvent.eventData!.id);
+    bool isRec = false;
+    if (newEvent.eventData!.event != null) {
+      isRec = newEvent.eventData!.event!.isRecurringEvent;
+    }
+
     final Map<String, dynamic> data = <String, dynamic>{
       'start_date': newEvent.startTime.toString().substring(0, 10),
       'end_date': newEvent.startTime.toString().substring(0, 10),
       'start_time': newEvent.startTime.toString().substring(11, 19),
       'end_time': newEvent.endTime.toString().substring(11, 19),
-      'eventId': eventId
+      'eventId': eventId,
+      'is_recurring_event': isRec,
+      'reminder_start_time': DateTime(
+              2022, 10, 19, newEvent.startTime.hour, newEvent.startTime.minute)
+          .toUtc()
+          .toIso8601String()
     }..putIfAbsent('slotId', () => id);
     debugPrint('Data: $data');
     await sendToNativeApp(SendMethods.eventDragged, data);
@@ -156,6 +167,18 @@ class NativeCallBack {
     final Map<String, String> data = <String, String>{
       'startDate': term.startDate.toString().substring(0, 10),
       'endDate': term.endDate.toString().substring(0, 10)
+    };
+    await sendToNativeApp(SendMethods.fetchData, data);
+    return true;
+  }
+
+  ///ask native app to fetch more data between speceffic date
+
+  Future<bool> sendFetchDataDatesToNativeApp(
+      DateTime startDate, DateTime endDate) async {
+    final Map<String, String> data = <String, String>{
+      'startDate': startDate.toString().substring(0, 10),
+      'endDate': endDate.toString().substring(0, 10)
     };
     await sendToNativeApp(SendMethods.fetchData, data);
     return true;

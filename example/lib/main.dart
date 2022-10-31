@@ -21,7 +21,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) => BlocProvider<TimeTableCubit>(
         create: (BuildContext context) => TimeTableCubit(),
         child: MaterialApp(
-           
           theme: ThemeData(fontFamily: Fonts.sofiaPro),
           localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
             S.delegate,

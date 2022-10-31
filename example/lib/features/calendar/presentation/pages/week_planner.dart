@@ -1,5 +1,3 @@
-   
-
 import 'package:edgar_planner_calendar_flutter/core/calendar_utils.dart';
 import 'package:edgar_planner_calendar_flutter/core/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/constants.dart';
@@ -59,15 +57,6 @@ DateTime now = DateTime.now().subtract(const Duration(days: 30));
 class _WeekPlannerState extends State<WeekPlanner<EventData>> {
   static DateTime dateTime = DateTime.now();
 
-  @override
-  void initState() {
-    setState(() {});
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      setState(() {});
-    });
-    super.initState();
-  }
-
   DateTime currentMonth = DateTime.now();
 
   ValueNotifier<DateTime> dateTimeNotifier = ValueNotifier<DateTime>(dateTime);
@@ -82,7 +71,6 @@ class _WeekPlannerState extends State<WeekPlanner<EventData>> {
           color: white,
           child: SlWeekView<EventData>(
             backgroundColor: white,
-            fullWeek: true,
             timelines: widget.customPeriods,
             onEventDragged: (CalendarEvent<EventData> old,
                 CalendarEvent<EventData> newEvent, Period? period) {
@@ -118,7 +106,9 @@ class _WeekPlannerState extends State<WeekPlanner<EventData>> {
                       children: <Widget>[
                         Text(
                           DateFormat('E').format(date).toUpperCase(),
-                          style: context.hourLabelMobile,
+                          style: context.hourLabelMobile.copyWith(
+                            color: isSameDate(date) ? primaryPink : textBlack,
+                          ),
                         ),
                         Container(
                             width: 24,
@@ -231,7 +221,7 @@ class _WeekPlannerState extends State<WeekPlanner<EventData>> {
                 margin: EdgeInsets.all(item.eventData!.isDutyTime ? 0 : 4),
                 child: Container(
                     padding: EdgeInsets.all(item.eventData!.isDutyTime ? 0 : 6),
-                    height: item.eventData!.period.isCustomeSlot
+                    height: item.eventData!.isDuty
                         ? widget.timetableController.breakHeight
                         : widget.timetableController.cellHeight,
                     decoration: item.eventData!.isDutyTime
@@ -243,7 +233,7 @@ class _WeekPlannerState extends State<WeekPlanner<EventData>> {
                             borderRadius: BorderRadius.circular(
                                 item.eventData!.isDutyTime ? 0 : 6),
                             color: item.eventData!.color),
-                    child: item.eventData!.period.isCustomeSlot
+                    child: item.eventData!.isDuty
                         ? SizedBox(
                             height: widget.timetableController.breakHeight,
                             child: Center(
@@ -254,14 +244,14 @@ class _WeekPlannerState extends State<WeekPlanner<EventData>> {
                           )
                         : EventTile(
                             item: item,
-                            height: item.eventData!.period.isCustomeSlot
+                            height: item.eventData!.isDuty
                                 ? widget.timetableController.breakHeight
                                 : widget.timetableController.cellHeight,
                             width: width,
                           )),
               ),
             ),
-            cellBuilder: (Period period) => Container(
+            cellBuilder: (Period period, DateTime dateTime) => Container(
               height: period.isCustomeSlot
                   ? widget.timetableController.breakHeight
                   : widget.timetableController.cellHeight,
