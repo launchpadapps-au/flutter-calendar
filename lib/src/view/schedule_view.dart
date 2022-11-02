@@ -399,6 +399,7 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
                         : IndexedListView.separated(
                             controller: indexdController,
                             padding: EdgeInsets.zero,
+                            pageSnapping: false,
                             cacheExtent: widget.enableEmptyBuilder
                                 ? items.isEmpty
                                     ? 15
@@ -452,21 +453,12 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
 
                               final bool isToday =
                                   DateUtils.isSameDay(date, DateTime.now());
-                              // dateForHeader = date.subtract(
-                              //     Duration(days: index.isNegative ? -5 : 5));
+
                               final List<CalendarEvent<T>> events = items
                                   .where((CalendarEvent<T> event) =>
                                       DateUtils.isSameDay(
                                           date, event.startTime))
                                   .toList();
-
-                              // if (date.isBefore(dateForHeader)) {
-                              //   dateForHeader =
-                              //       date.subtract(const Duration(days: -5));
-                              // } else {
-                              //   dateForHeader =
-                              //       date.subtract(const Duration(days: 5));
-                              // }
 
                               return buildView(date, events, isToday: isToday);
                             })),

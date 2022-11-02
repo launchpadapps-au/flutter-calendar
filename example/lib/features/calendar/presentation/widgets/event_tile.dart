@@ -39,15 +39,20 @@ class EventTile extends StatelessWidget {
               children: <Widget>[
                 item.eventData!.isDutyTime
                     ? const SizedBox.shrink()
-                    : const Icon(
-                        Icons.circle,
-                        color: Colors.black,
-                        size: 4,
+                    : SizedBox(
+                        height: 10 * MediaQuery.of(context).textScaleFactor,
+                        child: const Center(
+                          child: Icon(
+                            Icons.circle,
+                            color: Colors.black,
+                            size: 4,
+                          ),
+                        ),
                       ),
                 item.eventData!.isDutyTime
                     ? const SizedBox.shrink()
                     : const SizedBox(
-                        width: 4,
+                        width: 6,
                       ),
                 Flexible(
                   child: Text(

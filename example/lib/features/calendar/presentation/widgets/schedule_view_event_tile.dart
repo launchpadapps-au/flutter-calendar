@@ -27,64 +27,71 @@ class ScheduleViewEventTile extends StatelessWidget {
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(6),
             color: item.eventData!.color),
-        child: Column(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Expanded(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      const Icon(
-                        Icons.circle,
-                        color: Colors.black,
-                        size: 6,
-                      ),
-                      const SizedBox(
-                        width: 4,
-                      ),
-                      Flexible(
-                        child: Text(
-                          item.eventData!.title,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                              height: 1.2,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w500),
+                Row(
+                  children: <Widget>[
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        SizedBox(
+                          height: 10 * MediaQuery.of(context).textScaleFactor,
+                          child: const Center(
+                            child: Icon(
+                              Icons.circle,
+                              color: Colors.black,
+                              size: 6,
+                            ),
+                          ),
                         ),
-                      ),
-                      // const Spacer(),
-                    ],
-                  ),
+                        const SizedBox(
+                          width: 4,
+                        ),
+                        Flexible(
+                          child: Text(
+                            item.eventData!.title,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                        // const Spacer(),
+                      ],
+                    ),
+                  ],
                 ),
-                const SizedBox(
-                  width: 6,
-                ),
-                SizedBox(
-                  width: 100,
+                // item.eventData!.freeTime ? const SizedBox.shrink() :
+                //const Spacer(),
+                Flexible(
                   child: Text(
-                    utils.getFormattedTime(
-                        Period(
-                            startTime: TimeOfDay.fromDateTime(item.startTime),
-                            endTime: TimeOfDay.fromDateTime(item.endTime)),
-                        context),
+                    item.eventData!.location ?? '',
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                         height: 1.2, fontSize: 10, fontWeight: FontWeight.w500),
                   ),
-                )
+                ),
               ],
             ),
-            // item.eventData!.freeTime ? const SizedBox.shrink() :
-            //const Spacer(),
-            Flexible(
+            const SizedBox(
+              width: 6,
+            ),
+            SizedBox(
+              width: 100,
               child: Text(
-                item.eventData!.location ?? '',
-                overflow: TextOverflow.ellipsis,
+                utils.getFormattedTime(
+                    Period(
+                        startTime: TimeOfDay.fromDateTime(item.startTime),
+                        endTime: TimeOfDay.fromDateTime(item.endTime)),
+                    context),
                 style: const TextStyle(
                     height: 1.2, fontSize: 10, fontWeight: FontWeight.w500),
               ),
-            ),
+            )
           ],
         ),
       );

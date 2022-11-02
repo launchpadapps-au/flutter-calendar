@@ -153,10 +153,8 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
       StreamController<List<CalendarEvent<T>>>.broadcast();
   static DateTime dateForHeader = DateTime.now();
   DateTime dateTime = DateTime.now();
-  IndexedScrollController indexdController =
-      IndexedScrollController();
-  IndexedScrollController indexdHeaderController =
-      IndexedScrollController();
+  IndexedScrollController indexdController = IndexedScrollController();
+  IndexedScrollController indexdHeaderController = IndexedScrollController();
   @override
   void initState() {
     controller = widget.controller ?? controller;
@@ -179,6 +177,10 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
           if (!isScrolling) {
             widget.onDateChanged!(dateTime);
           }
+        }
+        if (indexdHeaderController.hasClients) {
+          indexdHeaderController
+              .jumpToWithSameOriginIndex(indexdController.offset);
         }
       });
     } else {
@@ -412,38 +414,40 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
       widget.isCellDraggable == null || widget.isCellDraggable!(event);
   bool headerIsScrolling = false;
   bool tabIsScrolling = false;
-  bool syncWithHeader(ScrollNotification notification) {
-    if (tabIsScrolling || isScrolling) {
-    } else if (notification is ScrollStartNotification) {
-      headerIsScrolling = true;
-    } else if (notification is ScrollEndNotification) {
-      _snapToCloset();
-      headerIsScrolling = false;
-    } else if (notification is ScrollUpdateNotification) {
-      if (controller.infiniteScrolling) {
-        indexdController.jumpTo(indexdHeaderController.position.pixels);
-      }
-    }
-    return false;
-  }
+  // bool syncWithHeader(ScrollNotification notification) {
+  //   if (tabIsScrolling || isScrolling) {
+  //   } else if (notification is ScrollStartNotification) {
+  //     headerIsScrolling = true;
+  //   } else if (notification is ScrollEndNotification) {
+  //     _snapToCloset();
+  //     headerIsScrolling = false;
+  //   } else if (notification is ScrollUpdateNotification) {
+  //     if (controller.infiniteScrolling) {
+  //       indexdController.jumpTo(indexdHeaderController.position.pixels);
+  //     }
+  //   }
+  //   return false;
+  // }
 
-  bool syncWithTab(ScrollNotification notification) {
-    if (headerIsScrolling || isScrolling) {
-    } else if (notification is ScrollStartNotification) {
-      tabIsScrolling = true;
-    } else if (notification is ScrollEndNotification) {
-      tabIsScrolling = false;
-      log('scroll end');
-      _snapToCloset();
-      return true;
-    } else if (notification is ScrollUpdateNotification) {
-      tabIsScrolling = true;
-      if (controller.infiniteScrolling) {
-        indexdHeaderController.jumpTo(indexdController.position.pixels);
-      }
-    }
-    return true;
-  }
+  bool syncWithTab(ScrollNotification notification)=>      true;
+  // {
+    ///code will be reuse once issue resolved
+    // if (headerIsScrolling || isScrolling) {
+    // } else if (notification is ScrollStartNotification) {
+    //   tabIsScrolling = true;
+    // } else if (notification is ScrollEndNotification) {
+    //   tabIsScrolling = false;
+
+    //   return true;
+    // } else if (notification is ScrollUpdateNotification) {
+    //   tabIsScrolling = true;
+    //   if (controller.infiniteScrolling) {
+    //     indexdHeaderController.jumpTo(indexdController.position.pixels);
+    //   }
+    // }
+    // return true;
+ 
+  // }
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
@@ -470,41 +474,34 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                         cornerBuilder: widget.cornerBuilder,
                         headerHeight: widget.headerHeight),
                     Expanded(
-                      child: NotificationListener<ScrollNotification>(
-                        onNotification: (ScrollNotification notification) =>
-                            syncWithHeader(notification),
-                        child: controller.infiniteScrolling
-                            ? IndexedListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                controller: indexdHeaderController,
-                                itemExtent: columnWidth,
-                                physics: const NeverScrollableScrollPhysics(),
-                                padding: EdgeInsets.zero,
-                                cacheExtent: columnWidth * 7,
-                                itemBuilder:
-                                    (BuildContext context, int index) =>
-                                        HeaderCell(
-                                          dateTime: controller.start
-                                              .add(Duration(days: index)),
-                                          columnWidth: columnWidth,
-                                          headerCellBuilder:
-                                              widget.headerCellBuilder,
-                                        ))
-                            : ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                controller: headerController,
-                                itemExtent: columnWidth,
-                                itemCount: dateRange.length,
-                                padding: EdgeInsets.zero,
-                                itemBuilder:
-                                    (BuildContext context, int index) =>
-                                        HeaderCell(
-                                          dateTime: dateRange[index],
-                                          columnWidth: columnWidth,
-                                          headerCellBuilder:
-                                              widget.headerCellBuilder,
-                                        )),
-                      ),
+                      child: controller.infiniteScrolling
+                          ? IndexedListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              controller: indexdHeaderController,
+                              itemExtent: columnWidth,
+                              pageSnapping: false,
+                              physics: const NeverScrollableScrollPhysics(),
+                              padding: EdgeInsets.zero,
+                              cacheExtent: columnWidth * 7,
+                              itemBuilder: (BuildContext context, int index) =>
+                                  HeaderCell(
+                                    dateTime: controller.start
+                                        .add(Duration(days: index)),
+                                    columnWidth: columnWidth,
+                                    headerCellBuilder: widget.headerCellBuilder,
+                                  ))
+                          : ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              controller: headerController,
+                              itemExtent: columnWidth,
+                              itemCount: dateRange.length,
+                              padding: EdgeInsets.zero,
+                              itemBuilder: (BuildContext context, int index) =>
+                                  HeaderCell(
+                                    dateTime: dateRange[index],
+                                    columnWidth: columnWidth,
+                                    headerCellBuilder: widget.headerCellBuilder,
+                                  )),
                     ),
                   ],
                 ),
@@ -621,6 +618,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                     DateUtils.isSameDay(date, event.startTime))
                 .toList();
             final List<List<CalendarEvent<T>>> eventList = getEventList(events);
+
             return SizedBox(
               width: columnWidth,
               child: Stack(
@@ -754,26 +752,26 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
             );
           });
 
-  final Curve _animationCurve = Curves.linear;
+  // final Curve _animationCurve = Curves.linear;
 
-  bool _isSnapping = false;
-  Future<void> _snapToCloset() async {
-    if (_isSnapping || !widget.snapToDay) {
-      return;
-    }
+  // bool _isSnapping = false;
+  // Future<void> _snapToCloset() async {
+  //   if (_isSnapping || !widget.snapToDay) {
+  //     return;
+  //   }
 
-    _isSnapping = true;
-    await Future<void>.microtask(() => null);
-    final double snapPosition =
-        ((indexdController.offset) / columnWidth).round() * columnWidth;
-    await indexdController.animateTo(
-      snapPosition,
-      duration: const Duration(milliseconds: 200),
-      curve: _animationCurve,
-    );
+  //   _isSnapping = true;
+  //   await Future<void>.microtask(() => null);
+  //   final double snapPosition =
+  //       ((indexdController.offset) / columnWidth).round() * columnWidth;
+  //   await indexdController.animateTo(
+  //     snapPosition,
+  //     duration: const Duration(milliseconds: 200),
+  //     curve: _animationCurve,
+  //   );
 
-    _isSnapping = false;
-  }
+  //   _isSnapping = false;
+  // }
 
   ///jump to given date
   Future<dynamic> _jumpTo(DateTime date) async {

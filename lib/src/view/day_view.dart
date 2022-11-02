@@ -48,7 +48,7 @@ class NewSlDayView<T> extends StatefulWidget {
 
   /// Renders for the cells the represent each hour that provides
   /// that [DateTime] for that hour
-  final Widget Function(Period,DateTime dateTime)? cellBuilder;
+  final Widget Function(Period, DateTime dateTime)? cellBuilder;
 
   /// Renders for the header that provides the [DateTime] for the day
   final Widget Function(DateTime)? headerCellBuilder;
@@ -232,19 +232,6 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
     return tempDateRange;
   }
 
-  ///return count of periods and break that are overlapping
-  List<int> getOverlappingTimeline(TimeOfDay start, TimeOfDay end) {
-    const int p = 0;
-    const int b = 0;
-
-    appLog('Event P:$p and B:$b');
-    return <int>[p, b];
-  }
-
-  ///get cell height
-  double getCellHeight(List<int> data) =>
-      data[0] * controller.cellHeight + data[1] * controller.breakHeight;
-
   @override
   void dispose() {
     if (_listenerId != null) {
@@ -405,53 +392,44 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
                     controller.breakHeight) +
                 widget.headerHeight +
                 12,
-            child: NotificationListener<ScrollNotification>(
-              onNotification: (ScrollNotification notification) {
-                if (notification is ScrollEndNotification) {
-                  log('snapping to closest');
-                  _snapToCloset(size);
-                }
-                return true;
-              },
-              child: controller.infiniteScrolling
-                  ? IndexedListView.builder(
-                      controller: indexdController,
-                      cacheExtent: 0,
-                      minItemCount: controller.infiniteScrolling ? null : 0,
-                      maxItemCount: controller.infiniteScrolling
-                          ? null
-                          : controller.end.difference(controller.start).inDays,
-                      scrollDirection: Axis.horizontal,
-                      emptyItemBuilder: (BuildContext context, int index) =>
-                          const SizedBox.shrink(),
-                      itemBuilder: (BuildContext context, int index) {
-                        final DateTime date =
-                            controller.start.add(Duration(days: index));
-                        dateForHeader = date;
+            child: controller.infiniteScrolling
+                ? IndexedListView.builder(
+                    controller: indexdController,
+                    cacheExtent: 0,
+                    minItemCount: controller.infiniteScrolling ? null : 0,
+                    maxItemCount: controller.infiniteScrolling
+                        ? null
+                        : controller.end.difference(controller.start).inDays,
+                    scrollDirection: Axis.horizontal,
+                    emptyItemBuilder: (BuildContext context, int index) =>
+                        const SizedBox.shrink(),
+                    itemBuilder: (BuildContext context, int index) {
+                      final DateTime date =
+                          controller.start.add(Duration(days: index));
+                      dateForHeader = date;
 
-                        final DateTime now = DateTime.now();
-                        final bool isToday =
-                            DateUtils.isSameDay(dateForHeader, now);
-                        return buildView(size, date, isToday: isToday);
-                      })
-                  : PageView.builder(
-                      controller: finiteScrollController,
-                      itemCount: dateRange.length,
-                      onPageChanged: (int value) {
-                        if (widget.onDateChanged != null) {
-                          widget.onDateChanged!(dateRange[value]);
-                        }
-                      },
-                      itemBuilder: (BuildContext context, int index) {
-                        final DateTime date = dateRange[index];
-                        dateForHeader = date;
+                      final DateTime now = DateTime.now();
+                      final bool isToday =
+                          DateUtils.isSameDay(dateForHeader, now);
+                      return buildView(size, date, isToday: isToday);
+                    })
+                : PageView.builder(
+                    controller: finiteScrollController,
+                    itemCount: dateRange.length,
+                    onPageChanged: (int value) {
+                      if (widget.onDateChanged != null) {
+                        widget.onDateChanged!(dateRange[value]);
+                      }
+                    },
+                    itemBuilder: (BuildContext context, int index) {
+                      final DateTime date = dateRange[index];
+                      dateForHeader = date;
 
-                        final DateTime now = DateTime.now();
-                        final bool isToday =
-                            DateUtils.isSameDay(dateForHeader, now);
-                        return buildView(size, date, isToday: isToday);
-                      }),
-            ),
+                      final DateTime now = DateTime.now();
+                      final bool isToday =
+                          DateUtils.isSameDay(dateForHeader, now);
+                      return buildView(size, date, isToday: isToday);
+                    }),
           ),
         );
       });
@@ -718,27 +696,6 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
           ],
         ),
       );
-
-  final Curve _animationCurve = Curves.linear;
-
-  bool _isSnapping = false;
-  Future<void> _snapToCloset(Size size) async {
-    final double columnWidth = size.width;
-    if (_isSnapping || !widget.snapToDay) {
-      return;
-    }
-    _isSnapping = true;
-    await Future<void>.microtask(() => null);
-    final double snapPosition =
-        ((indexdController.offset) / columnWidth).round() * columnWidth;
-    await indexdController.animateTo(
-      snapPosition,
-      duration: const Duration(milliseconds: 200),
-      curve: _animationCurve,
-    );
-
-    _isSnapping = false;
-  }
 
   ///jump to given date
   Future<dynamic> _jumpTo(DateTime date) async {

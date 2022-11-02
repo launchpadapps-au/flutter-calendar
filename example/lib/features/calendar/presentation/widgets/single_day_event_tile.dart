@@ -52,7 +52,7 @@ class SingleDayEventTile extends StatelessWidget {
           : BoxDecoration(
               borderRadius: BorderRadius.circular(6),
               border: border,
-              color: item.eventData!.color),
+              color: item.eventData!.color.withOpacity(0.2)),
       margin: EdgeInsets.all(item.eventData!.isDutyTime ? 0 : 4),
       width: cellWidth,
       // height: item.eventData!.period.isBreak ? breakHeight : cellHeight,
@@ -89,10 +89,16 @@ class SingleDayEventTile extends StatelessWidget {
                           children: <Widget>[
                             Row(
                               children: <Widget>[
-                                const Icon(
-                                  Icons.circle,
-                                  color: Colors.black,
-                                  size: 6,
+                                SizedBox(
+                                  height: 10 *
+                                      MediaQuery.of(context).textScaleFactor,
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.circle,
+                                      color: Colors.black,
+                                      size: 6,
+                                    ),
+                                  ),
                                 ),
                                 const SizedBox(
                                   width: 4,

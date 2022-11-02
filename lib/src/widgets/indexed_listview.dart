@@ -17,6 +17,8 @@ class IndexedListView extends StatefulWidget {
     this.reverse = false,
     this.physics,
     this.padding,
+    this.scrollBehavior,
+    this.pageSnapping = true,
     this.itemExtent,
     Key? key,
     int? maxItemCount,
@@ -62,8 +64,10 @@ class IndexedListView extends StatefulWidget {
     required IndexedWidgetBuilderOrNull separatorBuilder,
     this.emptyItemBuilder = defaultEmptyItemBuilder,
     this.scrollDirection = Axis.vertical,
+    this.scrollBehavior,
     Key? key,
     this.reverse = false,
+    this.pageSnapping = true,
     this.physics,
     this.padding,
     int? maxItemCount,
@@ -106,12 +110,15 @@ class IndexedListView extends StatefulWidget {
           addRepaintBoundaries: addRepaintBoundaries,
         ),
         super(key: key);
-///defualt empty builder for the view
+
+  ///defualt empty builder for the view
   static Widget defaultEmptyItemBuilder(BuildContext context, int index) =>
       const SizedBox(width: 5, height: 5);
-///empty builder for the lsitview
+
+  ///empty builder for the lsitview
   final IndexedWidgetBuilderOrNull emptyItemBuilder;
-///pass tru if items are sperated
+
+  ///pass tru if items are sperated
   final bool separated;
 
   /// See: [ScrollView.scrollDirection]
@@ -134,6 +141,13 @@ class IndexedListView extends StatefulWidget {
 
   /// See: [ScrollView.cacheExtent]
   final double? cacheExtent;
+
+  ///seen [ScrollBehaviour]
+  final ScrollBehavior? scrollBehavior;
+
+  ///it will snap the page
+
+  final bool pageSnapping;
 
   /// See: [ListView.childrenDelegate]
   final SliverChildDelegate negativeChildrenDelegate;
@@ -187,18 +201,23 @@ class _IndexedListViewState extends State<IndexedListView> {
     final AxisDirection axisDirection = _getDirection(context);
     final ScrollPhysics scrollPhysics =
         widget.physics ?? const _AlwaysScrollableScrollPhysics();
+
+    final ScrollPhysics physics =
+        const _ForceImplicitScrollPhysics(allowImplicitScrolling: true).applyTo(
+            const PageScrollPhysics().applyTo(widget.physics ??
+                widget.scrollBehavior?.getScrollPhysics(context)));
     return Scrollable(
       // Rebuild everything when the originIndex changes.
       key: ValueKey<int>(widget.controller._originIndex),
       axisDirection: axisDirection,
       controller: widget.controller,
-      physics: scrollPhysics,
+      physics: widget.pageSnapping ? physics : scrollPhysics,
       viewportBuilder: (BuildContext context, ViewportOffset offset) =>
           Builder(builder: (BuildContext context) {
         // Build negative [ScrollPosition] for the negative scrolling [Viewport]
         final ScrollableState state = Scrollable.of(context)!;
         final _IndexedScrollPosition negativeOffset = _IndexedScrollPosition(
-          physics: scrollPhysics,
+          physics: widget.pageSnapping ? physics : scrollPhysics,
           context: state,
           initialPixels: -offset.pixels,
           keepScrollOffset: false,
@@ -297,6 +316,22 @@ class _AlwaysScrollableScrollPhysics extends ScrollPhysics {
   bool shouldAcceptUserOffset(ScrollMetrics position) => true;
 }
 
+class _ForceImplicitScrollPhysics extends ScrollPhysics {
+  const _ForceImplicitScrollPhysics({
+    required this.allowImplicitScrolling,
+    super.parent,
+  });
+
+  @override
+  _ForceImplicitScrollPhysics applyTo(ScrollPhysics? ancestor) =>
+   _ForceImplicitScrollPhysics(
+      allowImplicitScrolling: allowImplicitScrolling,
+      parent: buildParent(ancestor),
+    );
+
+  @override
+  final bool allowImplicitScrolling;
+}
 // ----------------------------------------------------------------------------
 
 /// Provides scroll with infinite bounds, and keeps a
@@ -310,7 +345,7 @@ class _AlwaysScrollableScrollPhysics extends ScrollPhysics {
 /// Besides regular [ScrollController] methods,
 /// offers [IndexedScrollController.jumpToIndex]
 /// and [IndexedScrollController.animateToIndex].
- 
+
 class IndexedScrollController extends ScrollController {
   ///initilize the scroll controller
   IndexedScrollController({
@@ -324,12 +359,14 @@ class IndexedScrollController extends ScrollController {
           keepScrollOffset: keepScrollOffset,
           debugLabel: debugLabel,
         );
-  ///initila index 
+
+  ///initila index
   final int initialIndex;
 
   /// the origin-index changes as the list jumps by index.
   int _originIndex = 0;
-///orgin index 
+
+  ///orgin index
   int get originIndex => _originIndex;
 
   @override
@@ -360,7 +397,7 @@ class IndexedScrollController extends ScrollController {
     }
   }
 
-  ///Jumps the origin-index to the given [index], 
+  ///Jumps the origin-index to the given [index],
   ///and the scroll-position to 0.0,
   /// without animation, and without checking if the new value is in range.
   ///
@@ -414,7 +451,7 @@ class IndexedScrollController extends ScrollController {
           index: index, offset: 0, duration: duration, curve: curve);
 
   /// Goes to origin-index 0,
-  /// and then jumps the scroll position 
+  /// and then jumps the scroll position
   /// from its current value to the given [offset],
   /// without animation, and without checking if the new value is in range.
   ///

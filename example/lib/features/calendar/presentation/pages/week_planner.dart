@@ -258,6 +258,7 @@ class _WeekPlannerState extends State<WeekPlanner<EventData>> {
               decoration: BoxDecoration(
                   border: Border.all(color: grey),
                   color: period.isCustomeSlot ? lightGrey : Colors.transparent),
+              child: Row(),
             ),
           ),
         );
