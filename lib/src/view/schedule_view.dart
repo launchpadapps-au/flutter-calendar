@@ -474,6 +474,11 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
                   : widget.emptyTodayTitle!(date),
             )
           : ListTile(
+              onTap: () {
+                if (events.isEmpty) {
+                  widget.onTap!(date, null);
+                }
+              },
               key: Key(date.toString().substring(0, 10)),
               leading: widget.headerCellBuilder!(date),
               title: events.isEmpty
