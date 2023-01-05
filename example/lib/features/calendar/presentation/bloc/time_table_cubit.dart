@@ -6,6 +6,7 @@ import 'package:bloc/bloc.dart';
 import 'package:edgar_planner_calendar_flutter/core/static.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/change_view_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/date_change_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/export/data/models/export_settings.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/loading_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
@@ -41,7 +42,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
     } on MissingPluginException {
       debugPrint('Project is running as app');
       standAlone = true;
-      await getDummyData( );
+      await getDummyData();
     }
   }
 
@@ -63,6 +64,9 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   ///start date of the timetable
 
   DateTime startDate = DateTime(now.year, now.month);
+
+  ///margin from top
+  double topMargin = 0;
 
   ///end date of the timetable
 
@@ -180,6 +184,15 @@ class TimeTableCubit extends Cubit<TimeTableState> {
           await updateId(call.arguments);
           break;
 
+        ///set marginn from the top
+        case ReceiveMethods.topMargin:
+          debugPrint('Top Margin received from app');
+          final Map<String, dynamic> data =
+              jsonDecode(jsonEncode(call.arguments));
+          topMargin = double.parse(data['margin'].toString());
+          emit(UpdatedState());
+          break;
+
         case ReceiveMethods.setLoading:
           final LoadingModel loadingModel =
               loadingModelFromJson(jsonEncode(call.arguments));
@@ -207,6 +220,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
           debugPrint('set view received from native app');
           final ChangeView changeView =
               ChangeView.fromJson(jsonDecode(call.arguments));
+
           changeViewType(changeView.viewType);
           break;
 
@@ -214,6 +228,12 @@ class TimeTableCubit extends Cubit<TimeTableState> {
           debugPrint('JumpTo Current Date received from native app');
           // final JumpToDateModel jumpToDateModel =
           //     jumpToDateFromJson(jsonEncode(call.arguments));
+
+          if (viewType == CalendarViewType.monthView ||
+              viewType == CalendarViewType.termView) {
+            debugPrint('Current view is $viewType');
+            changeViewType(CalendarViewType.weekView);
+          } else {}
 
           currentDate = DateTime.now();
           setDateWhenJump(currentDate);
@@ -251,10 +271,11 @@ class TimeTableCubit extends Cubit<TimeTableState> {
 
         ///handle setEvents methods
         case ReceiveMethods.setEvents:
-          debugPrint('set events received from native app');
           final GetEvents getEvents = GetEvents.fromJsonWithPeriod(
               jsonDecode(jsonEncode(call.arguments)), periods);
           _events = getEvents.events;
+          debugPrint(
+              'set events received from native app:${getEvents.events.length}');
           emit(EventsAdded(
               periods, _events, viewType, getEvents.events, termModel));
           break;
@@ -333,6 +354,13 @@ class TimeTableCubit extends Cubit<TimeTableState> {
           debugPrint('Previous Term received from native app');
           previousTerm();
           break;
+
+        case ReceiveMethods.exportPreview:
+          final ExportSetting exportSetting =
+              ExportSetting.fromJson(jsonDecode(jsonEncode(call.arguments)));
+          debugPrint('Export setting received from native app');
+          emit(ExportPreview(exportSetting));
+          break;
         default:
           debugPrint('Data receive from flutter:No handler');
       }
@@ -373,13 +401,14 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   }
 
   ///get dummy events
-  Future<void> getDummyData({bool addDummyEvent = true}) async {
+  Future<void> getDummyData(
+      {bool addDummyEvent = true, bool newEvents = true}) async {
     try {
       emit(LoadingState());
       await Future<dynamic>.delayed(const Duration(seconds: 3));
       if (addDummyEvent) {
-        final String response1 =
-            await rootBundle.loadString('assets/period.json');
+        final String response1 = await rootBundle.loadString(
+            newEvents ? 'assets/period2.json' : 'assets/period.json');
 
         final List<PeriodModel> newPeriods = periodModelFromJson(response1);
 
@@ -390,8 +419,8 @@ class TimeTableCubit extends Cubit<TimeTableState> {
           debugPrint('Received  slots,perios updated');
         }
         emit(PeriodsUpdated(periods, _events, viewType, termModel));
-        final String response =
-            await rootBundle.loadString('assets/event.json');
+        final String response = await rootBundle
+            .loadString(newEvents ? 'assets/event2.json' : 'assets/event.json');
         final dynamic data = jsonDecode(response);
         final GetEvents getEvents = GetEvents.fromJsonWithPeriod(data, periods);
         _events = getEvents.events;
@@ -431,7 +460,8 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   }
 
   ///set terms for three year
-  void setThreeYearTerm(TermModel termModel) {
+  void setThreeYearTerm(TermModel termModel, {DateTime? date}) {
+    final DateTime now = date ?? DateTime.now();
     term1String = termModel.terms.term1;
     term2String = termModel.terms.term2;
     term3String = termModel.terms.term3;
@@ -507,6 +537,58 @@ class TimeTableCubit extends Cubit<TimeTableState> {
     currentDate = date;
     getDataDateWise(currentDate);
     emit(CurrrentDateUpdated(currentDate: currentDate));
+  }
+
+  ///jump to today
+  void jumpToToday() {
+    final DateTime now = DateTime.now();
+    term1String = termModel.terms.term1;
+    term2String = termModel.terms.term2;
+    term3String = termModel.terms.term3;
+    term4String = termModel.terms.term4;
+
+    previousTerm1 =
+        Term.fromString(term1String, year: now.year - 1, type: 'term1');
+    previousTerm2 =
+        Term.fromString(term2String, year: now.year - 1, type: 'term2');
+
+    previousTerm3 =
+        Term.fromString(term3String, year: now.year - 1, type: 'term3');
+    previousTerm4 =
+        Term.fromString(term4String, year: now.year - 1, type: 'term4');
+    term1 = Term.fromString(term1String, type: 'term1');
+
+    term2 = Term.fromString(term2String, type: 'term2');
+    term3 = Term.fromString(term3String, type: 'term3');
+
+    term4 = Term.fromString(term4String, type: 'term4');
+
+    nextTerm1 = Term.fromString(term1String, year: now.year + 1, type: 'term1');
+
+    nextTerm2 = Term.fromString(term2String, year: now.year + 1, type: 'term2');
+    nextTerm3 = Term.fromString(term3String, year: now.year + 1, type: 'term3');
+
+    nextTerm4 = Term.fromString(term4String, year: now.year + 1, type: 'term4');
+
+    listOfTerm = <Term>[
+      previousTerm1,
+      previousTerm2,
+      previousTerm3,
+      previousTerm4,
+      term1,
+      term2,
+      term3,
+      term4,
+      nextTerm1,
+      nextTerm2,
+      nextTerm3,
+      nextTerm4
+    ];
+    setCurruentTerm();
+    currentDate = now;
+    nativeCallBack.sendFetchDataDatesToNativeApp(
+        currentTerm.startDate, currentTerm.endDate);
+    emit(JumpToDateState(currentDate));
   }
 
   ///set current date when jump requested
@@ -894,24 +976,29 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   }
 
   ///save time table as image
-  Future<void> saveTomImage(Uint8List image, {String? filename}) async {
+  Future<String> saveTomImage(Uint8List image, {String? filename}) async {
     final Directory? path = Platform.isAndroid
         ? await getExternalStorageDirectory() //FOR ANDROID
         : Platform.isIOS
-            ? await getApplicationSupportDirectory()
+            ? await getApplicationDocumentsDirectory()
             : await getDownloadsDirectory(); //FOR iOS
     final String fileName =
-        '${path!.path}/${viewType.name}-${filename ?? DateTime.now().toString()}';
+        '${path!.path}/exported/${viewType.name}-${filename ?? DateTime.now().toString()}';
     final File file = File('$fileName.png');
+    if (file.existsSync()) {
+      file.deleteSync();
+    }
+    file.createSync(recursive: true);
     await file.writeAsBytes(image);
     log('image Path:${file.path}');
-    return;
+    return file.path;
   }
 
   ///chang calendar view
   void changeViewType(CalendarViewType viewType) {
     this.viewType = viewType;
     nativeCallBack.sendViewChangedToNativeApp(viewType);
+    jumpToToday();
     emit(ViewUpdated(events, viewType, periods, termModel));
   }
 

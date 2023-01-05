@@ -1,7 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
 import 'intl/messages_all.dart';
 
 // **************************************************************************
@@ -130,6 +129,26 @@ class S {
       args: [],
     );
   }
+
+  /// `Todos`
+  String get todos {
+    return Intl.message(
+      'Todos',
+      name: 'todos',
+      desc: 'Todos',
+      args: [],
+    );
+  }
+
+  /// `Drive`
+  String get drive {
+    return Intl.message(
+      'Drive',
+      name: 'drive',
+      desc: 'Drive',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
@@ -143,10 +162,8 @@ class AppLocalizationDelegate extends LocalizationsDelegate<S> {
 
   @override
   bool isSupported(Locale locale) => _isSupported(locale);
-
   @override
   Future<S> load(Locale locale) => S.load(locale);
-
   @override
   bool shouldReload(AppLocalizationDelegate old) => false;
 

@@ -1,3 +1,4 @@
+import 'package:edgar_planner_calendar_flutter/features/export/data/models/export_settings.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/term_model.dart';
 import 'package:equatable/equatable.dart';
@@ -14,6 +15,12 @@ class InitialState extends TimeTableState {
 
 ///loading state
 class LoadingState extends TimeTableState {
+  @override
+  List<Object> get props => <Object>[];
+}
+
+///use for rebuilding ui
+class UpdatedState extends TimeTableState {
   @override
   List<Object> get props => <Object>[];
 }
@@ -423,6 +430,20 @@ class ChangeToCurrentDate implements TimeTableState {
         isDateChanged,
         isViewChanged
       ];
+
+  @override
+  bool? get stringify => false;
+}
+
+///export
+class ExportPreview implements TimeTableState {
+  ///initilize the state
+  ExportPreview(this.exportSetting);
+
+  ///object of the export setting
+  final ExportSetting exportSetting;
+  @override
+  List<Object?> get props => throw UnimplementedError();
 
   @override
   bool? get stringify => false;

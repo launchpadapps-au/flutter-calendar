@@ -180,32 +180,32 @@ class EventData {
   //       eventLinks: json['event_links'],
   //     );
   ///initialize the event
-  EventData({
-    required this.id,
-    required this.title,
-    required this.location,
-    required this.startDate,
-    required this.endDate,
-    required this.startTime,
-    required this.endTime,
-    required this.reminderEnabled,
-    required this.slots,
-    required this.type,
-    required this.updatedAt,
-    required this.lessonPlans,
-    required this.googleDriveFiles,
-    this.event,
-    // required this.period,
-    this.subject,
-    this.color = grey,
-    this.freeTime = false,
-    this.isDutyTime = false,
-    this.remindBefore,
-    this.recurrenceUntil,
-    this.recurringEventId,
-    this.recurrenceFreq,
-    this.eventLinks,
-  }) {
+  EventData(
+      {required this.id,
+      required this.title,
+      required this.location,
+      required this.startDate,
+      required this.endDate,
+      required this.startTime,
+      required this.endTime,
+      required this.reminderEnabled,
+      required this.slots,
+      required this.type,
+      required this.updatedAt,
+      required this.lessonPlans,
+      required this.googleDriveFiles,
+      this.event,
+      // required this.period,
+      this.subject,
+      this.color = darkestGrey,
+      this.freeTime = false,
+      this.isDutyTime = false,
+      this.remindBefore,
+      this.recurrenceUntil,
+      this.recurringEventId,
+      this.recurrenceFreq,
+      this.eventLinks,
+      this.extraCurricular}) {
     if (type == 'freetime') {
       title = 'Free Time';
       freeTime = true;
@@ -224,10 +224,10 @@ class EventData {
 
   ///create object from the json
   factory EventData.fromJsonWithPeriod(
-      Map<String, dynamic> json, List<PeriodModel> periods) {
+      Map<String, dynamic> jsonData, List<PeriodModel> periods) {
     try {
       final Iterable<PeriodModel> ps = periods.where((PeriodModel element) =>
-          element.id.toString() == json['slots'].toString());
+          element.id.toString() == jsonData['slots'].toString());
       if (ps.isNotEmpty) {
       } else {}
     } on Exception catch (e) {
@@ -238,41 +238,44 @@ class EventData {
         'user_id': '92673d4e-c2f3-48d8-9da6-5c452f40b3fa',
         'slot_name': 'period_6',
         'type': 'period',
-        'start_time': json['start_time'],
-        'end_time': json['end_time']
+        'start_time': jsonData['start_time'],
+        'end_time': jsonData['end_time']
       };
       PeriodModel.fromJson(data);
     }
 
     return EventData(
-      id: json['id'].toString(),
-      title: json['title'],
-      location: json['location'],
-      subject:
-          json['subject'] == null ? null : Subject.fromJson(json['subject']),
-      event: json['event'] == null ? null : EdgarEvent.fromJson(json['event']),
-
-      startDate: DateTime.parse(json['start_date']),
-      endDate: DateTime.parse(json['end_date']),
-      startTime: json['start_time'],
-      endTime: json['end_time'],
-      remindBefore: json['remind_before'],
-      reminderEnabled: json['reminder_enabled'],
-      slots: json['slots'].toString(),
-      // period: periodModel,
-      recurrenceUntil: json['recurrence_until'],
-      recurringEventId: json['recurring_event_id'],
-      recurrenceFreq: json['recurrence_freq'],
-      type: json['type'],
-      updatedAt: DateTime.parse(json['updated_at']),
-      lessonPlans: List<dynamic>.from(
-          json['lesson_plans'].map<dynamic>((dynamic x) => x)),
-      googleDriveFiles: json['google_drive_files'] == null
-          ? <GoogleDriveFile>[]
-          : List<GoogleDriveFile>.from(json['google_drive_files']
-              .map((dynamic x) => GoogleDriveFile.fromJson(x))),
-      eventLinks: json['event_links'],
-    );
+        id: jsonData['id'].toString(),
+        title: jsonData['title'],
+        location: jsonData['location'],
+        subject: jsonData['subject'] == null
+            ? null
+            : Subject.fromJson(jsonData['subject']),
+        event: jsonData['event'] == null
+            ? null
+            : EdgarEvent.fromJson(jsonData['event']),
+        startDate: DateTime.parse(jsonData['start_date']),
+        endDate: DateTime.parse(jsonData['end_date']),
+        startTime: jsonData['start_time'],
+        endTime: jsonData['end_time'],
+        remindBefore: jsonData['remind_before'],
+        reminderEnabled: jsonData['reminder_enabled'],
+        slots: jsonData['slots'].toString(),
+        // period: periodModel,
+        recurrenceUntil: jsonData['recurrence_until'],
+        recurringEventId: jsonData['recurring_event_id'],
+        recurrenceFreq: jsonData['recurrence_freq'],
+        type: jsonData['type'],
+        updatedAt: DateTime.parse(jsonData['updated_at']),
+        lessonPlans: List<dynamic>.from(
+            jsonData['lesson_plans'].map<dynamic>((dynamic x) => x)),
+        googleDriveFiles: jsonData['google_drive_files'] == null
+            ? <GoogleDriveFile>[]
+            : List<GoogleDriveFile>.from(json
+                .decode(jsonData['google_drive_files'])
+                .map((dynamic x) => GoogleDriveFile.fromJson(x))),
+        eventLinks: jsonData['event_links'],
+        extraCurricular: jsonData['extra_curricular']);
   }
 
   ///if type is lesson then return true
@@ -358,6 +361,9 @@ class EventData {
   ///object of the edgar event
   EdgarEvent? event;
 
+  ///icon of the extra curriculer extivity
+  String? extraCurricular;
+
   ///convert json object from the model
   Map<String, dynamic> toJson() => <String, dynamic>{
         'id': id,
@@ -386,6 +392,7 @@ class EventData {
         'google_drive_files': List<dynamic>.from(
             googleDriveFiles.map<dynamic>((dynamic x) => x.toJson())),
         'event_links': eventLinks,
+        'extra_curricular': extraCurricular
       };
 }
 
@@ -401,9 +408,9 @@ class GoogleDriveFile {
   ///create object from the json
   factory GoogleDriveFile.fromJson(Map<String, dynamic> json) =>
       GoogleDriveFile(
-        id: json['id'],
-        name: json['name'],
-        url: json['url'],
+        id: json['id'].toString(),
+        name: json['name'].toString(),
+        url: json['url'].toString(),
       );
 
   ///id of the file
@@ -488,7 +495,7 @@ class EdgarEvent {
 
   ///cretae object fron the json
   factory EdgarEvent.fromJson(Map<String, dynamic> json) => EdgarEvent(
-      id: json['id'],
+      id: json['id'].toString(),
       isRecurringEvent: json['is_recurring_event'],
       recurrenceUntil: DateTime.parse(json['recurrence_until']),
       recurrenceFreq: json['recurrence_freq']);

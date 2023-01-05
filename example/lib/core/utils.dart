@@ -73,4 +73,21 @@ List<DateTime> getMonth() {
     DateTime(now.year, 12)
   ];
 }
- 
+
+///return list of week between dates
+List<DateTimeRange> getListOfWeek(DateTime startDate, DateTime endDate,
+    {int firstDay = DateTime.monday, int lastDay = DateTime.sunday}) {
+  DateTime start = startDate;
+  if (start.weekday != firstDay) {
+    start = start.subtract(Duration(days: start.weekday - firstDay));
+  }
+
+  final List<DateTimeRange> range = <DateTimeRange>[];
+
+  while (start.isBefore(endDate)) {
+    final DateTime s = start;
+    start = start.add(const Duration(days: 7));
+    range.add(DateTimeRange(start: s, end: start));
+  }
+  return range;
+}

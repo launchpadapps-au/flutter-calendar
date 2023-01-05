@@ -1,9 +1,13 @@
 import 'dart:developer';
 
+import 'package:edgar_planner_calendar_flutter/core/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/constants.dart';
+import 'package:edgar_planner_calendar_flutter/core/paper_size.dart';
 import 'package:edgar_planner_calendar_flutter/core/static.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
+import 'package:edgar_planner_calendar_flutter/features/export/data/models/export_settings.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/term_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/method_name.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
@@ -11,12 +15,15 @@ import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bl
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/month_planner.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/day_planner.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/schedule_planner.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/setting_dialog.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/setting.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/term_planner.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/week_planner.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/left_strip.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/linear_indicator.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/right_strip.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/top_margin.dart';
+import 'package:edgar_planner_calendar_flutter/features/export/presentation/pages/export_setting_view.dart';
+import 'package:edgar_planner_calendar_flutter/features/export/presentation/pages/export_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -38,8 +45,8 @@ class Planner extends StatefulWidget {
 DateTime now = DateTime.now().subtract(const Duration(days: 1));
 
 class _PlannerState extends State<Planner> {
-  static DateTime startDate = DateTime.now();
-  static DateTime endDate = DateTime(2022, 12, 31);
+  static DateTime startDate = DateTime.now().add(const Duration(days: -90));
+  static DateTime endDate = DateTime.now().add(const Duration(days: -80));
   TimetableController<EventData> timeTableController =
       TimetableController<EventData>(
           start: startDate,
@@ -80,17 +87,26 @@ class _PlannerState extends State<Planner> {
   ValueNotifier<DateTime> headerDateNotifier =
       ValueNotifier<DateTime>(dateForHeader);
   int index = 0;
-  bool showAppbar = true;
 
   void onDateChange(DateTime dateTime) {
     log('date changed $dateTime');
-    BlocProvider.of<TimeTableCubit>(context).setDate(dateTime);
+    BlocProvider.of<TimeTableCubit>(context)
+      ..setDate(dateTime)
+      ..nativeCallBack.sendVisibleDateChnged(dateTime);
   }
-
-  
 
   @override
   void initState() {
+    log('\nFlutter Module is reloading\n');
+    Future<void>.delayed(const Duration(milliseconds: 350))
+        .then((dynamic value) {
+      final DateTime date = DateTime.now();
+
+      timeTableController.jumpTo(date);
+      scheduleController.jumpTo(date);
+      monthController.jumpTo(date);
+      termController.jumpTo(date);
+    });
     final TimeTableCubit cubit = BlocProvider.of<TimeTableCubit>(context);
     cubit.stream.listen((TimeTableState event) {
       if (event is DateUpdated) {
@@ -107,6 +123,7 @@ class _PlannerState extends State<Planner> {
         debugPrint('view updated in calendar');
 
         final CalendarViewType requstedView = event.viewType;
+
         viewTypeNotifer.value = requstedView;
         timeTableController.jumpTo(cubit.date);
         scheduleController.jumpTo(cubit.date);
@@ -245,6 +262,47 @@ class _PlannerState extends State<Planner> {
         timeTableController.jumpTo(event.startDate);
         scheduleController.jumpTo(event.startDate);
         headerDateNotifier.value = dateForHeader;
+      } else if (event is ExportPreview) {
+        final ExportSetting exportSetting = event.exportSetting;
+        // Preview.exportWeekView(exportSetting.startFrom, exportSetting.endTo,
+        //     cubit.periods, cubit.events, context);
+
+        if (event.exportSetting.view.contains(CalendarViewType.dayView)) {
+          ExportView.exportDayView(
+              startDate: exportSetting.startFrom,
+              endDate: exportSetting.endTo,
+              timelines: cubit.periods,
+              event: cubit.events,
+              papperSize: PapperSize.a1,
+              saveImage: exportSetting.saveImg,
+              fullWeek: exportSetting.fullWeek,
+              subjects: exportSetting.subjects,
+              pageFormat: exportSetting.pageFormat,
+              context: context);
+        } else if (event.exportSetting.view
+            .contains(CalendarViewType.weekView)) {
+          ExportView.exportWeekView(
+              startDate: exportSetting.startFrom,
+              endDate: exportSetting.endTo,
+              timelines: cubit.periods,
+              event: cubit.events,
+              papperSize: PapperSize.a1,
+              saveImage: exportSetting.saveImg,
+              fullWeek: exportSetting.fullWeek,
+              subjects: exportSetting.subjects,
+              pageFormat: exportSetting.pageFormat,
+              context: context);
+        } else if (event.exportSetting.view
+            .contains(CalendarViewType.monthView)) {
+          ExportView.exportMonthView(
+              startDate: exportSetting.startFrom,
+              endDate: exportSetting.endTo,
+              timelines: cubit.periods,
+              event: cubit.events,
+              papperSize: PapperSize.a1,
+              saveImage: exportSetting.saveImg,
+              context: context);
+        }
       }
     });
     super.initState();
@@ -261,9 +319,12 @@ class _PlannerState extends State<Planner> {
     super.dispose();
   }
 
+  bool showAppbar = true;
+  bool enableTapForExtraSlot = false;
   @override
   Widget build(BuildContext context) => Scaffold(
         key: scaffoldKey,
+        backgroundColor: white,
         appBar: showAppbar
             ? AppBar(
                 backgroundColor: Colors.transparent,
@@ -370,22 +431,37 @@ class _PlannerState extends State<Planner> {
                             .invokeMethod(
                                 ReceiveMethods.jumpToCurrentDate, null);
                       }),
+                  IconButton(
+                      icon: const Icon(
+                        Icons.image,
+                        color: Colors.black,
+                      ),
+                      onPressed: () {
+                        Navigator.push<dynamic>(
+                            context,
+                            MaterialPageRoute<dynamic>(
+                              builder: (BuildContext context) =>
+                                  const ExportSettingView(),
+                            ));
+                      }),
                 ],
               )
             : null,
-        endDrawer: SettingDrawer(
-          startDate: startDate,
-          isMobile: isMobile,
-          endDate: endDate,
-          onDateChange: (DateTime start, DateTime end) {
-            setState(() {
-              startDate = start;
-              endDate = end;
-              timeTableController.changeDate(startDate, endDate);
-              scheduleController.changeDate(startDate, endDate);
-            });
-          },
-        ),
+        endDrawer: showAppbar
+            ? SettingDrawer(
+                startDate: startDate,
+                isMobile: isMobile,
+                endDate: endDate,
+                onDateChange: (DateTime start, DateTime end) {
+                  setState(() {
+                    startDate = start;
+                    endDate = end;
+                    timeTableController.changeDate(startDate, endDate);
+                    scheduleController.changeDate(startDate, endDate);
+                  });
+                },
+              )
+            : null,
         body: SafeArea(
           child: LayoutBuilder(
               builder: (BuildContext context, BoxConstraints value) {
@@ -397,6 +473,7 @@ class _PlannerState extends State<Planner> {
                 Expanded(
                     child: Column(
                   children: <Widget>[
+                    const TopMargin(),
                     const LinearIndicator(),
                     Expanded(
                       child: ValueListenableBuilder<CalendarViewType>(
@@ -448,7 +525,19 @@ class _PlannerState extends State<Planner> {
                                             BlocProvider.of<TimeTableCubit>(
                                                 context);
                                         if (event == null && period != null) {
-                                          if (!period.isCustomeSlot) {
+                                          final PeriodModel periodModel =
+                                              period as PeriodModel;
+                                          if (enableTapForExtraSlot &&
+                                              (periodModel.isBeforeSchool ||
+                                                  period.isAfterSchool)) {
+                                            cubit.nativeCallBack
+                                                .sendAddEventToNativeApp(
+                                                    dateTime,
+                                                    cubit.viewType,
+                                                    period,
+                                                    jsonEcoded:
+                                                        sendJsonEcnoded);
+                                          } else if (!period.isCustomeSlot) {
                                             cubit.nativeCallBack
                                                 .sendAddEventToNativeApp(
                                                     dateTime,
@@ -458,13 +547,39 @@ class _PlannerState extends State<Planner> {
                                                         sendJsonEcnoded);
                                           }
                                         } else if (event != null) {
-                                          cubit.nativeCallBack
-                                              .sendShowEventToNativeApp(
-                                                  dateTime,
-                                                  <CalendarEvent<EventData>>[
-                                                    event
-                                                  ],
-                                                  cubit.viewType);
+                                          PeriodModel? periodModel;
+
+                                          try {
+                                            periodModel = BlocProvider.of<
+                                                    TimeTableCubit>(context)
+                                                .periods
+                                                .firstWhere(
+                                                    (PeriodModel element) =>
+                                                        element.id ==
+                                                        event.eventData!.slots);
+                                          } on Exception {
+                                            periodModel = null;
+                                          }
+
+                                          if (periodModel != null &&
+                                              (periodModel.isAfterSchool ||
+                                                  periodModel.isBeforeSchool)) {
+                                            cubit.nativeCallBack
+                                                .sendShowDutyToNativeApp(
+                                                    dateTime,
+                                                    <CalendarEvent<EventData>>[
+                                                      event
+                                                    ],
+                                                    cubit.viewType);
+                                          } else {
+                                            cubit.nativeCallBack
+                                                .sendShowEventToNativeApp(
+                                                    dateTime,
+                                                    <CalendarEvent<EventData>>[
+                                                      event
+                                                    ],
+                                                    cubit.viewType);
+                                          }
                                         }
                                       },
                                     ),
@@ -483,7 +598,19 @@ class _PlannerState extends State<Planner> {
                                             BlocProvider.of<TimeTableCubit>(
                                                 context);
                                         if (event == null && period != null) {
-                                          if (!period.isCustomeSlot) {
+                                          final PeriodModel periodModel =
+                                              period as PeriodModel;
+                                          if (enableTapForExtraSlot &&
+                                              (periodModel.isBeforeSchool ||
+                                                  period.isAfterSchool)) {
+                                            cubit.nativeCallBack
+                                                .sendAddEventToNativeApp(
+                                                    dateTime,
+                                                    cubit.viewType,
+                                                    period,
+                                                    jsonEcoded:
+                                                        sendJsonEcnoded);
+                                          } else if (!period.isCustomeSlot) {
                                             cubit.nativeCallBack
                                                 .sendAddEventToNativeApp(
                                                     dateTime,
@@ -493,13 +620,39 @@ class _PlannerState extends State<Planner> {
                                                         sendJsonEcnoded);
                                           }
                                         } else if (event != null) {
-                                          cubit.nativeCallBack
-                                              .sendShowEventToNativeApp(
-                                                  dateTime,
-                                                  <CalendarEvent<EventData>>[
-                                                    event
-                                                  ],
-                                                  cubit.viewType);
+                                          PeriodModel? periodModel;
+
+                                          try {
+                                            periodModel = BlocProvider.of<
+                                                    TimeTableCubit>(context)
+                                                .periods
+                                                .firstWhere(
+                                                    (PeriodModel element) =>
+                                                        element.id ==
+                                                        event.eventData!.slots);
+                                          } on Exception {
+                                            periodModel = null;
+                                          }
+
+                                          if (periodModel != null &&
+                                              (periodModel.isAfterSchool ||
+                                                  periodModel.isBeforeSchool)) {
+                                            cubit.nativeCallBack
+                                                .sendShowDutyToNativeApp(
+                                                    dateTime,
+                                                    <CalendarEvent<EventData>>[
+                                                      event
+                                                    ],
+                                                    cubit.viewType);
+                                          } else {
+                                            cubit.nativeCallBack
+                                                .sendShowEventToNativeApp(
+                                                    dateTime,
+                                                    <CalendarEvent<EventData>>[
+                                                      event
+                                                    ],
+                                                    cubit.viewType);
+                                          }
                                         }
                                       },
                                       onEventDragged:

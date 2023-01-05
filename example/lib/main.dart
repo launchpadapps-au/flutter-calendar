@@ -4,11 +4,11 @@ import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pa
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-
+import 'package:flutter_localizations/flutter_localizations.dart'; 
 import 'generated/l10n.dart';
 
 void main() {
+
   runApp(const MyApp());
 }
 

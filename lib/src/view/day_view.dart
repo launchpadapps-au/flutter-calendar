@@ -16,32 +16,34 @@ import '../core/app_log.dart';
 /// that scrolls
 class NewSlDayView<T> extends StatefulWidget {
   /// initialize DayView for the calendar
-  const NewSlDayView({
-    required this.timelines,
-    required this.onWillAccept,
-    required this.onImageCapture,
-    this.backgroundColor = Colors.transparent,
-    Key? key,
-    this.onEventDragged,
-    this.onEventToEventDragged,
-    this.controller,
-    this.cellBuilder,
-    this.headerCellBuilder,
-    this.itemBuilder,
-    this.fullWeek = false,
-    this.headerHeight = 45,
-    this.hourLabelBuilder,
-    this.nowIndicatorColor,
-    this.headerTitleBuilder,
-    this.headerDecoration,
-    this.showNowIndicator = true,
-    this.cornerBuilder,
-    this.snapToDay = true,
-    this.isCellDraggable,
-    this.infiteScrolling = false,
-    this.onDateChanged,
-    this.onTap,
-  }) : super(key: key);
+  const NewSlDayView(
+      {required this.timelines,
+      required this.onWillAccept,
+      required this.onImageCapture,
+      this.backgroundColor = Colors.transparent,
+      Key? key,
+      this.onEventDragged,
+      this.onEventToEventDragged,
+      this.controller,
+      this.cellBuilder,
+      this.headerCellBuilder,
+      this.itemBuilder,
+      this.fullWeek = false,
+      this.headerHeight = 45,
+      this.hourLabelBuilder,
+      this.nowIndicatorColor,
+      this.headerTitleBuilder,
+      this.headerDecoration,
+      this.showNowIndicator = true,
+      this.cornerBuilder,
+      this.snapToDay = true,
+      this.isCellDraggable,
+      this.infiteScrolling = false,
+      this.onDateChanged,
+      this.onTap,
+      this.size,
+      this.headerDivideThickness = 2})
+      : super(key: key);
 
   /// [TimetableController] is the controller that also initialize the timetable
   final TimetableController<T>? controller;
@@ -133,6 +135,12 @@ class NewSlDayView<T> extends StatefulWidget {
 
   ///give new day when day is scrolled
   final Function(DateTime dateTime)? onDateChanged;
+
+  ///size of the view that user for export functionality
+  final Size? size;
+
+  ///header divider thickness
+  final double headerDivideThickness;
   @override
   State<NewSlDayView<T>> createState() => _NewSlDayViewState<T>();
 }
@@ -348,7 +356,7 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
       return;
     }
     if (box.hasSize) {
-      final Size size = box.size;
+      final Size size = widget.size ?? box.size;
       final double layoutWidth = size.width;
       final double width = layoutWidth < 550
           ? ((layoutWidth - controller.timelineWidth) / controller.columns)
@@ -381,8 +389,8 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
   Widget build(BuildContext context) => LayoutBuilder(
       key: _key,
       builder: (BuildContext context, BoxConstraints constraints) {
-        final Size size = constraints.biggest;
-
+        final Size size = widget.size ?? constraints.biggest;
+        log('render box Size of $size');
         return SingleChildScrollView(
           controller: timeScrollController,
           child: Container(
@@ -411,7 +419,16 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
                       final DateTime now = DateTime.now();
                       final bool isToday =
                           DateUtils.isSameDay(dateForHeader, now);
-                      return buildView(size, date, isToday: isToday);
+                      return !widget.fullWeek && date.weekday > 5
+                          ? null
+                          : buildView(
+                              size,
+                              date,
+                              getTimelineHeight(
+                                  widget.timelines,
+                                  controller.cellHeight,
+                                  controller.breakHeight),
+                              isToday: isToday);
                     })
                 : PageView.builder(
                     controller: finiteScrollController,
@@ -428,17 +445,27 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
                       final DateTime now = DateTime.now();
                       final bool isToday =
                           DateUtils.isSameDay(dateForHeader, now);
-                      return buildView(size, date, isToday: isToday);
+
+                      log('Size of $size');
+                      return Container(
+                          child: buildView(
+                              size,
+                              date,
+                              getTimelineHeight(
+                                  widget.timelines,
+                                  controller.cellHeight,
+                                  controller.breakHeight),
+                              isToday: isToday));
                     }),
           ),
         );
       });
 
-  Widget buildView(Size size, DateTime date, {required bool isToday}) =>
+  Widget buildView(Size size, DateTime date, double timeLineHeight,
+          {required bool isToday}) =>
       SizedBox(
         width: size.width,
-        height: getTimelineHeight(
-            widget.timelines, controller.cellHeight, controller.breakHeight),
+        height: timeLineHeight,
         child: Column(
           // physics: const NeverScrollableScrollPhysics(),
 
@@ -469,16 +496,15 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
                         ],
                       ),
                     )),
-            const Divider(
-              thickness: 2,
-              height: 2,
+            Divider(
+              thickness: widget.headerDivideThickness,
+              height: widget.headerDivideThickness,
             ),
             Row(
               children: <Widget>[
                 SizedBox(
                   width: controller.timelineWidth,
-                  height: getTimelineHeight(widget.timelines,
-                      controller.cellHeight, controller.breakHeight),
+                  height: timeLineHeight,
                   child: Column(
                     children: <Widget>[
                       for (Period item in widget.timelines)
@@ -490,22 +516,21 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
                     ],
                   ),
                 ),
-                StreamBuilder<List<CalendarEvent<T>>>(
-                    stream: eventNotifier.stream,
-                    builder: (BuildContext context,
-                        AsyncSnapshot<List<CalendarEvent<T>>> snapshot) {
-                      final List<CalendarEvent<T>> events = items
-                          .where((CalendarEvent<T> event) =>
-                              DateUtils.isSameDay(date, event.startTime))
-                          .toList();
-                      final List<List<CalendarEvent<T>>> eventList =
-                          getEventList(events);
-                      final double height = getTimelineHeight(widget.timelines,
-                          controller.cellHeight, controller.breakHeight);
-                      return SizedBox(
-                        width: size.width - controller.timelineWidth,
-                        height: height,
-                        child: Stack(
+                SizedBox(
+                  width: size.width - controller.timelineWidth,
+                  height: timeLineHeight,
+                  child: StreamBuilder<List<CalendarEvent<T>>>(
+                      stream: eventNotifier.stream,
+                      builder: (BuildContext context,
+                          AsyncSnapshot<List<CalendarEvent<T>>> snapshot) {
+                        final List<CalendarEvent<T>> events = items
+                            .where((CalendarEvent<T> event) =>
+                                DateUtils.isSameDay(date, event.startTime))
+                            .toList();
+                        final List<List<CalendarEvent<T>>> eventList =
+                            getEventList(events);
+                        final double height = timeLineHeight;
+                        return Stack(
                           clipBehavior: Clip.none,
                           children: <Widget>[
                             Column(
@@ -688,9 +713,9 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
                                           nowIndicatorColor: nowIndicatorColor,
                                           timelines: widget.timelines)),
                           ],
-                        ),
-                      );
-                    })
+                        );
+                      }),
+                )
               ],
             )
           ],

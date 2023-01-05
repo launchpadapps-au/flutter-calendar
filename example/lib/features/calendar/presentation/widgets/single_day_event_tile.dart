@@ -2,6 +2,7 @@ import 'package:edgar_planner_calendar_flutter/core/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/core/url.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 
@@ -14,6 +15,7 @@ class SingleDayEventTile extends StatelessWidget {
     required this.cellHeight,
     required this.cellWidth,
     this.border,
+    this.periodModel,
     this.isDraggable = true,
     this.margin = EdgeInsets.zero,
     Key? key,
@@ -37,22 +39,32 @@ class SingleDayEventTile extends StatelessWidget {
   ///margin of the event ,respect to the Size cell
   final EdgeInsets margin;
 
+  /// period model for the event
+  final PeriodModel? periodModel;
+
   /// border of the event
   final Border? border;
   @override
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
     final bool small = width < 10;
-
+    Color dutyColor = item.eventData!.color;
+    Color borderColor = textGrey;
+    if (periodModel != null) {
+      if (periodModel!.isAfterSchool || periodModel!.isBeforeSchool) {
+        dutyColor = lightPink;
+        borderColor = lightPinkBorder;
+      }
+    }
     return Container(
       decoration: item.eventData!.isDutyTime
           ? BoxDecoration(
-              border: const Border(left: BorderSide(color: textGrey, width: 8)),
-              color: item.eventData!.color)
+              border: Border(left: BorderSide(color: borderColor, width: 8)),
+              color: dutyColor)
           : BoxDecoration(
               borderRadius: BorderRadius.circular(6),
               border: border,
-              color: item.eventData!.color.withOpacity(0.2)),
+              color: item.eventData!.color),
       margin: EdgeInsets.all(item.eventData!.isDutyTime ? 0 : 4),
       width: cellWidth,
       // height: item.eventData!.period.isBreak ? breakHeight : cellHeight,
@@ -83,53 +95,111 @@ class SingleDayEventTile extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
+                        Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Row(
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 SizedBox(
-                                  height: 10 *
-                                      MediaQuery.of(context).textScaleFactor,
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.circle,
-                                      color: Colors.black,
-                                      size: 6,
-                                    ),
-                                  ),
+                                  width: cellWidth - 36 - 16 - 32,
+                                  child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        const Padding(
+                                          padding: EdgeInsets.only(top: 3),
+                                          child: Icon(
+                                            Icons.circle,
+                                            color: Colors.black,
+                                            size: 6,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 4,
+                                        ),
+                                        Flexible(
+                                          child: Text(
+                                            item.eventData!.title,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: context.eventTitle,
+                                          ),
+                                        ),
+                                      ]),
                                 ),
-                                const SizedBox(
-                                  width: 4,
-                                ),
-                                Flexible(
-                                  child: Text(
-                                    item.eventData!.title,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: context.eventTitle,
-                                  ),
-                                ),
+                                !item.eventData!.freeTime
+                                    ? const SizedBox(
+                                        height: 6,
+                                      )
+                                    : const SizedBox.shrink(),
+                                item.eventData!.freeTime
+                                    ? const SizedBox.shrink()
+                                    : Text(
+                                        item.eventData!.location ?? '',
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                        style: context.eventTitle,
+                                      ),
                               ],
                             ),
-                            !item.eventData!.freeTime
-                                ? const SizedBox(
-                                    height: 6,
-                                  )
-                                : const SizedBox.shrink(),
-                            item.eventData!.freeTime
+                            item.eventData!.extraCurricular == null
                                 ? const SizedBox.shrink()
-                                : Flexible(
-                                    child: Text(
-                                      item.eventData!.location ?? '',
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                      style: context.eventTitle,
-                                    ),
-                                  ),
+                                : Image.network(
+                                    item.eventData!.extraCurricular!,
+                                    width: 32,
+                                    height: 32,
+                                  )
                           ],
                         ),
+                        // Column(
+                        //   mainAxisSize: MainAxisSize.min,
+                        //   crossAxisAlignment: CrossAxisAlignment.start,
+                        //   children: <Widget>[
+                        //     Row(
+                        //       children: <Widget>[
+                        //         Container(
+                        //           margin: const EdgeInsets.only(bottom: 2),
+                        //           height: 10 *
+                        //               MediaQuery.of(context).textScaleFactor,
+                        //           child: const Center(
+                        //             child: Icon(
+                        //               Icons.circle,
+                        //               color: Colors.black,
+                        //               size: 6,
+                        //             ),
+                        //           ),
+                        //         ),
+                        //         const SizedBox(
+                        //           width: 4,
+                        //         ),
+                        //         Flexible(
+                        //           child: Text(
+                        //             item.eventData!.title,
+                        //             maxLines: 2,
+                        //             overflow: TextOverflow.ellipsis,
+                        //             style: context.eventTitle,
+                        //           ),
+                        //         ),
+                        //       ],
+                        //     ),
+                        //     !item.eventData!.freeTime
+                        //         ? const SizedBox(
+                        //             height: 6,
+                        //           )
+                        //         : const SizedBox.shrink(),
+                        //     item.eventData!.freeTime
+                        //         ? const SizedBox.shrink()
+                        //         : Flexible(
+                        //             child: Text(
+                        //               item.eventData!.location ?? '',
+                        //               overflow: TextOverflow.ellipsis,
+                        //               maxLines: 1,
+                        //               style: context.eventTitle,
+                        //             ),
+                        //           ),
+                        //   ],
+                        // ),
                         item.eventData!.freeTime || item.eventData!.isDutyTime
                             ? const SizedBox.shrink()
                             : const Spacer(),
@@ -139,7 +209,8 @@ class SingleDayEventTile extends StatelessWidget {
                             ? const SizedBox.shrink()
                             : GestureDetector(
                                 onTap: () {
-                                  launchLink(item.eventData!.eventLinks);
+                                  launchLink(
+                                      item.eventData!.eventLinks, context);
                                 },
                                 child: Container(
                                     width: MediaQuery.of(context).size.width,

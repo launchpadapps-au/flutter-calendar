@@ -161,6 +161,38 @@ class NativeCallBack {
     return true;
   }
 
+  ///send showDuty callback to native app
+  Future<bool> sendShowDutyToNativeApp(DateTime dateTime,
+      List<CalendarEvent<EventData>> events, CalendarViewType viewType) async {
+    if (events.length == 1) {
+      if (isOnTapEnable(events.first)) {
+        final int eventID = int.parse(events.first.eventData!.id.toString());
+        final Map<String, dynamic> data = <String, dynamic>{
+          'viewType': viewType.toString(),
+          'date': dateTime.toString().substring(0, 10),
+          'events': events.toString(),
+          'eventId': eventID,
+          'eventIds': List<String>.from(events.map<String>(
+              (CalendarEvent<EventData> e) => e.eventData!.id.toString()))
+        };
+        log(data.toString());
+        await sendToNativeApp(SendMethods.showDuty, data);
+      }
+    } else {
+      final Map<String, dynamic> data = <String, dynamic>{
+        'viewType': viewType.toString(),
+        'date': dateTime.toString().substring(0, 10),
+        'events': events.toString(),
+        'eventId': events.first.eventData!.id.toString(),
+        'eventIds': List<String>.from(events.map<String>(
+            (CalendarEvent<EventData> e) => e.eventData!.id.toString()))
+      };
+      log(data.toString());
+      await sendToNativeApp(SendMethods.showDuty, data);
+    }
+
+    return true;
+  }
   ///ask native app to fetch more data between speceffic date
 
   Future<bool> sendFetchDataToNativeApp(Term term) async {
@@ -184,6 +216,12 @@ class NativeCallBack {
     return true;
   }
 
+  ///open url in web
+  Future<bool> openUrl(String url) async {
+    await sendToNativeApp(SendMethods.openUrl, url);
+    return true;
+  }
+
   ///send showRecord callback to native app
   Future<bool> sendShowRecordToNativeApp() async {
     final Map<String, dynamic> data = <String, dynamic>{
@@ -191,6 +229,24 @@ class NativeCallBack {
     };
     log(data.toString());
     await sendToNativeApp(SendMethods.showRecord, data);
+    return true;
+  }
+
+  ///send openDrive callback to native app
+  Future<bool> sendOpenDriveToNativeApp() async {
+    final Map<String, dynamic> data = <String, dynamic>{
+      'message': 'Open Google Drive',
+    };
+    log(data.toString());
+    await sendToNativeApp(SendMethods.openDrive, data);
+    return true;
+  }
+
+  ///send showRecord callback to native app
+  Future<bool> sendShowTodos() async {
+    final Map<String, dynamic> data = <String, dynamic>{};
+
+    await sendToNativeApp(SendMethods.showTodos, data);
     return true;
   }
 

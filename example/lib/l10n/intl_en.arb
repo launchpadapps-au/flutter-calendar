@@ -24,5 +24,12 @@
     "records":"Records",
     "@records":{
         "description":"Records"
+    },
+    "todos":"Todos",
+    "@todos":{
+        "description":"Todos"
+    } ,   "drive":"Drive",
+    "@drive":{
+        "description":"Drive"
     }
 }

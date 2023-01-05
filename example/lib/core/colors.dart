@@ -73,6 +73,12 @@ const Color textBlack = Color(0xFF333333);
 /// code of 0xFFFF00AD.
 const Color primaryPink = Color(0xFFFF00AD);
 
+///light pink color
+const Color lightPink = Color(0xFFFFDAF1);
+
+///pink border color
+const Color lightPinkBorder = Color(0xFFFFC8EA);
+
 /// Creating a constant variable called textGrey and assigning it the value of
 ///  the color with the hex
 /// code of 0xFFBDBDBD.

@@ -3,9 +3,12 @@ import 'package:edgar_planner_calendar_flutter/core/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/constants.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/cell_border.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/single_day_event_tile.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/dayview/day_cell.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/dayview/day_event.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/dayview/day_header.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/dayview/day_hour_lable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -70,235 +73,111 @@ class _DayPlannerState extends State<DayPlanner> {
         final bool isMobile = value.maxWidth < mobileThreshold;
         final Size size = value.biggest;
 
-        return Column(
-          children: <Widget>[
-            Expanded(
-              child: NewSlDayView<EventData>(
-                onImageCapture: (Uint8List data) {},
-                backgroundColor: white,
-                timelines: widget.customPeriods,
-                onDateChanged: widget.onDateChanged,
-                onEventDragged: (CalendarEvent<EventData> old,
-                    CalendarEvent<EventData> newEvent, Period? period) {
-                  if (widget.onEventDragged != null) {
-                    widget.onEventDragged!(old, newEvent, period!);
-                  }
-                },
-                onEventToEventDragged: (CalendarEvent<EventData> existing,
-                    CalendarEvent<EventData> old,
-                    CalendarEvent<EventData> newEvent,
-                    Period? periodModel) {
-                  if (widget.onEventToEventDragged != null) {
-                    widget.onEventToEventDragged!(
-                        existing, old, newEvent, periodModel);
-                  }
-                },
-                onWillAccept: (CalendarEvent<EventData>? event, DateTime date,
-                    Period period) {
-                  final List<CalendarEvent<EventData>> events =
-                      BlocProvider.of<TimeTableCubit>(context).events;
-                  return isSlotAvlForSingleDay(events, event!, date, period);
-                },
-                nowIndicatorColor: timeIndicatorColor,
-                fullWeek: true,
-                cornerBuilder: (DateTime current) => const SizedBox.shrink(),
-                onTap: widget.onTap,
-                headerHeight: isMobile ? headerHeightForDayView : 40,
-                headerCellBuilder: (DateTime date) => isMobile
-                    ? Row(
-                        children: <Widget>[
-                          SizedBox(
-                            width: widget.timetableController.timelineWidth,
+        return NewSlDayView<EventData>(
+            onImageCapture: (Uint8List data) {},
+            backgroundColor: white,
+            timelines: widget.customPeriods,
+            onDateChanged: widget.onDateChanged,
+            onEventDragged: (CalendarEvent<EventData> old,
+                CalendarEvent<EventData> newEvent, Period? period) {
+              if (widget.onEventDragged != null) {
+                widget.onEventDragged!(old, newEvent, period!);
+              }
+            },
+            onEventToEventDragged: (CalendarEvent<EventData> existing,
+                CalendarEvent<EventData> old,
+                CalendarEvent<EventData> newEvent,
+                Period? periodModel) {
+              if (widget.onEventToEventDragged != null) {
+                widget.onEventToEventDragged!(
+                    existing, old, newEvent, periodModel);
+              }
+            },
+            onWillAccept: (CalendarEvent<EventData>? event, DateTime date,
+                Period period) {
+              final List<CalendarEvent<EventData>> events =
+                  BlocProvider.of<TimeTableCubit>(context).events;
+              return isSlotAvlForSingleDay(events, event!, date, period);
+            },
+            nowIndicatorColor: timeIndicatorColor,
+            fullWeek: true,
+            cornerBuilder: (DateTime current) => const SizedBox.shrink(),
+            onTap: widget.onTap,
+            headerHeight: isMobile ? headerHeightForDayView : 40,
+            headerCellBuilder: (DateTime date) => DayHeader(
+                date: date,
+                isMobile: isMobile,
+                timeLineWidth: widget.timetableController.timelineWidth),
+            headerTitleBuilder: (DateTime date) => isMobile
+                ? const SizedBox.shrink()
+                : Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Container(
+                            height: widget.timetableController.headerHeight,
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                    color: Colors.grey.withOpacity(0.5),
+                                    width: 0.5),
+                                color: lightGrey),
                             child: Center(
-                              child: Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                mainAxisSize: MainAxisSize.min,
+                              child: Row(
                                 children: <Widget>[
-                                  Text(
-                                    DateFormat('E').format(date).toUpperCase(),
-                                    style: context.hourLabelMobile.copyWith(
-                                      color: isSameDate(date)
-                                          ? primaryPink
-                                          : textBlack,
-                                    ),
+                                  SizedBox(
+                                    width: widget
+                                            .timetableController.timelineWidth /
+                                        4,
                                   ),
-                                  Container(
-                                      width: 24,
-                                      height: 24,
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(12.5),
-                                          color: isSameDate(date)
-                                              ? primaryPink
-                                              : Colors.transparent),
-                                      child: Center(
-                                        child: Text(
-                                          date.day.toString(),
-                                          style: context.headline1WithNotoSans
-                                              .copyWith(
-                                                  color: isSameDate(date)
-                                                      ? Colors.white
-                                                      : null),
-                                        ),
-                                      )),
+                                  Text(
+                                    DateFormat('EEEE')
+                                        .format(date)
+                                        .toUpperCase(),
+                                    style: context.subtitle1.copyWith(
+                                        color: isSameDate(date)
+                                            ? textBlack
+                                            : null),
+                                  ),
                                   const SizedBox(
-                                    height: 2,
+                                    width: 6,
+                                  ),
+                                  Text(
+                                    DateFormat('d ').format(date),
+                                    style: context.headline1.copyWith(
+                                        color: isSameDate(date)
+                                            ? textBlack
+                                            : null),
                                   ),
                                 ],
                               ),
-                            ),
-                          ),
-                        ],
+                            )),
                       )
-                    : const SizedBox.shrink(),
-                headerTitleBuilder: (DateTime date) => isMobile
-                    ? const SizedBox.shrink()
-                    : Row(
-                        children: <Widget>[
-                          Expanded(
-                            child: Container(
-                                height: widget.timetableController.headerHeight,
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: Colors.grey.withOpacity(0.5),
-                                        width: 0.5),
-                                    color: lightGrey),
-                                child: Center(
-                                  child: Row(
-                                    children: <Widget>[
-                                      SizedBox(
-                                        width: widget.timetableController
-                                                .timelineWidth /
-                                            4,
-                                      ),
-                                      Text(
-                                        DateFormat('EEEE')
-                                            .format(date)
-                                            .toUpperCase(),
-                                        style: context.subtitle1.copyWith(
-                                            color: isSameDate(date)
-                                                ? textBlack
-                                                : null),
-                                      ),
-                                      const SizedBox(
-                                        width: 6,
-                                      ),
-                                      Text(
-                                        DateFormat('d ').format(date),
-                                        style: context.headline1.copyWith(
-                                            color: isSameDate(date)
-                                                ? textBlack
-                                                : null),
-                                      ),
-                                    ],
-                                  ),
-                                )),
-                          )
-                        ],
-                      ),
-                headerDecoration: (DateTime dateTime) => const BoxDecoration(
+                    ],
+                  ),
+            headerDecoration: (DateTime dateTime) => const BoxDecoration(
                     boxShadow: <BoxShadow>[
                       BoxShadow(
                           blurRadius: 3,
                           offset: Offset(0, 2),
                           color: Color(0x0000001A))
                     ]),
-                hourLabelBuilder: (Period period) {
-                  final TimeOfDay start = period.startTime;
-
-                  final TimeOfDay end = period.endTime;
-                  return Container(
-                    child: period.isCustomeSlot
-                        ? Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Text(period.title ?? '',
-                                  style: isMobile
-                                      ? context.hourLabelMobile
-                                      : context.hourLabelTablet),
-                            ],
-                          )
-                        : Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Text(start.format(context).substring(0, 5),
-                                  style: isMobile
-                                      ? context.hourLabelMobile
-                                      : context.hourLabelTablet),
-                              const SizedBox(
-                                height: 8,
-                              ),
-                              Text(end.format(context).substring(0, 5),
-                                  style: isMobile
-                                      ? context.hourLabelMobile
-                                      : context.hourLabelTablet),
-                              // const SizedBox(
-                              //   height: 8,
-                              // ),
-                              // Text(period.id,
-                              //     style: isMobile
-                              //         ? context.hourLabelMobile
-                              //         : context.hourLabelTablet),
-                            ],
-                          ),
-                  );
-                },
-                controller: widget.timetableController,
-                isCellDraggable: (CalendarEvent<EventData> event) =>
-                    isCelldraggable(event),
-                itemBuilder: (CalendarEvent<EventData> item, int index,
-                        int length, double width) =>
-                    GestureDetector(
-                  onTap: () {
-                    widget.onTap(item.startTime, null, item);
-                  },
-                  child: SingleDayEventTile(
-                      border: item.eventData!.isDuty
-                          ? null
-                          : Border.all(color: white, width: 2),
-                      cellWidth:
-                          size.width - widget.timetableController.timelineWidth,
-                      item: item,
-                      isDraggable: false,
-                      breakHeight: widget.timetableController.breakHeight,
-                      cellHeight: widget.timetableController.cellHeight),
-                ),
-                cellBuilder: (Period period,DateTime dateTime) => CellBorder(
-                    borderWidth: 1,
-                    borderRadius: 0,
-                    color: period.isCustomeSlot
-                        ? isMobile
-                            ? lightGrey
-                            : grey
-                        : Colors.transparent,
-                    borderColor: grey,
-                    border: !period.isCustomeSlot
-                        ? null
-                        : Border(
-                            left: isMobile
-                                ? const BorderSide(
-                                    color: grey,
-                                  )
-                                : const BorderSide(
-                                    color: textGrey,
-                                    width: 5,
-                                  ),
-                            top: const BorderSide(
-                              color: grey,
-                            ),
-                            right: const BorderSide(
-                              color: grey,
-                            ),
-                            bottom: const BorderSide(
-                              color: grey,
-                            )),
-                    cellHeight: period.isCustomeSlot
-                        ? widget.timetableController.breakHeight
-                        : widget.timetableController.cellHeight),
-              ),
-            ),
-          ],
-        );
+            hourLabelBuilder: (Period period) => DayHourLable(
+                periodModel: period as PeriodModel, isMobile: isMobile),
+            controller: widget.timetableController,
+            isCellDraggable: (CalendarEvent<EventData> event) =>
+                isCelldraggable(event),
+            itemBuilder: (CalendarEvent<EventData> item, int index, int length,
+                    double width) =>
+                DayEvent(
+                    item: item,
+                    cellHeight: widget.timetableController.cellHeight,
+                    breakHeight: widget.timetableController.breakHeight,
+                    width: size.width,
+                    periods: widget.customPeriods,
+                    timeLineWidth: widget.timetableController.timelineWidth),
+            cellBuilder: (Period period, DateTime dateTime) => DayCell(
+                periodModel: period as PeriodModel,
+                breakHeight: widget.timetableController.breakHeight,
+                cellHeight: widget.timetableController.cellHeight,
+                isMobile: isMobile));
       }));
 }

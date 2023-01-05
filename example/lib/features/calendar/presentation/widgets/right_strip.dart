@@ -38,12 +38,21 @@ class RightStrip extends StatelessWidget {
               children: <Widget>[
                 Expanded(
                     child: RightSideButton(
+                  title: S.of(context).todos,
+                  onTap: () {
+                    if (viewType != CalendarViewType.dayView) {
+                      cubit.nativeCallBack.sendShowTodos();
+                    }
+                  },
+                )),
+                Expanded(
+                    child: RightSideButton(
                   title: S.of(context).day,
                   onTap: () {
                     if (viewType != CalendarViewType.dayView) {
-                      cubit..setDate(cubit.date)
-
-                      ..changeViewType(CalendarViewType.dayView);
+                      cubit
+                        ..setDate(cubit.date)
+                        ..changeViewType(CalendarViewType.dayView);
                     }
                   },
                   selected: viewType == CalendarViewType.dayView,
@@ -53,8 +62,9 @@ class RightStrip extends StatelessWidget {
                   title: S.of(context).week,
                   onTap: () {
                     if (viewType != CalendarViewType.weekView) {
-                      cubit..setDate(cubit.date)
-                      ..changeViewType(CalendarViewType.weekView);
+                      cubit
+                        ..setDate(cubit.date)
+                        ..changeViewType(CalendarViewType.weekView);
                     }
                   },
                   selected: viewType == CalendarViewType.weekView,
@@ -147,11 +157,11 @@ class RightStrip extends StatelessWidget {
                 )),
                 Expanded(
                     child: RightSideButton(
-                  title: S.of(context).records,
+                  title: S.of(context).drive,
                   onTap: () {
                     BlocProvider.of<TimeTableCubit>(context)
                         .nativeCallBack
-                        .sendShowRecordToNativeApp();
+                        .sendOpenDriveToNativeApp();
                   },
                 )),
               ],

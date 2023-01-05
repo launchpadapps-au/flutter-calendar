@@ -60,6 +60,12 @@ class ReceiveMethods {
 
   ///previous week
   static const String previousWeek = 'previousWeek';
+
+  ///set margin from the top in ui
+  static const String topMargin = 'topMargin';
+
+  /// start capturing image preview
+  static const String exportPreview = 'exportPreview';
 }
 
 ///class which contain static method name which used to send data to native app
@@ -75,6 +81,11 @@ class SendMethods {
   /// showEvent method called when user tan on cell which have events
 
   static const String showEvent = 'showEvent';
+
+  /// showDuty method called when user tan on cell 
+  /// which have duty in before of after school slot
+
+  static const String showDuty = 'showDuty';
 
   /// showEvent method called when user tan on cell which have events
 
@@ -97,7 +108,18 @@ class SendMethods {
 
   static const String showRecord = 'showRecord';
 
+  /// openDrive called when user tap on the drive button
+  static const String openDrive = 'openDrive';
+
+  /// showTodos called when user tap on the Todos button on
+  /// the right side strip on tablet view
+
+  static const String showTodos = 'showTodos';
+
   ///this is newaly generated method for fetching data termwise
   ///specificaly used for edgar planner project
   static const String fetchData = 'fetchData';
+
+  ///open url
+  static const String openUrl = 'openUrl';
 }

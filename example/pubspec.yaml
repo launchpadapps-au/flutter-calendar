@@ -50,6 +50,7 @@ dependencies:
     path: ../
   jiffy: ^5.0.0
   url_launcher: ^6.1.6
+  google_fonts: ^3.0.1
 
     # git:
     #   url: https://github.com/launchpadapps-au/flutter-calendar
@@ -78,6 +79,11 @@ flutter:
   # like this:
   assets:
     - assets/
+    - assets/fonts/
+    - assets/logo.png
+    - assets/small_logo.png
+    - assets/fonts/sofiapro-Regular.ttf
+    
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

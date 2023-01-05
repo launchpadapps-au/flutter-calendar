@@ -29,49 +29,106 @@ class EventTile extends StatelessWidget {
               ? MainAxisAlignment.center
               : MainAxisAlignment.start,
           children: <Widget>[
+            // Row(
+            //   mainAxisSize: item.eventData!.isDutyTime
+            //       ? MainAxisSize.max
+            //       : MainAxisSize.min,
+            //   mainAxisAlignment: item.eventData!.isDutyTime
+            //       ? MainAxisAlignment.center
+            //       : MainAxisAlignment.start,
+            //   children: <Widget>[
+            //     item.eventData!.isDutyTime
+            //         ? const SizedBox.shrink()
+            //         : Container(
+            //             margin: const EdgeInsets.only(bottom: 2),
+            //             height: 10 * MediaQuery.of(context).textScaleFactor,
+            //             child: const Center(
+            //               child: Icon(
+            //                 Icons.circle,
+            //                 color: Colors.black,
+            //                 size: 6,
+            //               ),
+            //             ),
+            //           ),
+            //     item.eventData!.isDutyTime
+            //         ? const SizedBox.shrink()
+            //         : const SizedBox(
+            //             width: 4,
+            //           ),
+            //     Flexible(
+            //       child: Text(
+            //         item.eventData!.title,
+            //         style: context.subtitle,
+            //         overflow: TextOverflow.ellipsis,
+            //       ),
+            //     ),
+            //   ],
+            // ),
             Row(
-              mainAxisSize: item.eventData!.isDutyTime
-                  ? MainAxisSize.max
-                  : MainAxisSize.min,
-              mainAxisAlignment: item.eventData!.isDutyTime
-                  ? MainAxisAlignment.center
-                  : MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                item.eventData!.isDutyTime
-                    ? const SizedBox.shrink()
-                    : SizedBox(
-                        height: 10 * MediaQuery.of(context).textScaleFactor,
-                        child: const Center(
-                          child: Icon(
-                            Icons.circle,
-                            color: Colors.black,
-                            size: 4,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    SizedBox(
+                      width: width - 24 - 28,
+                      child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            const Padding(
+                              padding: EdgeInsets.only(top: 3),
+                              child: Icon(
+                                Icons.circle,
+                                color: Colors.black,
+                                size: 6,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 4,
+                            ),
+                            Flexible(
+                              child: Text(
+                                item.eventData!.title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: context.eventTitle,
+                              ),
+                            ),
+                          ]),
+                    ),
+                    !item.eventData!.freeTime
+                        ? const SizedBox(
+                            height: 6,
+                          )
+                        : const SizedBox.shrink(),
+                    item.eventData!.freeTime
+                        ? const SizedBox.shrink()
+                        : Text(
+                            item.eventData!.location ?? '',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: context.eventTitle,
                           ),
-                        ),
-                      ),
-                item.eventData!.isDutyTime
-                    ? const SizedBox.shrink()
-                    : const SizedBox(
-                        width: 6,
-                      ),
-                Flexible(
-                  child: Text(
-                    item.eventData!.title,
-                    style: context.subtitle,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  ],
                 ),
+                item.eventData!.extraCurricular == null
+                    ? const SizedBox.shrink()
+                    : Image.network(
+                        item.eventData!.extraCurricular!,
+                        width: 24,
+                        height: 24,
+                      )
               ],
             ),
-            item.eventData!.freeTime || item.eventData!.isDutyTime
-                ? const SizedBox.shrink()
-                : Flexible(
-                    child: Text(
-                      item.eventData!.location ?? '',
-                      overflow: TextOverflow.ellipsis,
-                      style: context.subtitle,
-                    ),
-                  ),
+            // item.eventData!.freeTime || item.eventData!.isDutyTime
+            //     ? const SizedBox.shrink()
+            //     : Flexible(
+            //         child: Text(
+            //           item.eventData!.location ?? '',
+            //           overflow: TextOverflow.ellipsis,
+            //           style: context.subtitle,
+            //         ),
+            //       ),
             // Text(
             //   item.eventData!.period.id,
             //   overflow: TextOverflow.ellipsis,
@@ -86,7 +143,7 @@ class EventTile extends StatelessWidget {
                 ? const SizedBox.shrink()
                 : GestureDetector(
                     onTap: () {
-                      launchLink(item.eventData!.eventLinks);
+                      launchLink(item.eventData!.eventLinks, context);
                     },
                     child: Container(
                         width: MediaQuery.of(context).size.width,

@@ -17,31 +17,32 @@ import '../core/app_log.dart';
 /// that scrolls
 class SlWeekView<T> extends StatefulWidget {
   /// initialize weekView of the cALENDAR
-  const SlWeekView({
-    required this.timelines,
-    required this.onWillAccept,
-    this.onDateChanged,
-    this.columnWidth,
-    this.size,
-    this.backgroundColor = Colors.transparent,
-    Key? key,
-    this.onEventDragged,
-    this.onEventToEventDragged,
-    this.controller,
-    this.cellBuilder,
-    this.headerCellBuilder,
-    this.isCellDraggable,
-    this.itemBuilder,
-    this.fullWeek = false,
-    this.headerHeight = 45,
-    this.hourLabelBuilder,
-    this.nowIndicatorColor,
-    this.showNowIndicator = true,
-    this.showActiveDateIndicator = true,
-    this.cornerBuilder,
-    this.snapToDay = true,
-    this.onTap,
-  }) : super(key: key);
+  const SlWeekView(
+      {required this.timelines,
+      required this.onWillAccept,
+      this.onDateChanged,
+      this.columnWidth,
+      this.size,
+      this.backgroundColor = Colors.transparent,
+      Key? key,
+      this.onEventDragged,
+      this.onEventToEventDragged,
+      this.controller,
+      this.cellBuilder,
+      this.headerCellBuilder,
+      this.isCellDraggable,
+      this.itemBuilder,
+      this.fullWeek = false,
+      this.headerHeight = 45,
+      this.hourLabelBuilder,
+      this.nowIndicatorColor,
+      this.showNowIndicator = true,
+      this.showActiveDateIndicator = true,
+      this.cornerBuilder,
+      this.snapToDay = true,
+      this.onTap,
+      this.headerDivideThickness = 2})
+      : super(key: key);
 
   /// [TimetableController] is the controller that also initialize the timetable
   final TimetableController<T>? controller;
@@ -126,6 +127,9 @@ class SlWeekView<T> extends StatefulWidget {
 
   ///Size of the view
   final Size? size;
+
+  ///header divider thickness
+  final double headerDivideThickness;
   @override
   State<SlWeekView<T>> createState() => _SlWeekViewState<T>();
 }
@@ -429,24 +433,24 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
   //   return false;
   // }
 
-  bool syncWithTab(ScrollNotification notification)=>      true;
+  bool syncWithTab(ScrollNotification notification) => true;
   // {
-    ///code will be reuse once issue resolved
-    // if (headerIsScrolling || isScrolling) {
-    // } else if (notification is ScrollStartNotification) {
-    //   tabIsScrolling = true;
-    // } else if (notification is ScrollEndNotification) {
-    //   tabIsScrolling = false;
+  ///code will be reuse once issue resolved
+  // if (headerIsScrolling || isScrolling) {
+  // } else if (notification is ScrollStartNotification) {
+  //   tabIsScrolling = true;
+  // } else if (notification is ScrollEndNotification) {
+  //   tabIsScrolling = false;
 
-    //   return true;
-    // } else if (notification is ScrollUpdateNotification) {
-    //   tabIsScrolling = true;
-    //   if (controller.infiniteScrolling) {
-    //     indexdHeaderController.jumpTo(indexdController.position.pixels);
-    //   }
-    // }
-    // return true;
- 
+  //   return true;
+  // } else if (notification is ScrollUpdateNotification) {
+  //   tabIsScrolling = true;
+  //   if (controller.infiniteScrolling) {
+  //     indexdHeaderController.jumpTo(indexdController.position.pixels);
+  //   }
+  // }
+  // return true;
+
   // }
 
   @override
@@ -454,6 +458,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
       key: _key,
       builder: (BuildContext context, BoxConstraints contraints) {
         adjustColumnWidth();
+        log('widget size${widget.size}');
         final Size size = widget.size ?? MediaQuery.of(context).size;
         log('render box size $size');
         final double height = getTimelineHeight(
@@ -478,18 +483,22 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                           ? IndexedListView.builder(
                               scrollDirection: Axis.horizontal,
                               controller: indexdHeaderController,
-                              itemExtent: columnWidth,
                               pageSnapping: false,
                               physics: const NeverScrollableScrollPhysics(),
                               padding: EdgeInsets.zero,
                               cacheExtent: columnWidth * 7,
-                              itemBuilder: (BuildContext context, int index) =>
-                                  HeaderCell(
-                                    dateTime: controller.start
-                                        .add(Duration(days: index)),
-                                    columnWidth: columnWidth,
-                                    headerCellBuilder: widget.headerCellBuilder,
-                                  ))
+                              itemBuilder: (BuildContext context, int index) {
+                                final DateTime date =
+                                    controller.start.add(Duration(days: index));
+                                return !widget.fullWeek && date.weekday > 5
+                                    ? null
+                                    : HeaderCell(
+                                        dateTime: date,
+                                        columnWidth: columnWidth,
+                                        headerCellBuilder:
+                                            widget.headerCellBuilder,
+                                      );
+                              })
                           : ListView.builder(
                               scrollDirection: Axis.horizontal,
                               controller: headerController,
@@ -506,9 +515,9 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                   ],
                 ),
               ),
-              const Divider(
-                thickness: 2,
-                height: 2,
+              Divider(
+                thickness: widget.headerDivideThickness,
+                height: widget.headerDivideThickness,
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -542,8 +551,9 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                                       scrollDirection: Axis.horizontal,
                                       // cacheExtent: 10000.0,
 
-                                      itemExtent: columnWidth,
-
+                                      emptyItemBuilder:
+                                          (BuildContext context, int index) =>
+                                              const SizedBox.shrink(),
                                       controller: indexdController,
                                       cacheExtent: 0,
                                       itemBuilder:
@@ -570,8 +580,11 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                                         final bool showIndicator =
                                             widget.showNowIndicator && isToday;
 
-                                        return buildView(date,
-                                            showIndicator: showIndicator);
+                                        return !widget.fullWeek &&
+                                                date.weekday > 5
+                                            ? null
+                                            : buildView(date,
+                                                showIndicator: showIndicator);
                                       },
                                     )
                                   : ListView.builder(
@@ -775,6 +788,8 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
 
   ///jump to given date
   Future<dynamic> _jumpTo(DateTime date) async {
+    DateTime dateTime = date;
+
     isScrolling = true;
     final double hourPosition = getTimeIndicatorFromTop(
         widget.timelines, controller.cellHeight, controller.breakHeight);
@@ -787,7 +802,10 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
         'max $maxScroll scrollTo $scrollTo');
 
     if (controller.infiniteScrolling) {
-      final int index = date.difference(controller.start).inDays;
+      if (!widget.fullWeek) {
+        dateTime = dateTime.subtract(Duration(days: dateTime.weekday - 1));
+      }
+      final int index = dateTime.difference(controller.start).inDays;
       unawaited(
           indexdHeaderController.animateToIndex(index, curve: animationCurve));
       await indexdController
@@ -809,7 +827,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
       try {
         isScrolling = true;
         final DateTime d = dateRange.firstWhere(
-            (DateTime element) => DateUtils.isSameDay(date, element));
+            (DateTime element) => DateUtils.isSameDay(dateTime, element));
         int index = dateRange.indexOf(d);
         final int rm = (controller.maxColumn / 2).floor();
         index = index < rm ? index : index - rm;

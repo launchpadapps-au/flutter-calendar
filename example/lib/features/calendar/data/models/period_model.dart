@@ -32,7 +32,7 @@ class PeriodModel implements Period {
       required this.startTime,
       required this.isCustomeSlot}) {
     title = slotName;
-    isCustomeSlot = type == 'break';
+    isCustomeSlot = type != 'period';
     if (title == 'break_1') {
       title = 'Recess';
     } else if (title == 'break_2') {
@@ -93,6 +93,12 @@ class PeriodModel implements Period {
 
   @override
   TimeOfDay startTime;
+
+  ///return true if break type is before school
+  bool get isBeforeSchool => type == 'before_school';
+
+  ///return true if break type is after school
+  bool get isAfterSchool => type == 'after_school';
 
   @override
   Map<String, dynamic> get toMap => <String, dynamic>{

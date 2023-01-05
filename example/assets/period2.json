@@ -1,0 +1,112 @@
+ 
+                [
+                    {
+                        "id": 2961,
+                        "calendar_id": 443,
+                        "user_id": "3c975191-ff1e-4892-a302-b0c3459fbbf3",
+                        "slot_name": "before_school",
+                        "type": "before_school",
+                        "start_time": "08:15:00",
+                        "end_time": "09:00:00"
+                    },
+                    {
+                        "id": 2960,
+                        "calendar_id": 443,
+                        "user_id": "3c975191-ff1e-4892-a302-b0c3459fbbf3",
+                        "slot_name": "period_1",
+                        "type": "period",
+                        "start_time": "09:00:00",
+                        "end_time": "09:45:00"
+                    },
+                    {
+                        "id": 2964,
+                        "calendar_id": 443,
+                        "user_id": "3c975191-ff1e-4892-a302-b0c3459fbbf3",
+                        "slot_name": "period_2",
+                        "type": "period",
+                        "start_time": "09:45:00",
+                        "end_time": "10:30:00"
+                    },
+                    {
+                        "id": 2962,
+                        "calendar_id": 443,
+                        "user_id": "3c975191-ff1e-4892-a302-b0c3459fbbf3",
+                        "slot_name": "period_3",
+                        "type": "period",
+                        "start_time": "10:30:00",
+                        "end_time": "11:15:00"
+                    },
+                    {
+                        "id": 2968,
+                        "calendar_id": 443,
+                        "user_id": "3c975191-ff1e-4892-a302-b0c3459fbbf3",
+                        "slot_name": "break_1",
+                        "type": "break",
+                        "start_time": "11:15:00",
+                        "end_time": "12:00:00"
+                    },
+                    {
+                        "id": 2966,
+                        "calendar_id": 443,
+                        "user_id": "3c975191-ff1e-4892-a302-b0c3459fbbf3",
+                        "slot_name": "period_4",
+                        "type": "period",
+                        "start_time": "12:00:00",
+                        "end_time": "12:45:00"
+                    },
+                    {
+                        "id": 2967,
+                        "calendar_id": 443,
+                        "user_id": "3c975191-ff1e-4892-a302-b0c3459fbbf3",
+                        "slot_name": "period_5",
+                        "type": "period",
+                        "start_time": "12:45:00",
+                        "end_time": "13:30:00"
+                    },
+                    {
+                        "id": 2965,
+                        "calendar_id": 443,
+                        "user_id": "3c975191-ff1e-4892-a302-b0c3459fbbf3",
+                        "slot_name": "period_6",
+                        "type": "period",
+                        "start_time": "13:30:00",
+                        "end_time": "14:15:00"
+                    },
+                    {
+                        "id": 2970,
+                        "calendar_id": 443,
+                        "user_id": "3c975191-ff1e-4892-a302-b0c3459fbbf3",
+                        "slot_name": "break_2",
+                        "type": "break",
+                        "start_time": "14:15:00",
+                        "end_time": "15:00:00"
+                    },
+                    {
+                        "id": 2971,
+                        "calendar_id": 443,
+                        "user_id": "3c975191-ff1e-4892-a302-b0c3459fbbf3",
+                        "slot_name": "period_7",
+                        "type": "period",
+                        "start_time": "15:00:00",
+                        "end_time": "15:45:00"
+                    },
+                    {
+                        "id": 2969,
+                        "calendar_id": 443,
+                        "user_id": "3c975191-ff1e-4892-a302-b0c3459fbbf3",
+                        "slot_name": "period_8",
+                        "type": "period",
+                        "start_time": "15:45:00",
+                        "end_time": "16:30:00"
+                    },
+                    {
+                        "id": 2963,
+                        "calendar_id": 443,
+                        "user_id": "3c975191-ff1e-4892-a302-b0c3459fbbf3",
+                        "slot_name": "after_school",
+                        "type": "after_school",
+                        "start_time": "16:30:00",
+                        "end_time": "17:15:00"
+                    }
+                ]
+          
