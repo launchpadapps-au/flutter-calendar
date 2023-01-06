@@ -975,25 +975,6 @@ class TimeTableCubit extends Cubit<TimeTableState> {
     }
   }
 
-  ///save time table as image
-  Future<String> saveTomImage(Uint8List image, {String? filename}) async {
-    final Directory? path = Platform.isAndroid
-        ? await getExternalStorageDirectory() //FOR ANDROID
-        : Platform.isIOS
-            ? await getApplicationDocumentsDirectory()
-            : await getDownloadsDirectory(); //FOR iOS
-    final String fileName =
-        '${path!.path}/exported/${viewType.name}-${filename ?? DateTime.now().toString()}';
-    final File file = File('$fileName.png');
-    if (file.existsSync()) {
-      file.deleteSync();
-    }
-    file.createSync(recursive: true);
-    await file.writeAsBytes(image);
-    log('image Path:${file.path}');
-    return file.path;
-  }
-
   ///chang calendar view
   void changeViewType(CalendarViewType viewType) {
     this.viewType = viewType;

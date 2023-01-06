@@ -71,7 +71,6 @@ class _DayPlannerState extends State<DayPlanner> {
   Widget build(BuildContext context) => Scaffold(body:
           LayoutBuilder(builder: (BuildContext context, BoxConstraints value) {
         final bool isMobile = value.maxWidth < mobileThreshold;
-        final Size size = value.biggest;
 
         return NewSlDayView<EventData>(
             onImageCapture: (Uint8List data) {},
@@ -168,12 +167,13 @@ class _DayPlannerState extends State<DayPlanner> {
             itemBuilder: (CalendarEvent<EventData> item, int index, int length,
                     double width) =>
                 DayEvent(
-                    item: item,
-                    cellHeight: widget.timetableController.cellHeight,
-                    breakHeight: widget.timetableController.breakHeight,
-                    width: size.width,
-                    periods: widget.customPeriods,
-                    timeLineWidth: widget.timetableController.timelineWidth),
+                  item: item,
+                  cellHeight: widget.timetableController.cellHeight,
+                  breakHeight: widget.timetableController.breakHeight,
+                  width: width,
+                  isMobile: isMobile,
+                  periods: widget.customPeriods,
+                ),
             cellBuilder: (Period period, DateTime dateTime) => DayCell(
                 periodModel: period as PeriodModel,
                 breakHeight: widget.timetableController.breakHeight,

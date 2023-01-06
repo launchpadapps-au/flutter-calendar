@@ -23,7 +23,7 @@ class ExportCell extends StatelessWidget {
       decoration: BoxDecoration(
           border: Border.all(
             color: textGrey,
-            width: 0.5,
+            width: 0.25,
           ),
           color: periodModel.isAfterSchool || periodModel.isBeforeSchool
               ? Colors.transparent

@@ -694,8 +694,7 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
                                               p0,
                                               index,
                                               events.length,
-                                              size.width -
-                                                  controller.timelineWidth),
+                                              maxWidth - index * eventWidth),
                                     ),
                                   );
                                 }),

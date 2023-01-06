@@ -71,14 +71,24 @@ class ScheduleViewEventTile extends StatelessWidget {
                     ),
                     // item.eventData!.freeTime ? const SizedBox.shrink() :
                     //const Spacer(),
-                    Flexible(
-                      child: Text(
-                        item.eventData!.location ?? '',
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            height: 1.2,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500),
+                    SizedBox(
+                      width: constraints.biggest.width - 126 - 26,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>  [
+                          Flexible(
+                            child: Text(
+                              item.eventData!.location ?? '',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  height: 1.2,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -118,6 +128,9 @@ class ScheduleViewEventTile extends StatelessWidget {
                               child: Image.network(
                                 item.eventData!.extraCurricular!,
                                 width: 20,
+                                errorBuilder: (BuildContext context,
+                                        Object error, StackTrace? stackTrace) =>
+                                    const SizedBox.shrink(),
                                 height: 20,
                               ),
                             ),

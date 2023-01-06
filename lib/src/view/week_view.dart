@@ -743,7 +743,8 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                             columnWidth: columnWidth,
                             event: event,
                             itemBuilder: (CalendarEvent<T> p0) =>
-                                widget.itemBuilder!(p0, columnWidth),
+                                widget.itemBuilder!(
+                                    p0, maxWidth - index * eventWidth),
                           ),
                         );
                       }),

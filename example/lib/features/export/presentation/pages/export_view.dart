@@ -5,15 +5,15 @@ import 'package:edgar_planner_calendar_flutter/core/calendar_utils.dart';
 import 'package:edgar_planner_calendar_flutter/core/utils.dart' as utils;
 import 'package:edgar_planner_calendar_flutter/core/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/constants.dart';
-import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/dayview/day_event.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/event_tile.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/month_cell.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/month_event.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/month_hour_lable.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/weekview/week_event.dart';
+import 'package:edgar_planner_calendar_flutter/features/export/presentation/pages/fileutils.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/presentation/pages/pdf_utils.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/day_name.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/dead_cell.dart';
@@ -129,91 +129,72 @@ class ExportView {
               MaterialApp(
                   debugShowCheckedModeBanner: false,
                   home: Material(
-                    child: Container(
-                      width: size.height,
-                      height: size.width,
-                      decoration: BoxDecoration(
-                          color: white, border: Border.all(width: 0)),
-                      child: SlWeekView<EventData>(
-                          backgroundColor: white,
-                          fullWeek: fullWeek,
-                          headerDivideThickness: 0.5,
-                          columnWidth: cellWidth,
-                          size: size,
-                          timelines: timelines,
-                          onEventDragged: (CalendarEvent<EventData> old,
-                              CalendarEvent<EventData> newEvent,
-                              Period? period) {},
-                          onTap: (DateTime date, Period period,
-                              CalendarEvent<EventData>? event) {},
-                          onEventToEventDragged:
-                              (CalendarEvent<EventData> existing,
-                                  CalendarEvent<EventData> old,
-                                  CalendarEvent<EventData> newEvent,
-                                  Period? periodModel) {},
-                          onWillAccept: (CalendarEvent<EventData>? event,
-                                  Period period) =>
-                              true,
-                          showActiveDateIndicator: false,
-                          nowIndicatorColor: timeIndicatorColor,
-                          cornerBuilder: (DateTime current) =>
-                              const ExportCorner(),
-                          headerHeight: headerHeight,
-                          headerCellBuilder: (DateTime date) => ExportHeader(
-                                date: date,
-                              ),
-                          hourLabelBuilder: (Period period) => ExportHourLable(
-                              periodModel: period as PeriodModel,
-                              breakHeight: breakHeight,
-                              cellHeight: cellHeight,
-                              timelineWidth: timeLineWidth,
-                              isMobile: isMobile),
-                          isCellDraggable: (CalendarEvent<EventData> event) =>
-                              isCelldraggable(event),
-                          controller: simpleController,
-                          itemBuilder: (CalendarEvent<EventData> item,
-                                  double width) =>
-                              Container(
-                                margin: const EdgeInsets.all(4),
-                                child: Container(
-                                    padding: const EdgeInsets.all(6),
-                                    height: item.eventData!.isDuty
-                                        ? simpleController.breakHeight
-                                        : simpleController.cellHeight,
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(6),
-                                        color: item.eventData!.color),
-                                    child: item.eventData!.isDuty
-                                        ? SizedBox(
-                                            height:
-                                                simpleController.breakHeight,
-                                            child: Center(
-                                                child: Text(
-                                              item.eventData!.title,
-                                              style: context.subtitle,
-                                            )),
-                                          )
-                                        : EventTile(
-                                            item: item,
-                                            height: item.eventData!.isDuty
-                                                ? simpleController.breakHeight
-                                                : simpleController.cellHeight,
-                                            width: width,
-                                          )),
-                              ),
-                          cellBuilder: (Period period, DateTime dateTime) =>
-                              ExportCell(
-                                  periodModel: period as PeriodModel,
-                                  breakHeight: simpleController.breakHeight,
-                                  cellHeight: simpleController.cellHeight)),
+                    child: MediaQuery(
+                      data: MediaQuery.of(context).copyWith(textScaleFactor: 1),
+                      child: Container(
+                        width: size.height,
+                        height: size.width,
+                        decoration: BoxDecoration(
+                            color: white, border: Border.all(width: 0)),
+                        child: SlWeekView<EventData>(
+                            backgroundColor: white,
+                            fullWeek: fullWeek,
+                            headerDivideThickness: 0,
+                            columnWidth: cellWidth,
+                            showNowIndicator: false,
+                            size: size,
+                            timelines: timelines,
+                            onEventDragged: (CalendarEvent<EventData> old,
+                                CalendarEvent<EventData> newEvent,
+                                Period? period) {},
+                            onTap: (DateTime date, Period period,
+                                CalendarEvent<EventData>? event) {},
+                            onEventToEventDragged:
+                                (CalendarEvent<EventData> existing,
+                                    CalendarEvent<EventData> old,
+                                    CalendarEvent<EventData> newEvent,
+                                    Period? periodModel) {},
+                            onWillAccept:
+                                (CalendarEvent<EventData>? event, Period period) =>
+                                    true,
+                            showActiveDateIndicator: false,
+                            nowIndicatorColor: timeIndicatorColor,
+                            cornerBuilder: (DateTime current) =>
+                                const ExportCorner(),
+                            headerHeight: headerHeight,
+                            headerCellBuilder: (DateTime date) => ExportHeader(
+                                  date: date,
+                                ),
+                            hourLabelBuilder: (Period period) => ExportHourLable(
+                                periodModel: period as PeriodModel,
+                                breakHeight: breakHeight,
+                                cellHeight: cellHeight,
+                                timelineWidth: timeLineWidth,
+                                isMobile: isMobile),
+                            isCellDraggable: (CalendarEvent<EventData> event) =>
+                                isCelldraggable(event),
+                            controller: simpleController,
+                            itemBuilder:
+                                (CalendarEvent<EventData> item, double width) =>
+                                    WeekEvent(
+                                        item: item,
+                                        cellHeight: cellHeight,
+                                        breakHeight: breakHeight,
+                                        width: width,
+                                        periods: timelines),
+                            cellBuilder: (Period period, DateTime dateTime) =>
+                                ExportCell(
+                                    periodModel: period as PeriodModel,
+                                    breakHeight: simpleController.breakHeight,
+                                    cellHeight: simpleController.cellHeight)),
+                      ),
                     ),
                   )),
               targetSize: size)
           .then((Uint8List value) async {
         final String fileName = 'Week ${weeks.indexOf(week) + 1}';
         log(' Week view image received from planner');
-        await BlocProvider.of<TimeTableCubit>(context)
-            .saveTomImage(value, filename: fileName);
+        await FileUtils.saveTomImage(value, filename: fileName);
         if (saveImage) {
         } else {
           datalist.add(value);
@@ -322,7 +303,8 @@ class ExportView {
                           onTap: (DateTime dateTime, Period p1,
                               CalendarEvent<EventData>? p2) {},
                           headerHeight: isMobile ? headerHeightForDayView : 40,
-                          headerCellBuilder: (DateTime date) => const ExportCorner(),
+                          headerCellBuilder: (DateTime date) =>
+                              const ExportCorner(),
                           headerTitleBuilder: (DateTime date) =>
                               ExportHeader(date: date),
                           headerDecoration: (DateTime dateTime) =>
@@ -345,13 +327,15 @@ class ExportView {
                           itemBuilder: (CalendarEvent<EventData> item,
                                   int index, int length, double width) =>
                               DayEvent(
-                                  item: item,
-                                  periods: timelines,
-                                  cellHeight: timetableController.cellHeight,
-                                  breakHeight: timetableController.breakHeight,
-                                  width: size.width,
-                                  timeLineWidth: timetableController.timelineWidth),
-                          cellBuilder: (Period period, DateTime dateTime) => ExportCell(
+                                item: item,
+                                periods: timelines,
+                                cellHeight: timetableController.cellHeight,
+                                breakHeight: timetableController.breakHeight,
+                                width: width,
+                                isMobile: isMobile,
+                              ),
+                          cellBuilder: (Period period, DateTime dateTime) =>
+                              ExportCell(
                                 periodModel: period as PeriodModel,
                                 breakHeight: timetableController.breakHeight,
                                 cellHeight: timetableController.cellHeight,
@@ -364,8 +348,7 @@ class ExportView {
         final String weekendsTitle = fullWeek ? '/ Weekend included' : '';
         final String fileName = 'Day ${i + 1}';
         log(' Day view image received from planner');
-        await BlocProvider.of<TimeTableCubit>(context)
-            .saveTomImage(value, filename: fileName);
+        await FileUtils.saveTomImage(value, filename: fileName);
         if (saveImage) {
         } else {
           datalist.add(value);
@@ -390,6 +373,7 @@ class ExportView {
       required List<PlannerEvent> event,
       required BuildContext context,
       required Size papperSize,
+      bool fullWeek = true,
       bool saveImage = true,
       bool isMobile = false}) async {
     final Size size = Size(PdfPageFormat.a4.height, PdfPageFormat.a4.width);
@@ -486,14 +470,16 @@ class ExportView {
               targetSize: size)
           .then((Uint8List value) async {
         final String fileName = 'Month $first to $end';
+        const String subtitle = 'All Subjects';
+        final String weekendsTitle = fullWeek ? '/ Weekend included' : '';
         log(' Month view image received from planner');
-        await BlocProvider.of<TimeTableCubit>(context)
-            .saveTomImage(value, filename: fileName);
+        await FileUtils.saveTomImage(value, filename: fileName);
         if (saveImage) {
         } else {
           datalist.add(value);
-          final int page = months.indexOf(month) + 1;
-          titles.add('Month $page');
+          titles.add(
+            '${DateFormat('d MMMM y').format(first)}/ $subtitle$weekendsTitle',
+          );
         }
       });
     }

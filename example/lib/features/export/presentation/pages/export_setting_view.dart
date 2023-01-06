@@ -149,7 +149,7 @@ class _ExportSettingViewState extends State<ExportSettingView> {
                                 endTo: end,
                                 pageFormat: PdfPageFormat.a4.landscape.copyWith(
                                     marginLeft: 10,
-                                    marginRight: 0,
+                                    marginRight: 10,
                                     marginTop: 0,
                                     marginBottom: 10),
                                 view: <CalendarViewType>[currentView!],
