@@ -42,7 +42,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
     } on MissingPluginException {
       debugPrint('Project is running as app');
       standAlone = true;
-      await getDummyData(addDummyEvent: true);
+      await getDummyData(addDummyEvent: false);
     }
   }
 
@@ -71,7 +71,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   ///end date of the timetable
 
   DateTime endDate =
-  DateTime(now.year, now.month + 1).subtract(const Duration(days: 1));
+      DateTime(now.year, now.month + 1).subtract(const Duration(days: 1));
 
   ///view of the calendar
   CalendarViewType viewType = CalendarViewType.weekView;
@@ -111,19 +111,19 @@ class TimeTableCubit extends Cubit<TimeTableState> {
 
   ///previous year term1
   static Term previousTerm1 =
-  Term.fromString(term1String, year: now.year - 1, type: 'term1');
+      Term.fromString(term1String, year: now.year - 1, type: 'term1');
 
   ///previous year term2
   static Term previousTerm2 =
-  Term.fromString(term2String, year: now.year - 1, type: 'term2');
+      Term.fromString(term2String, year: now.year - 1, type: 'term2');
 
   ///previous year term3
   static Term previousTerm3 =
-  Term.fromString(term3String, year: now.year - 1, type: 'term3');
+      Term.fromString(term3String, year: now.year - 1, type: 'term3');
 
   ///previous year term4
   static Term previousTerm4 =
-  Term.fromString(term4String, year: now.year - 1, type: 'term4');
+      Term.fromString(term4String, year: now.year - 1, type: 'term4');
 
   ///current year term1
   static Term term1 = Term.fromString(term1String, type: 'term1');
@@ -139,19 +139,19 @@ class TimeTableCubit extends Cubit<TimeTableState> {
 
   ///next year term1
   static Term nextTerm1 =
-  Term.fromString(term1String, year: now.year + 1, type: 'term1');
+      Term.fromString(term1String, year: now.year + 1, type: 'term1');
 
   ///next year term1
   static Term nextTerm2 =
-  Term.fromString(term2String, year: now.year + 1, type: 'term2');
+      Term.fromString(term2String, year: now.year + 1, type: 'term2');
 
   ///next year term1
   static Term nextTerm3 =
-  Term.fromString(term3String, year: now.year + 1, type: 'term3');
+      Term.fromString(term3String, year: now.year + 1, type: 'term3');
 
   ///next year term1
   static Term nextTerm4 =
-  Term.fromString(term4String, year: now.year + 1, type: 'term4');
+      Term.fromString(term4String, year: now.year + 1, type: 'term4');
 
   ///list of the term for current,next and previous year
   static List<Term> listOfTerm = <Term>[
@@ -177,13 +177,9 @@ class TimeTableCubit extends Cubit<TimeTableState> {
     (mock ? mockObject.stream : nativeCallBack.onDataReceived.stream)
         .listen((MethodCall call) async {
       switch (call.method) {
-
- 
- 
-
         case ReceiveMethods.setLoading:
           final LoadingModel loadingModel =
-          loadingModelFromJson(jsonEncode(call.arguments));
+              loadingModelFromJson(jsonEncode(call.arguments));
 
           isLoading = loadingModel.isLoading;
           debugPrint('setLoading received from native app: $isLoading');
@@ -191,23 +187,23 @@ class TimeTableCubit extends Cubit<TimeTableState> {
               isLoading: isLoading));
           break;
 
-      ///receive data change command from ios
-      ///handle data change
+        ///receive data change command from ios
+        ///handle data change
         case ReceiveMethods.setDates:
           debugPrint('date receive from flutter');
           final DateChange dateChange =
-          DateChange.fromJson(jsonDecode(call.arguments));
+              DateChange.fromJson(jsonDecode(call.arguments));
           startDate = dateChange.startTime;
           endDate = dateChange.endTime;
           emit(DateUpdated(
               endDate, startDate, _events, viewType, periods, termModel));
           break;
 
-      ///handle view change
+        ///handle view change
         case ReceiveMethods.setView:
           debugPrint('set view received from native app');
           final ChangeView changeView =
-          ChangeView.fromJson(jsonDecode(call.arguments));
+              ChangeView.fromJson(jsonDecode(call.arguments));
 
           changeViewType(changeView.viewType);
           break;
@@ -229,13 +225,13 @@ class TimeTableCubit extends Cubit<TimeTableState> {
 
           break;
 
-      ///handle set periods method
+        ///handle set periods method
         case ReceiveMethods.setPeriods:
           debugPrint('Periods: ${call.arguments}');
           debugPrint('set periods received from native app');
 
           final List<PeriodModel> newPeriods =
-          periodModelFromJson(jsonEncode(call.arguments));
+              periodModelFromJson(jsonEncode(call.arguments));
 
           if (newPeriods.isEmpty) {
             debugPrint('Received empty slots,no changes made');
@@ -247,7 +243,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
 
           break;
 
-      ///handle set Terms method when data recieve from native app
+        ///handle set Terms method when data recieve from native app
         case ReceiveMethods.setTerms:
           debugPrint('set Terms recived from native app');
           termModel = termModelFromJson(jsonEncode(call.arguments));
@@ -257,7 +253,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
           emit(TermsUpdated(periods, _events, viewType, termModel));
           break;
 
-      ///handle setEvents methods
+        ///handle setEvents methods
         case ReceiveMethods.setEvents:
           final GetEvents getEvents = GetEvents.fromJsonWithPeriod(
               jsonDecode(jsonEncode(call.arguments)), periods);
@@ -303,7 +299,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
 
         case ReceiveMethods.exportPreview:
           final ExportSetting exportSetting =
-          ExportSetting.fromJson(jsonDecode(jsonEncode(call.arguments)));
+              ExportSetting.fromJson(jsonDecode(jsonEncode(call.arguments)));
           debugPrint('Export setting received from native app');
           emit(ExportPreview(exportSetting));
           break;
@@ -353,7 +349,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
       await Future<dynamic>.delayed(const Duration(seconds: 3));
       if (addDummyEvent) {
         final String response1 =
-        await rootBundle.loadString('assets/period.json');
+            await rootBundle.loadString('assets/period.json');
 
         final List<PeriodModel> newPeriods = periodModelFromJson(response1);
 
@@ -365,7 +361,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
         }
         emit(PeriodsUpdated(periods, _events, viewType, termModel));
         final String response =
-        await rootBundle.loadString('assets/event.json');
+            await rootBundle.loadString('assets/event.json');
         final dynamic data = jsonDecode(response);
         final GetEvents getEvents = GetEvents.fromJsonWithPeriod(data, periods);
         _events = getEvents.events;
@@ -462,7 +458,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
     // }
     final DateTime refdate = currentDate;
     final Iterable<Term> terms = listOfTerm.where((Term element) =>
-    element.type == type && element.startDate.year == refdate.year);
+        element.type == type && element.startDate.year == refdate.year);
     if (terms.length == 1) {
       final Term term = terms.first;
       final int i = listOfTerm.indexOf(term);
@@ -539,7 +535,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   ///set current date when jump requested
   void setDateWhenJump(DateTime date) {
     final Iterable<Term> terms = listOfTerm.where((Term element) =>
-    element.startDate.isBefore(date) && element.endDate.isAfter(date));
+        element.startDate.isBefore(date) && element.endDate.isAfter(date));
     if (terms.length == 1) {
       index = listOfTerm.indexOf(terms.first);
       currentDate = date;
@@ -555,7 +551,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
     currentDate = monthStart;
     log('Start Date : $monthStart End Date : $monthEnd');
     final Iterable<Term> terms = listOfTerm.where((Term element) =>
-    element.startDate.isBefore(monthStart) &&
+        element.startDate.isBefore(monthStart) &&
         element.endDate.isAfter(monthStart));
     if (terms.length == 1) {
       index = listOfTerm.indexOf(terms.first);
@@ -564,7 +560,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
       currentTerm = term;
     } else {
       final Term term = listOfTerm.firstWhere((Term element) =>
-      element.startDate.isAfter(monthStart) ||
+          element.startDate.isAfter(monthStart) ||
           isSameDate(monthStart, ref: element.startDate));
       index = listOfTerm.indexOf(term);
       currentTerm = term;
@@ -600,7 +596,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
     final int year = date.year;
     final DateTime firstDate = DateTime(year, month);
     final DateTime lastDate =
-    DateTime(year, month + 1).subtract(const Duration(days: 1));
+        DateTime(year, month + 1).subtract(const Duration(days: 1));
     setMonth(firstDate, lastDate);
   }
 
@@ -625,9 +621,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
 
   ///next day
   void nextDay({DateTime? dateTime}) {
-    final DateTime dateTime = Jiffy(currentDate)
-        .add(days: 1)
-        .dateTime;
+    final DateTime dateTime = Jiffy(currentDate).add(days: 1).dateTime;
     currentDate = dateTime;
     getDataDateWise(currentDate);
     emit(JumpToDateState(currentDate));
@@ -635,9 +629,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
 
   ///previous day
   void previousDay({DateTime? dateTime}) {
-    final DateTime dateTime = Jiffy(currentDate)
-        .subtract(days: 1)
-        .dateTime;
+    final DateTime dateTime = Jiffy(currentDate).subtract(days: 1).dateTime;
     currentDate = dateTime;
     getDataDateWise(currentDate);
     emit(JumpToDateState(currentDate));
@@ -836,7 +828,8 @@ class TimeTableCubit extends Cubit<TimeTableState> {
 
     await Future<dynamic>.delayed(const Duration(seconds: 2));
 
-    if (state is LoadedState) {} else {
+    if (state is LoadedState) {
+    } else {
       _events.add(value);
       emit(LoadedState(_events, viewType, periods, termModel));
     }
@@ -885,8 +878,8 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   }
 
   ///remove pld event and add new event
-  bool updatePlannerEvent(PlannerEvent old, PlannerEvent newEvent,
-      Period? period) {
+  bool updatePlannerEvent(
+      PlannerEvent old, PlannerEvent newEvent, Period? period) {
     emit(UpdatingEvent());
     _events.remove(old);
     if (period != null) {

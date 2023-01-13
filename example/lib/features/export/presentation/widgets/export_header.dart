@@ -19,7 +19,7 @@ class ExportHeader extends StatelessWidget {
         child: Text(
             '${DateFormat('EEE').format(date).toUpperCase()}'
             ' • ${date.day}${DateFormat(' MMM').format(date)}',
-            style: TextStyle(
+            style: const TextStyle(
                 fontFamily: Fonts.quickSand,
                 fontWeight: FontWeight.w600,
                 fontSize: 16,

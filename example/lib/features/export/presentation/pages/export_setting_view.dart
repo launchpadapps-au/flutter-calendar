@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_protected_member
+
 import 'dart:developer'; 
 import 'package:edgar_planner_calendar_flutter/core/utils/utils.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
@@ -142,6 +144,7 @@ class _ExportSettingViewState extends State<ExportSettingView> {
                             : <Subject>[
                                 Subject.fromJson(selectedSubject)
                               ];
+                        // ignore: invalid_use_of_visible_for_testing_member
                         BlocProvider.of<TimeTableCubit>(context).emit(
                             ExportPreview(ExportSetting(
                                 startFrom: start,

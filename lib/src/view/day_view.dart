@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/src/core/constants.dart';
 import 'package:flutter_calendar/src/widgets/hour_cell.dart';
@@ -731,26 +730,7 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
         ),
       );
 
-  final Curve _animationCurve = Curves.linear;
 
-  bool _isSnapping = false;
-  Future<void> _snapToCloset(Size size) async {
-    final double columnWidth = size.width;
-    if (_isSnapping || !widget.snapToDay) {
-      return;
-    }
-    _isSnapping = true;
-    await Future<void>.microtask(() => null);
-    final double snapPosition =
-        ((indexdController.offset) / columnWidth).round() * columnWidth;
-    await indexdController.animateTo(
-      snapPosition,
-      duration: const Duration(milliseconds: 200),
-      curve: _animationCurve,
-    );
-
-    _isSnapping = false;
-  }
 
   ///jump to given date
   Future<dynamic> _jumpTo(DateTime date) async {

@@ -53,7 +53,7 @@ class SlMonthView<T> extends StatefulWidget {
   final Widget Function(Period period)? hourLabelBuilder;
 
   /// Renders upper left corner of the timetable given the first visible date
-  final Widget Function(DateTime current)? deadCellBuilder;
+  final Widget Function(DateTime current,Size cellSize)? deadCellBuilder;
 
   /// Snap to hour column. Default is `true`.
   final bool snapToDay;

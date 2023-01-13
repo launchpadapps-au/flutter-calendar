@@ -1,5 +1,4 @@
  
-import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +50,7 @@ class ExportMonthEvent extends StatelessWidget {
             showMore = false;
           }
           return Padding(
-            padding: const EdgeInsets.all(4.0),
+            padding: const EdgeInsets.all(4),
             child: SizedBox(
               width: size.width,
               height: size.height,
@@ -68,7 +67,7 @@ class ExportMonthEvent extends StatelessWidget {
                               child: showMore &&
                                       showitem.indexOf(e) == (maxchild - 1)
                                   ? Row(
-                                      children: [
+                                      children:<Widget> [
                                         SmallEventTile(
                                           event: e,
                                           width: size.width - 43 - 38 - 16,

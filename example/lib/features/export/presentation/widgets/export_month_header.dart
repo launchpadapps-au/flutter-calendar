@@ -1,4 +1,3 @@
-import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/themes/fonts.dart';
 import 'package:edgar_planner_calendar_flutter/core/utils/utils.dart';
@@ -25,7 +24,7 @@ class ExportMonthHeader extends StatelessWidget {
                   border: Border.all(width: 0.5, color: textGrey)),
               child: Center(
                 child: Text(' ${getWeekDay(index)}'.toUpperCase(),
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontFamily: Fonts.quickSand,
                         fontWeight: FontWeight.w600,
                         fontSize: 16,

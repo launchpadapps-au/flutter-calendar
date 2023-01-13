@@ -50,7 +50,7 @@ class SlTermView<T> extends StatefulWidget {
       itemBuilder;
 
   /// Renders upper left corner of the timetable given the first visible date
-  final Widget Function(DateTime current)? deadCellBuilder;
+  final Widget Function(DateTime current, Size cellSize)? deadCellBuilder;
 
   /// Renders upper right corner of the timetable cell
   final Widget Function(DateTime current)? dateBuilder;

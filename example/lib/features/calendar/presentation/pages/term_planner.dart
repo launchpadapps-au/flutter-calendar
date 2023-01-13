@@ -57,7 +57,7 @@ class _TermPlannerState extends State<TermPlanner> {
         timelines: customStaticPeriods,
         isSwipeEnable: true,
         isDraggable: isDragEnable,
-        deadCellBuilder: (DateTime current  ) => const Expanded(
+        deadCellBuilder: (DateTime current, Size cellSize) => const Expanded(
           child: DeadCell(),
         ),
         dateBuilder: (DateTime current) => Stack(
@@ -215,5 +215,4 @@ class _TermPlannerState extends State<TermPlanner> {
                   : Colors.transparent),
         ),
       );
-
 }

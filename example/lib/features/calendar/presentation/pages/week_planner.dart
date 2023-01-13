@@ -19,8 +19,8 @@ class WeekPlanner<T> extends StatefulWidget {
     required this.onEventDragged,
     required this.onDateChanged,
     required this.onTap,
-    this.onEventToEventDragged,
     required this.isMobile,
+    this.onEventToEventDragged,
     Key? key,
   }) : super(key: key);
 
@@ -115,7 +115,7 @@ class _WeekPlannerState extends State<WeekPlanner<EventData>> {
           breakHeight: widget.timetableController.breakHeight,
           onTap: widget.onTap,
           width: width),
-      cellBuilder: (Period period,date ) => WeekCell(
+      cellBuilder: (Period period, DateTime date) => WeekCell(
           periodModel: period as PeriodModel,
           breakHeight: widget.timetableController.breakHeight,
           cellHeight: widget.timetableController.cellHeight));

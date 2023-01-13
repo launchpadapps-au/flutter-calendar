@@ -96,7 +96,7 @@ class DayCell<T> extends StatelessWidget {
   final Widget Function(DateTime current)? dateBuilder;
 
   /// Renders upper left corner of the timetable given the first visible date
-  final Widget Function(DateTime current) deadCellBuilder;
+  final Widget Function(DateTime current,Size cellSize) deadCellBuilder;
 
   @override
   Widget build(BuildContext context) => GestureDetector(
@@ -140,7 +140,7 @@ class DayCell<T> extends StatelessWidget {
               child: Column(
                 children: <Widget>[
                   calendarDay.deadCell
-                      ? deadCellBuilder(dateTime)
+                      ? deadCellBuilder(dateTime, Size(columnWidth, cellHeight))
                       : const SizedBox.shrink(),
                 ],
               )),

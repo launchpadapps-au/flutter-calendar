@@ -49,5 +49,6 @@ class FileUtils {
     } on Exception catch (e) {
       return e.toString();
     }
+    return null;
   }
 }

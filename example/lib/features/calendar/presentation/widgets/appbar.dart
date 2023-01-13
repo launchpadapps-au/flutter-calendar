@@ -1,6 +1,6 @@
 import 'package:edgar_planner_calendar_flutter/features/export/presentation/pages/export_setting_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; 
+import 'package:flutter/services.dart';
 
 ///appbar for the calendar
 class CalendarAppBar extends StatefulWidget implements PreferredSizeWidget {
@@ -25,7 +25,6 @@ class _CalendarAppBarState extends State<CalendarAppBar> {
         centerTitle: true,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[],
         ),
         leading: IconButton(
           icon: const Icon(

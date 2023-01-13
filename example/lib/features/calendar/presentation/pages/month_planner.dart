@@ -89,7 +89,7 @@ class _MonthPlannerState extends State<MonthPlanner> {
       },
       nowIndicatorColor: Colors.red,
       fullWeek: true,
-      deadCellBuilder: (DateTime current ) => const Expanded(
+      deadCellBuilder: (DateTime current,Size cellSize ) => const Expanded(
             child: DeadCell(),
           ),
       onTap: (DateTime date) {
