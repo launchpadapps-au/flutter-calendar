@@ -30,17 +30,16 @@ class ExportSetting {
   });
 
   ///create object from the json
-  factory ExportSetting.fromJson(Map<String, dynamic> json) =>
-      ExportSetting(
-          startFrom: DateTime.parse(json['startFrom']),
-          endTo: DateTime.parse(json['endTo']),
-          view: List<CalendarViewType>.from(
-              json['view'].map((String x) => viewTypeFromString(x))),
-          subjects: List<Subject>.from(json['subjects']
-              .map((Map<String, dynamic> x) => Subject.fromJson(x))),
-          fullWeek: json['fullWeek'],
-          pageFormat: PdfPageFormat.a4.landscape,
-          saveImg: json['saveImg']);
+  factory ExportSetting.fromJson(Map<String, dynamic> json) => ExportSetting(
+      startFrom: DateTime.parse(json['startFrom']),
+      endTo: DateTime.parse(json['endTo']),
+      view: List<CalendarViewType>.from(
+          json['view'].map((String x) => viewTypeFromString(x))),
+      subjects: List<Subject>.from(json['subjects']
+          .map((Map<String, dynamic> x) => Subject.fromJson(x))),
+      fullWeek: json['fullWeek'],
+      pageFormat: PdfPageFormat.a4.landscape,
+      saveImg: json['saveImg']);
 
   ///starting date
   DateTime startFrom;
@@ -64,8 +63,7 @@ class ExportSetting {
   PdfPageFormat pageFormat = PdfPageFormat.a4.landscape;
 
   ///create json from the object
-  Map<String, dynamic> toJson() =>
-      <String, dynamic>{
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'startFrom': startFrom.toIso8601String(),
         'endTo': endTo.toIso8601String(),
         'view': List<String>.from(

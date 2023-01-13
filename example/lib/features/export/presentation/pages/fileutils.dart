@@ -12,8 +12,8 @@ class FileUtils {
     final Directory? path = Platform.isAndroid
         ? await getExternalStorageDirectory() //FOR ANDROID
         : Platform.isIOS
-        ? await getApplicationDocumentsDirectory()
-        : await getDownloadsDirectory(); //FOR iOS
+            ? await getApplicationDocumentsDirectory()
+            : await getDownloadsDirectory(); //FOR iOS
 
     final String filePath = '${path!.path}/exported/$filename.png';
 
@@ -25,5 +25,29 @@ class FileUtils {
     await file.writeAsBytes(image);
     log('image Path:${file.path}');
     return file.path;
+  }
+
+  ///save file as pdf
+  static Future<String?> saveTopdf(Uint8List image,
+      {required String filename}) async {
+    try {
+      final Directory? path = Platform.isAndroid
+          ? await getExternalStorageDirectory() //FOR ANDROID
+          : Platform.isIOS
+              ? await getApplicationDocumentsDirectory()
+              : await getDownloadsDirectory(); //FOR iOS
+
+      final String filePath = '${path!.path}/exported/$filename.pdf';
+
+      final File file = File(filePath);
+      if (file.existsSync()) {
+        file.deleteSync();
+      }
+      file.createSync(recursive: true);
+      await file.writeAsBytes(image);
+      log('image Path:${file.path}');
+    } on Exception catch (e) {
+      return e.toString();
+    }
   }
 }

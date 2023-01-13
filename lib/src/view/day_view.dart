@@ -19,7 +19,6 @@ class NewSlDayView<T> extends StatefulWidget {
   const NewSlDayView({
     required this.timelines,
     required this.onWillAccept,
-    required this.onImageCapture,
     this.backgroundColor = Colors.transparent,
     Key? key,
     this.size,
@@ -123,9 +122,6 @@ class NewSlDayView<T> extends StatefulWidget {
 
   ///function will handle if event is draggable
   final bool Function(CalendarEvent<T> event)? isCellDraggable;
-
-  ///callback on when image capture
-  final Function(Uint8List data) onImageCapture;
 
   ///background color
   final Color backgroundColor;

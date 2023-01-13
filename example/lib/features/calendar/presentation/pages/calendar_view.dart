@@ -239,12 +239,16 @@ class _CalendarViewState extends State<CalendarView> {
         } else if (event.exportSetting.view
             .contains(CalendarViewType.monthView)) {
           ExportView.exportMonthView(
-              startDate: exportSetting.startFrom,
-              endDate: exportSetting.endTo,
-              timelines: cubit.periods,
-              event: cubit.events,
-              saveImage: exportSetting.saveImg,
-              context: context);
+            startDate: exportSetting.startFrom,
+            endDate: exportSetting.endTo,
+            timelines: cubit.periods,
+            event: cubit.events,
+            saveImage: exportSetting.saveImg,
+            context: context,
+            fullWeek: exportSetting.fullWeek,
+            subjects: exportSetting.subjects,
+            pageFormat: exportSetting.pageFormat,
+          );
         }
       }
     });

@@ -1,5 +1,4 @@
-import 'dart:developer';
-
+import 'dart:developer'; 
 import 'package:edgar_planner_calendar_flutter/core/utils/utils.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/data/models/export_settings.dart';
@@ -8,7 +7,6 @@ import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bl
 import 'package:edgar_planner_calendar_flutter/features/export/presentation/pages/pdf_utils.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/presentation/widgets/dummy_subject.dart';
 import 'package:flutter/material.dart';
-
 // ignore: implementation_imports
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
@@ -36,12 +34,9 @@ class _ExportSettingViewState extends State<ExportSettingView> {
   bool saveImg = false;
   bool fullWeek = true;
   dynamic selectedSubject;
-
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery
-        .of(context)
-        .size;
+    final Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(title: const Text('Export view')),
       body: Row(children: <Widget>[
@@ -54,11 +49,11 @@ class _ExportSettingViewState extends State<ExportSettingView> {
                 ElevatedButton(
                   onPressed: () {
                     showDateRangePicker(
-                        context: context,
-                        firstDate: DateTime(1900),
-                        initialDateRange:
-                        DateTimeRange(start: start, end: end),
-                        lastDate: DateTime(2100))
+                            context: context,
+                            firstDate: DateTime(1900),
+                            initialDateRange:
+                                DateTimeRange(start: start, end: end),
+                            lastDate: DateTime(2100))
                         .then((DateTimeRange? value) {
                       start = value!.start;
                       end = value.end;
@@ -73,10 +68,10 @@ class _ExportSettingViewState extends State<ExportSettingView> {
                   hint: const Text('Select View'),
                   items: types
                       .map((CalendarViewType e) =>
-                      DropdownMenuItem<CalendarViewType>(
-                        child: Text(e.toString()),
-                        value: e,
-                      ))
+                          DropdownMenuItem<CalendarViewType>(
+                            child: Text(e.toString()),
+                            value: e,
+                          ))
                       .toList(),
                   onChanged: (CalendarViewType? value) {
                     currentView = value;
@@ -88,21 +83,20 @@ class _ExportSettingViewState extends State<ExportSettingView> {
                   isExpanded: true,
                   hint: const Text('Select Subjects'),
                   items: dummySubject
-                      .map((dynamic e) =>
-                      DropdownMenuItem<dynamic>(
-                        child: ListTile(
-                            leading: Container(
-                              width: 30,
-                              height: 30,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: HexColor(
-                                    e['color_code'],
-                                  )),
-                            ),
-                            title: Text(e['subject_name'])),
-                        value: e,
-                      ))
+                      .map((dynamic e) => DropdownMenuItem<dynamic>(
+                            child: ListTile(
+                                leading: Container(
+                                  width: 30,
+                                  height: 30,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      color: HexColor(
+                                        e['color_code'],
+                                      )),
+                                ),
+                                title: Text(e['subject_name'])),
+                            value: e,
+                          ))
                       .toList(),
                   onChanged: (dynamic value) {
                     selectedSubject = value;
@@ -131,7 +125,7 @@ class _ExportSettingViewState extends State<ExportSettingView> {
                         PdfUtils.saveDemo(PdfPageFormat.a4, 'demo-exported');
 
                         final List<DateTimeRange> weeks =
-                        getListOfWeek(start, end);
+                            getListOfWeek(start, end);
                         log(weeks.toString());
                       },
                       child: const Text('Export Demo'),
@@ -146,8 +140,8 @@ class _ExportSettingViewState extends State<ExportSettingView> {
                         final List<Subject> subject = selectedSubject['id'] == 0
                             ? <Subject>[]
                             : <Subject>[
-                          Subject.fromJson(selectedSubject['id'])
-                        ];
+                                Subject.fromJson(selectedSubject)
+                              ];
                         BlocProvider.of<TimeTableCubit>(context).emit(
                             ExportPreview(ExportSetting(
                                 startFrom: start,

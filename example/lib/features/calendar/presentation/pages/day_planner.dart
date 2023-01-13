@@ -72,7 +72,6 @@ class _DayPlannerState extends State<DayPlanner> {
 
   @override
   Widget build(BuildContext context) => NewSlDayView<EventData>(
-      onImageCapture: (data) {},
       backgroundColor: white,
       timelines: widget.customPeriods,
       onDateChanged: widget.onDateChanged,
@@ -165,7 +164,7 @@ class _DayPlannerState extends State<DayPlanner> {
             onTap: widget.onTap,
             periods: widget.customPeriods,
           ),
-      cellBuilder: (Period period,DateTime date) => DayCell(
+      cellBuilder: (Period period, DateTime date) => DayCell(
           periodModel: period as PeriodModel,
           breakHeight: widget.timetableController.breakHeight,
           cellHeight: widget.timetableController.cellHeight,

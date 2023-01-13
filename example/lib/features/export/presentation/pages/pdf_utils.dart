@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:edgar_planner_calendar_flutter/features/export/presentation/pages/fileutils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
@@ -21,9 +22,9 @@ class PdfUtils {
     log('page format $pageFormat');
     log('Pdf size width:$width height:$height');
     final Uint8List fontData =
-    (await rootBundle.load('assets/fonts/sofiapro-Regular.ttf'))
-        .buffer
-        .asUint8List();
+        (await rootBundle.load('assets/fonts/sofiapro-Regular.ttf'))
+            .buffer
+            .asUint8List();
     final Font ttf = Font.ttf(fontData.buffer.asByteData());
     final Document pdf = Document(
       pageMode: PdfPageMode.fullscreen,
@@ -40,9 +41,7 @@ class PdfUtils {
           pageFormat: pageFormat,
           margin: const EdgeInsets.only(left: 10, bottom: 10),
           orientation: PageOrientation.landscape,
-
-          build: (Context context) =>
-              Container(
+          build: (Context context) => Container(
                 width: width,
                 height: height,
                 child: Column(children: <Widget>[
@@ -111,50 +110,40 @@ class PdfUtils {
     }
 
     log('saving pdf');
-    final Directory? dir = await getDownloadsDirectory();
-    final File file = File(
-      '${dir!.path}/exported/$fileName.pdf',
-    );
-    if (file.existsSync()) {
-      file
-        ..deleteSync()
-        ..createSync(recursive: true);
-    }
-    await file.writeAsBytes(await pdf.save());
+
+    await FileUtils.saveTopdf(await pdf.save(), filename: fileName);
     log('file saved');
   }
 
   ///it will save demo pdf in the storage
-  static Future<void> saveDemo(PdfPageFormat pageFormat,
-      String fileName) async {
+  static Future<void> saveDemo(
+      PdfPageFormat pageFormat, String fileName) async {
     final double height = pageFormat.height;
     final double width = pageFormat.width;
     final Document pdf = Document(
       pageMode: PdfPageMode.fullscreen,
-    )
-      ..addPage(Page(
-          pageFormat: PdfPageFormat.a4,
-          margin: EdgeInsets.zero,
-          clip: true,
-          orientation: PageOrientation.landscape,
-          build: (Context context) =>
-              Container(
-                width: height,
-                height: width,
-                color: PdfColor.fromRYB(1, 0, 0),
-                child: Column(children: <Widget>[
-                  Container(
-                    height: 35,
+    )..addPage(Page(
+        pageFormat: PdfPageFormat.a4,
+        margin: EdgeInsets.zero,
+        clip: true,
+        orientation: PageOrientation.landscape,
+        build: (Context context) => Container(
+              width: height,
+              height: width,
+              color: PdfColor.fromRYB(1, 0, 0),
+              child: Column(children: <Widget>[
+                Container(
+                  height: 35,
+                  width: height,
+                  color: PdfColor.fromRYB(1, 0, 1),
+                ),
+                Container(
                     width: height,
-                    color: PdfColor.fromRYB(1, 0, 1),
-                  ),
-                  Container(
-                      width: height,
-                      height: width - 35,
-                      decoration: BoxDecoration(
-                          color: PdfColor.fromRYB(0, 1, 0),
-                          border: Border.all(
-                              width: 0, color: PdfColor.fromRYB(0, 0, 1)))
+                    height: width - 35,
+                    decoration: BoxDecoration(
+                        color: PdfColor.fromRYB(0, 1, 0),
+                        border: Border.all(
+                            width: 0, color: PdfColor.fromRYB(0, 0, 1)))
                     // child:
                     //  Image(
                     //   MemoryImage(
@@ -165,9 +154,9 @@ class PdfUtils {
                     //   width: height - 50,
                     //   height: width,
                     // )
-                  )
-                ]),
-              )));
+                    )
+              ]),
+            )));
 
     log('saving pdf');
     final Directory? dir = await getDownloadsDirectory();

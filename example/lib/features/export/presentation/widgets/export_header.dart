@@ -12,18 +12,17 @@ class ExportHeader extends StatelessWidget {
   final DateTime date;
 
   @override
-  Widget build(BuildContext context) =>
-      Container(
-          decoration:
+  Widget build(BuildContext context) => Container(
+      decoration:
           BoxDecoration(border: Border.all(width: 0.5, color: textGrey)),
-          child: Center(
-            child: Text(
-                '${DateFormat('EEE').format(date).toUpperCase()}'
-                    ' • ${date.day}${DateFormat(' MMM').format(date)}',
-                style: const TextStyle(
-                    fontFamily: Fonts.quickSand,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                    color: darkestGrey)),
-          ));
+      child: Center(
+        child: Text(
+            '${DateFormat('EEE').format(date).toUpperCase()}'
+            ' • ${date.day}${DateFormat(' MMM').format(date)}',
+            style: TextStyle(
+                fontFamily: Fonts.quickSand,
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+                color: darkestGrey)),
+      ));
 }

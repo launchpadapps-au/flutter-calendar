@@ -1,11 +1,12 @@
 import 'dart:developer';
 import 'dart:typed_data';
-
-import 'package:edgar_planner_calendar_flutter/core/utils/calendar_utils.dart';
-import 'package:edgar_planner_calendar_flutter/core/themes/constants.dart';
-import 'package:edgar_planner_calendar_flutter/core/utils/utils.dart' as utils;
+ 
 import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
+import 'package:edgar_planner_calendar_flutter/core/themes/constants.dart';
+import 'package:edgar_planner_calendar_flutter/core/utils/utils.dart' as utils; 
+import 'package:edgar_planner_calendar_flutter/core/utils/calendar_utils.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/dayview/day_event.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/dead_cell.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/month_cell.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/month_event.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/month_hour_lable.dart';
@@ -14,19 +15,19 @@ import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/per
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/weekview/week_event.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/presentation/pages/fileutils.dart';
-import 'package:edgar_planner_calendar_flutter/features/export/presentation/pages/pdf_utils.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/day_name.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/dead_cell.dart';
+import 'package:edgar_planner_calendar_flutter/features/export/presentation/pages/pdf_utils.dart'; 
 import 'package:edgar_planner_calendar_flutter/features/export/presentation/widgets/export_cell.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/presentation/widgets/export_corner.dart.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/presentation/widgets/export_header.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/presentation/widgets/export_hour_lable.dart';
+import 'package:edgar_planner_calendar_flutter/features/export/presentation/widgets/export_month_event.dart';
+import 'package:edgar_planner_calendar_flutter/features/export/presentation/widgets/export_month_header.dart';
 import 'package:edgar_planner_calendar_flutter/features/screenshot/screenshot.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:intl/intl.dart';
-import 'package:pdf/pdf.dart';
+import 'package:pdf/pdf.dart'; 
 
 ///it will export selected view using static fucntion
 class ExportView {
@@ -61,6 +62,7 @@ class ExportView {
       required List<Period> timelines,
       required List<PlannerEvent> event,
       required BuildContext context,
+
       required List<Subject> subjects,
       required PdfPageFormat pageFormat,
       bool saveImage = true,
@@ -103,8 +105,9 @@ class ExportView {
                   .isAfter(startDate.subtract(const Duration(days: 1))) &&
               element.eventData!.endDate
                   .isBefore(endDate.add(const Duration(days: 1))) &&
-              (element.eventData!.subject != null ||
-                  element.eventData!.subject!.id.toString() ==
+              (element.eventData!.subject == null
+                  ? false
+                  : element.eventData!.subject!.id.toString() ==
                       subjects[0].id.toString()))
           .toList();
     }
@@ -129,57 +132,63 @@ class ExportView {
                   home: Material(
                     child: MediaQuery(
                       data: MediaQuery.of(context).copyWith(textScaleFactor: 1),
-                      child: SlWeekView<EventData>(
-                          backgroundColor: white,
-                          fullWeek: fullWeek,
-                          // headerDivideThickness: 0,
-                          columnWidth: cellWidth,
-                          showNowIndicator: false,
-                          size: size,
-                          timelines: timelines,
-                          onEventDragged: (CalendarEvent<EventData> old,
-                              CalendarEvent<EventData> newEvent,
-                              Period? period) {},
-                          onTap: (DateTime date, Period period,
-                              CalendarEvent<EventData>? event) {},
-                          onEventToEventDragged:
-                              (CalendarEvent<EventData> existing,
-                                  CalendarEvent<EventData> old,
-                                  CalendarEvent<EventData> newEvent,
-                                  Period? periodModel) {},
-                          onWillAccept:
-                              (CalendarEvent<EventData>? event, Period p) =>
-                                  true,
-                          showActiveDateIndicator: false,
-                          nowIndicatorColor: timeIndicatorColor,
-                          cornerBuilder: (DateTime current) =>
-                              const ExportCorner(),
-                          headerHeight: headerHeight,
-                          headerCellBuilder: (DateTime date) => ExportHeader(
-                                date: date,
-                              ),
-                          hourLabelBuilder: (Period period) => ExportHourLable(
-                              periodModel: period as PeriodModel,
-                              breakHeight: breakHeight,
-                              cellHeight: cellHeight,
-                              timelineWidth: timeLineWidth,
-                              isMobile: isMobile),
-                          isCellDraggable: (CalendarEvent<EventData> event) =>
-                              isCelldraggable(event),
-                          controller: simpleController,
-                          itemBuilder:
-                              (CalendarEvent<EventData> item, double width) =>
-                                  WeekEvent(
-                                      item: item,
-                                      cellHeight: cellHeight,
-                                      breakHeight: breakHeight,
-                                      width: width,
-                                      periods: timelines),
-                          cellBuilder: (Period period,date ) =>
-                              ExportCell(
-                                  periodModel: period as PeriodModel,
-                                  breakHeight: simpleController.breakHeight,
-                                  cellHeight: simpleController.cellHeight)),
+                      child: Container(
+                        width: size.height,
+                        height: size.width,
+                        decoration: BoxDecoration(
+                            color: white, border: Border.all(width: 0)),
+                        child: SlWeekView<EventData>(
+                            backgroundColor: white,
+                            fullWeek: fullWeek,
+                            headerDivideThickness: 0,
+                            columnWidth: cellWidth,
+                            showNowIndicator: false,
+                            size: size,
+                            timelines: timelines,
+                            onEventDragged: (CalendarEvent<EventData> old,
+                                CalendarEvent<EventData> newEvent,
+                                Period? period) {},
+                            onTap: (DateTime date, Period period,
+                                CalendarEvent<EventData>? event) {},
+                            onEventToEventDragged:
+                                (CalendarEvent<EventData> existing,
+                                    CalendarEvent<EventData> old,
+                                    CalendarEvent<EventData> newEvent,
+                                    Period? periodModel) {},
+                            onWillAccept:
+                                (CalendarEvent<EventData>? event, Period period) =>
+                                    true,
+                            showActiveDateIndicator: false,
+                            nowIndicatorColor: timeIndicatorColor,
+                            cornerBuilder: (DateTime current) =>
+                                const ExportCorner(),
+                            headerHeight: headerHeight,
+                            headerCellBuilder: (DateTime date) => ExportHeader(
+                                  date: date,
+                                ),
+                            hourLabelBuilder: (Period period) => ExportHourLable(
+                                periodModel: period as PeriodModel,
+                                breakHeight: breakHeight,
+                                cellHeight: cellHeight,
+                                timelineWidth: timeLineWidth,
+                                isMobile: isMobile),
+                            isCellDraggable: (CalendarEvent<EventData> event) =>
+                                isCelldraggable(event),
+                            controller: simpleController,
+                            itemBuilder:
+                                (CalendarEvent<EventData> item, double width) =>
+                                    WeekEvent(
+                                        item: item,
+                                        cellHeight: cellHeight,
+                                        breakHeight: breakHeight,
+                                        width: width,
+                                        periods: timelines),
+                            cellBuilder: (Period period, DateTime dateTime) =>
+                                ExportCell(
+                                    periodModel: period as PeriodModel,
+                                    breakHeight: simpleController.breakHeight,
+                                    cellHeight: simpleController.cellHeight)),
+                      ),
                     ),
                   )),
               targetSize: size)
@@ -216,6 +225,7 @@ class ExportView {
       required List<Period> timelines,
       required List<PlannerEvent> event,
       required BuildContext context,
+
       required List<Subject> subjects,
       required PdfPageFormat pageFormat,
       bool saveImage = true,
@@ -267,12 +277,10 @@ class ExportView {
                       decoration: BoxDecoration(
                           color: white, border: Border.all(width: 0)),
                       child: NewSlDayView<EventData>(
-                          onImageCapture: (data) {
-                            
-                          },
+                    
                           backgroundColor: white,
                           timelines: timelines,
-                          // size: size,
+                          size: size,
                           onDateChanged: (DateTime dateTime) {},
                           onEventDragged: (CalendarEvent<EventData> old,
                               CalendarEvent<EventData> newEvent,
@@ -314,7 +322,7 @@ class ExportView {
                               cellHeight: cellHeight,
                               isMobile: isMobile),
                           controller: timetableController,
-                          // headerDivideThickness: 0.5,
+                          headerDivideThickness: 0.5,
                           isCellDraggable: (CalendarEvent<EventData> event) =>
                               isCelldraggable(event),
                           itemBuilder: (CalendarEvent<EventData> item,
@@ -327,7 +335,7 @@ class ExportView {
                                 width: width,
                                 isMobile: isMobile,
                               ),
-                          cellBuilder: (Period period ,date) =>
+                          cellBuilder: (Period period, DateTime dateTime) =>
                               ExportCell(
                                 periodModel: period as PeriodModel,
                                 breakHeight: timetableController.breakHeight,
@@ -365,11 +373,16 @@ class ExportView {
       required List<Period> timelines,
       required List<PlannerEvent> event,
       required BuildContext context,
+
+      required List<Subject> subjects,
+      required PdfPageFormat pageFormat,
       bool fullWeek = true,
       bool saveImage = true,
       bool isMobile = false}) async {
-    final Size size = Size(PdfPageFormat.a4.height, PdfPageFormat.a4.width);
+    Size size =
+        Size(pageFormat.availableWidth, pageFormat.availableHeight - 35);
     log(size.toString());
+    size = Size(size.width * 2, size.height * 2);
 
     ///list of memory
     final List<Uint8List> datalist = <Uint8List>[];
@@ -399,8 +412,8 @@ class ExportView {
                 home: Material(
                     child: SlMonthView<EventData>(
                         timelines: timelines,
-
-                        //  size: size,
+                        size: size,
+                        isDraggable: false,
                         onMonthChanged: (Month month) {},
                         onEventDragged: (CalendarEvent<EventData> old,
                             CalendarEvent<EventData> newEvent) {},
@@ -422,7 +435,8 @@ class ExportView {
                               return true;
                             } else {
                               log('Slot Not available-> Start Time: '
-                                  'Time: ${overleapingEvents.first.endTime}');
+                                  '${overleapingEvents.first.startTime}'
+                                  'End Time: ${overleapingEvents.first.endTime}');
 
                               return false;
                             }
@@ -432,34 +446,38 @@ class ExportView {
                         },
                         nowIndicatorColor: Colors.red,
                         fullWeek: true,
-                        deadCellBuilder: (DateTime current  ) =>
-                            const Expanded(
+                        deadCellBuilder: (DateTime current, Size size) =>
+                            SizedBox(
+                              width: size.width,
+                              height: size.height,
                               child: DeadCell(),
                             ),
                         onTap: (DateTime date) {},
-                        headerHeight: 40,
-                        headerCellBuilder: (int index) => SizedBox(
-                              height: headerHeight,
-                              child: DayName(index: index),
+                        headerHeight: isMobile ? 38 : 40,
+                        headerCellBuilder: (int index) => ExportMonthHeader(
+                              height: timetableController.headerHeight,
+                              index: index,
                             ),
                         hourLabelBuilder: (Period period) =>
                             MonthHourLable(periodModel: period as PeriodModel),
                         controller: timetableController,
-                        itemBuilder:
-                            (List<CalendarEvent<EventData>> item, Size size) =>
-                                MonthEventCell(
-                                  item: item,
-                                  cellHeight: cellHeight,
-                                  breakHeight: breakHeight,
-                                  size: size,
-                                  isDraggable: false,
-                                  onTap: (DateTime dateTime,
-                                      List<CalendarEvent<EventData>> p1) {},
-                                ),
+                        itemBuilder: (List<CalendarEvent<EventData>> item,
+                                Size size) =>
+                            ExportMonthEvent(
+                              item: item,
+                              cellHeight: timetableController.cellHeight,
+                              breakHeight: timetableController.breakHeight,
+                              size: size,
+                              onMoreTap: (List<CalendarEvent<EventData>> item,
+                                      Offset globalPosition) =>
+                                  log('Open $item'),
+                              isDraggable: false,
+                              onTap: (dateTime, p1) {},
+                            ),
                         cellBuilder: (Period period) => MonthCell(
                             periodModel: period as PeriodModel,
-                            breakHeight: breakHeight,
-                            cellHeight: cellHeight))),
+                            breakHeight: timetableController.breakHeight,
+                            cellHeight: timetableController.cellHeight))),
               ),
               targetSize: size)
           .then((Uint8List value) async {
@@ -472,7 +490,7 @@ class ExportView {
         } else {
           datalist.add(value);
           titles.add(
-            '${DateFormat('d MMMM y').format(first)}/ $subtitle$weekendsTitle',
+            '${DateFormat('MMMM y').format(first)}/ $subtitle$weekendsTitle',
           );
         }
       });
