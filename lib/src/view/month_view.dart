@@ -13,27 +13,28 @@ import '../core/app_log.dart';
 /// that scrolls
 class SlMonthView<T> extends StatefulWidget {
   /// initialize monthView for the calendar
-  const SlMonthView({
-    required this.timelines,
-    required this.onWillAccept,
-    required this.onMonthChanged,
-    Key? key,
-    this.onEventDragged,
-    this.controller,
-    this.cellBuilder,
-    this.headerCellBuilder,
-    this.itemBuilder,
-    this.fullWeek = false,
-    this.headerHeight = 45,
-    this.hourLabelBuilder,
-    this.nowIndicatorColor,
-    this.isDraggable = false,
-    this.isSwipeEnable = false,
-    this.showNowIndicator = true,
-    this.deadCellBuilder,
-    this.snapToDay = true,
-    this.onTap,
-  }) : super(key: key);
+  const SlMonthView(
+      {required this.timelines,
+      required this.onWillAccept,
+      required this.onMonthChanged,
+      Key? key,
+      this.onEventDragged,
+      this.controller,
+      this.cellBuilder,
+      this.headerCellBuilder,
+      this.itemBuilder,
+      this.fullWeek = false,
+      this.headerHeight = 45,
+      this.hourLabelBuilder,
+      this.nowIndicatorColor,
+      this.isDraggable = false,
+      this.isSwipeEnable = false,
+      this.showNowIndicator = true,
+      this.deadCellBuilder,
+      this.snapToDay = true,
+      this.onTap,
+      this.size})
+      : super(key: key);
 
   /// [TimetableController] is the controller that also initialize the timetable
   final TimetableController<T>? controller;
@@ -102,6 +103,9 @@ class SlMonthView<T> extends StatefulWidget {
   /// either [onAccept] and [onAcceptWithDetails], if the data is dropped, or
   /// [onLeave], if the drag leaves the target.
   final Function(CalendarEvent<T>, DateTime, Period) onWillAccept;
+
+  ///size of the view that user for export functionality
+  final Size? size;
 
   @override
   State<SlMonthView<T>> createState() => _SlMonthViewState<T>();
@@ -322,9 +326,9 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
   Widget build(BuildContext context) => LayoutBuilder(
       key: _key,
       builder: (BuildContext context, BoxConstraints constraints) {
-        final Size size = constraints.biggest;
+        final Size size = widget.size ?? constraints.biggest;
         final double cw = size.width / 7;
-        final double columnHeight = (size.height - controller.headerHeight) / 5;
+        final double columnHeight = (size.height - controller.headerHeight) / 6;
         final double aspectRatio = cw / columnHeight;
 
         return SizedBox(

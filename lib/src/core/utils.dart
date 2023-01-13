@@ -868,13 +868,19 @@ Future<ResizeModel> getParameterForResize(List<Period> timelines,
 
 ///get groupd event list by time
 
-List<List<CalendarEvent<T>>> getEventList<T>(List<CalendarEvent<T>> evens) {
-  evens.sort((CalendarEvent<T> a, CalendarEvent<T> b) =>
-      a.endTime.compareTo(b.endTime));
+List<List<CalendarEvent<T>>> getEventList<T>(List<CalendarEvent<T>> events) {
+  events.sort((CalendarEvent<T> a, CalendarEvent<T> b) {
+    final Duration d1 = a.endTime.difference(a.startTime);
+    final Duration d2 = b.endTime.difference(b.startTime);
+    return d2.compareTo(d1);
+  });
+
+  // evens.sort((CalendarEvent<T> a, CalendarEvent<T> b) =>
+  //     a.endTime.compareTo(b.endTime));
   final Map<String, List<CalendarEvent<T>>> eventMap =
       <String, List<CalendarEvent<T>>>{};
 
-  for (final CalendarEvent<T> event in evens) {
+  for (final CalendarEvent<T> event in events) {
     final String key = '${event.startTime}-${event.endTime}';
     if (eventMap.containsKey(key)) {
       final List<CalendarEvent<T>> list = eventMap[key]!..add(event);
