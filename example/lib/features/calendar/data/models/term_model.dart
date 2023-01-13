@@ -19,7 +19,8 @@ class TermModel {
   });
 
   ///create object from the json
-  factory TermModel.fromJson(Map<String, dynamic> json) => TermModel(
+  factory TermModel.fromJson(Map<String, dynamic> json) =>
+      TermModel(
         terms: Terms.fromJson(json['term']),
         id: json['id'],
       );
@@ -31,7 +32,8 @@ class TermModel {
   dynamic id;
 
   ///convert to json object
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  Map<String, dynamic> toJson() =>
+      <String, dynamic>{
         'term': terms.toJson(),
         'id': id,
       };
@@ -50,7 +52,8 @@ class Terms {
   });
 
   ///convewrt object from the json
-  factory Terms.fromJson(Map<String, dynamic> json) => Terms(
+  factory Terms.fromJson(Map<String, dynamic> json) =>
+      Terms(
         id: json['id'],
         territory: json['territory'],
         term1: json['term1'],
@@ -90,7 +93,8 @@ class Terms {
   Term get term4Date => Term.fromString(term4);
 
   ///convert to json object
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  Map<String, dynamic> toJson() =>
+      <String, dynamic>{
         'id': id,
         'territory': territory,
         'term1': term1,
@@ -110,7 +114,7 @@ class Term {
   });
 
   ///create term object from the String data
-  factory Term.fromString(String data, {int? year,String ?type}) {
+  factory Term.fromString(String data, {int? year, String ?type}) {
     final DateTime now = DateTime.now();
     final List<String> objects = data.split('|').toList();
     final String first = objects.first;
@@ -123,7 +127,7 @@ class Term {
     final int endDate = int.parse(enddateObject.first);
 
     return Term(
-        type:type?? data,
+        type: type ?? data,
         startDate: DateTime(year ?? now.year, startMonth, startDate),
         endDate: DateTime(year ?? now.year, endMonth, endDate));
   }
@@ -131,16 +135,17 @@ class Term {
   ///start date of the term
   DateTime startDate;
 
-///type of the term
+  ///type of the term
   String? type = '';
 
   ///end date of the term
   DateTime endDate;
 
   @override
-  String toString() => <String, String>{
-      'startDate': startDate.toString(),
-      'endDate': endDate.toString(),
-      'type': type ?? ''
-    }.toString();
+  String toString() =>
+      <String, String>{
+        'startDate': startDate.toString(),
+        'endDate': endDate.toString(),
+        'type': type ?? ''
+      }.toString();
 }

@@ -21,16 +21,18 @@ class ChangeView {
   });
 
   ///create object from the json
-  factory ChangeView.fromJson(Map<String, dynamic> json) => ChangeView(
+  factory ChangeView.fromJson(Map<String, dynamic> json) =>
+      ChangeView(
           viewType: getCalendarViewString(
-        json['viewType'],
-      ));
+            json['viewType'],
+          ));
 
   ///calendar view type
   CalendarViewType viewType;
 
   ///convert to json
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  Map<String, dynamic> toJson() =>
+      <String, dynamic>{
         'viewType': viewType,
       };
 }

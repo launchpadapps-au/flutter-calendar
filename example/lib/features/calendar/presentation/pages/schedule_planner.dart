@@ -1,8 +1,8 @@
-import 'package:edgar_planner_calendar_flutter/core/calendar_utils.dart';
-import 'package:edgar_planner_calendar_flutter/core/colors.dart';
+import 'package:edgar_planner_calendar_flutter/core/utils/calendar_utils.dart';
+import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/schedule_view_event_tile.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/scheduleview/schedule_view_event_tile.dart';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -32,7 +32,7 @@ class SchedulePlanner<T> extends StatefulWidget {
 
   ///return new and okd event
   final Function(CalendarEvent<T> old, CalendarEvent<T> newEvent)?
-      onEventDragged;
+  onEventDragged;
 
   ///return existing ,old and new event when used drag and drop
   ///the event on the existing event
@@ -68,7 +68,8 @@ class _SchedulePlannerState extends State<SchedulePlanner<EventData>> {
   static double cellHeight = 51;
 
   @override
-  Widget build(BuildContext context) => SlScheduleView<EventData>(
+  Widget build(BuildContext context) =>
+      SlScheduleView<EventData>(
         backgroundColor: white,
         timelines: widget.customPeriods,
         cellHeight: cellHeight,
@@ -95,9 +96,9 @@ class _SchedulePlannerState extends State<SchedulePlanner<EventData>> {
         },
         headerHeight: widget.isMobile ? 38 : 40,
         headerCellBuilder: (DateTime date) =>
-            //  widget.isMobile
-            //     ?
-            SizedBox(
+        //  widget.isMobile
+        //     ?
+        SizedBox(
           width: 40,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -113,7 +114,7 @@ class _SchedulePlannerState extends State<SchedulePlanner<EventData>> {
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       color:
-                          isSameDate(date) ? primaryPink : Colors.transparent),
+                      isSameDate(date) ? primaryPink : Colors.transparent),
                   child: Center(
                     child: Text(
                       date.day.toString(),
@@ -131,23 +132,23 @@ class _SchedulePlannerState extends State<SchedulePlanner<EventData>> {
           return Container(
             child: period.isCustomeSlot
                 ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(period.title ?? '', style: context.subtitle),
-                    ],
-                  )
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(period.title ?? '', style: context.subtitle),
+              ],
+            )
                 : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(start.format(context).substring(0, 5),
-                          style: context.subtitle),
-                      const SizedBox(
-                        height: 8,
-                      ),
-                      Text(end.format(context).substring(0, 5),
-                          style: context.subtitle),
-                    ],
-                  ),
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(start.format(context).substring(0, 5),
+                    style: context.subtitle),
+                const SizedBox(
+                  height: 8,
+                ),
+                Text(end.format(context).substring(0, 5),
+                    style: context.subtitle),
+              ],
+            ),
           );
         },
         emptyMonthBuilder: (DateTime dateTime) {
@@ -174,23 +175,28 @@ class _SchedulePlannerState extends State<SchedulePlanner<EventData>> {
             ),
           );
         },
-        emptyTodayTitle: (DateTime date) => Text('Nothing Planned for today',
-            style: context.headline1Fw500.copyWith(
-                color: textGrey, fontSize: 14, fontWeight: FontWeight.w700)),
+        emptyTodayTitle: (DateTime date) =>
+            Text('Nothing Planned for today',
+                style: context.headline1Fw500.copyWith(
+                    color: textGrey,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700)),
         isCellDraggable: (CalendarEvent<EventData> event) =>
             isCelldraggable(event),
         controller: widget.timetableController,
-        itemBuilder: (CalendarEvent<EventData> item) => ScheduleViewEventTile(
-          item: item,
-          cellHeight: cellHeight,
-        ),
-        cellBuilder: (DateTime period) => Container(
-          height: cellHeight,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(6),
-              border:
+        itemBuilder: (CalendarEvent<EventData> item) =>
+            ScheduleViewEventTile(
+              item: item,
+              cellHeight: cellHeight,
+            ),
+        cellBuilder: (DateTime period) =>
+            Container(
+              height: cellHeight,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(6),
+                  border:
                   Border.all(color: Colors.grey.withOpacity(0.5), width: 0.5),
-              color: lightGrey),
-        ),
+                  color: lightGrey),
+            ),
       );
 }

@@ -1,4 +1,4 @@
-import 'package:edgar_planner_calendar_flutter/core/colors.dart';
+import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/term_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
@@ -11,8 +11,7 @@ import 'package:flutter_calendar/flutter_calendar.dart';
 ///right strip for the tablet view
 class RightStrip extends StatelessWidget {
   /// initialize the constructor
-  const RightStrip(
-      {required this.termModel, Key? key, this.width = 48, this.height = 60})
+  const RightStrip({Key? key, this.width = 48, this.height = 60})
       : super(key: key);
 
   ///const double width
@@ -20,9 +19,6 @@ class RightStrip extends StatelessWidget {
 
   ///const double height
   final double height;
-
-  ///Term Model
-  final TermModel termModel;
 
   @override
   Widget build(BuildContext context) => SizedBox(
@@ -38,12 +34,21 @@ class RightStrip extends StatelessWidget {
               children: <Widget>[
                 Expanded(
                     child: RightSideButton(
+                  title: S.of(context).todos,
+                  onTap: () {
+                    if (viewType != CalendarViewType.dayView) {
+                      cubit.nativeCallBack.sendShowTodos();
+                    }
+                  },
+                )),
+                Expanded(
+                    child: RightSideButton(
                   title: S.of(context).day,
                   onTap: () {
                     if (viewType != CalendarViewType.dayView) {
-                      cubit..setDate(cubit.date)
-
-                      ..changeViewType(CalendarViewType.dayView);
+                      cubit
+                        ..setDate(cubit.date)
+                        ..changeViewType(CalendarViewType.dayView);
                     }
                   },
                   selected: viewType == CalendarViewType.dayView,
@@ -53,8 +58,9 @@ class RightStrip extends StatelessWidget {
                   title: S.of(context).week,
                   onTap: () {
                     if (viewType != CalendarViewType.weekView) {
-                      cubit..setDate(cubit.date)
-                      ..changeViewType(CalendarViewType.weekView);
+                      cubit
+                        ..setDate(cubit.date)
+                        ..changeViewType(CalendarViewType.weekView);
                     }
                   },
                   selected: viewType == CalendarViewType.weekView,
@@ -147,11 +153,11 @@ class RightStrip extends StatelessWidget {
                 )),
                 Expanded(
                     child: RightSideButton(
-                  title: S.of(context).records,
+                  title: S.of(context).drive,
                   onTap: () {
                     BlocProvider.of<TimeTableCubit>(context)
                         .nativeCallBack
-                        .sendShowRecordToNativeApp();
+                        .sendOpenDriveToNativeApp();
                   },
                 )),
               ],

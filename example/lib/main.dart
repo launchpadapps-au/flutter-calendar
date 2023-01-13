@@ -1,11 +1,10 @@
-import 'package:edgar_planner_calendar_flutter/core/fonts.dart';
+import 'package:edgar_planner_calendar_flutter/core/themes/fonts.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/planner.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/calendar_view.dart'; 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-
 import 'generated/l10n.dart';
 
 void main() {
@@ -38,7 +37,7 @@ class MyApp extends StatelessWidget {
             },
           ),
           routes: <String, WidgetBuilder>{
-            '/': (BuildContext context) => const Planner(),
+            '/': (BuildContext context) => const CalendarView(),
           },
         ),
       );

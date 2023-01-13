@@ -1,4 +1,4 @@
-import 'package:edgar_planner_calendar_flutter/core/colors.dart';
+import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:flutter/material.dart';
 
 ///draw grey border
@@ -35,12 +35,16 @@ class CellBorder extends StatelessWidget {
   final Border? border;
 
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) =>
+      Container(
         height: cellHeight,
-        width: MediaQuery.of(context).size.width,
+        width: MediaQuery
+            .of(context)
+            .size
+            .width,
         decoration: BoxDecoration(
             borderRadius:
-                border == null ? BorderRadius.circular(borderRadius) : null,
+            border == null ? BorderRadius.circular(borderRadius) : null,
             border: border ??
                 Border.all(
                     color: borderColor ?? Colors.grey.withOpacity(0.5),

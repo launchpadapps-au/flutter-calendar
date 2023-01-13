@@ -19,7 +19,8 @@ class LoadingModel {
   });
 
   ///loading model from the json
-  factory LoadingModel.fromJson(Map<String, dynamic> json) => LoadingModel(
+  factory LoadingModel.fromJson(Map<String, dynamic> json) =>
+      LoadingModel(
         isLoading: json['isLoading'],
       );
 
@@ -27,7 +28,8 @@ class LoadingModel {
   bool isLoading;
 
   ///conver to json from the model
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  Map<String, dynamic> toJson() =>
+      <String, dynamic>{
         'isLoading': isLoading,
       };
 }

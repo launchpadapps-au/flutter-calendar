@@ -150,10 +150,13 @@ TermModel defaultTermModel = TermModel(
         term4: '01-10|31-12',
         territory: 'default'),
     id: '0');
+
 ///static json for the terms
-Map<String, dynamic> /// A map of string to dynamic.
-staticJsonForTheTerm = <String, dynamic>{
-  'term': <String,dynamic>{
+Map<String, dynamic>
+
+    /// A map of string to dynamic.
+    staticJsonForTheTerm = <String, dynamic>{
+  'term': <String, dynamic>{
     'id': 2,
     'territory': 'Victoria',
     'term1': '28-01|08-04',
@@ -163,254 +166,32 @@ staticJsonForTheTerm = <String, dynamic>{
   },
   'id': '82a9c68b-3024-4206-8c93-579cfec3e45e'
 };
+
 ///static term that derived from [staticJsonForTheTerm]
 TermModel termFromJson = TermModel.fromJson(staticJsonForTheTerm);
 
-///dummy list with non uniform slpts
-List<Map<String, String>> list = <Map<String, String>>[
-  <String, String>{
-    'id': '41',
-    'start_time': '09:00:00',
-    'user_id': 'e5e54542-921e-4327-8058-eb16794bcb45',
-    'slot_name': 'period_1',
-    'calendar_id': '19',
-    'end_time': '09:45:00',
-    '__typename': 'calendar_slots',
-    'type': 'period'
-  },
-  <String, String>{
-    '__typename': 'calendar_slots',
-    'user_id': 'e5e54542-921e-4327-8058-eb16794bcb45',
-    'end_time': '10:30:00',
-    'calendar_id': '19',
-    'type': 'period',
-    'id': '42',
-    'slot_name': 'period_2',
-    'start_time': '09:45:00'
-  },
-  <String, String>{
-    'end_time': '11:15:00',
-    'id': '44',
-    'slot_name': 'break_1',
-    'start_time': '11:00:00',
-    '__typename': 'calendar_slots',
-    'user_id': 'e5e54542-921e-4327-8058-eb16794bcb45',
-    'calendar_id': '19',
-    'type': 'break'
-  },
-  <String, String>{
-    'user_id': 'e5e54542-921e-4327-8058-eb16794bcb45',
-    'end_time': '12:00:00',
-    '__typename': 'calendar_slots',
-    'calendar_id': '19',
-    'slot_name': 'period_3',
-    'start_time': '11:15:00',
-    'type': 'period',
-    'id': '46'
-  },
-  <String, String>{
-    'type': 'break',
-    '__typename': 'calendar_slots',
-    'user_id': 'e5e54542-921e-4327-8058-eb16794bcb45',
-    'id': '48',
-    'calendar_id': '19',
-    'end_time': '13:00:00',
-    'start_time': '12:00:00',
-    'slot_name': 'break_2'
-  },
-  <String, String>{
-    'calendar_id': '19',
-    '__typename': 'calendar_slots',
-    'slot_name': 'period_4',
-    'type': 'period',
-    'start_time': '13:00:00',
-    'user_id': 'e5e54542-921e-4327-8058-eb16794bcb45',
-    'id': '47',
-    'end_time': '13:45:00'
-  },
-  <String, String>{
-    'end_time': '14:30:00',
-    'id': '45',
-    'start_time': '13:45:00',
-    'type': 'period',
-    'calendar_id': '19',
-    'slot_name': 'period_5',
-    '__typename': 'calendar_slots',
-    'user_id': 'e5e54542-921e-4327-8058-eb16794bcb45'
-  },
-  <String, String>{
-    'end_time': '15:30:00',
-    'type': 'break',
-    'calendar_id': '19',
-    'user_id': 'e5e54542-921e-4327-8058-eb16794bcb45',
-    'id': '49',
-    'start_time': '15:00:00',
-    '__typename': 'calendar_slots',
-  },
-  <String, String>{
-    'end_time': '16:15:00',
-    'slot_name': 'period_6',
-    'user_id': 'e5e54542-921e-4327-8058-eb16794bcb45',
-    '__typename': 'calendar_slots',
-    'id': '51',
-    'start_time': '15:30:00',
-    'type': 'period',
-    'calendar_id': '19'
-  },
-  <String, String>{
-    'id': '50',
-    'end_time': '17:00:00',
-    '__typename': 'calendar_slots',
-    'user_id': 'e5e54542-921e-4327-8058-eb16794bcb45',
-    'type': 'period',
-    'calendar_id': '19',
-    'slot_name': 'period_7',
-    'start_time': '16:15:00'
-  },
-  <String, String>{
-    'end_time': '17:45:00',
-    'type': 'period',
-    'start_time': '17:00:00',
-    'calendar_id': '19',
-    '__typename': 'calendar_slots',
-    'id': '43',
-    'slot_name': 'period_8',
-    'user_id': 'e5e54542-921e-4327-8058-eb16794bcb45'
-  }
-];
+///contaons default dates for the calendar
+class DefaultDates {
+  ///start date of the calendar
 
-///dummmy period from non uni form slots
-List<PeriodModel> dummyPeriods = <PeriodModel>[
-  PeriodModel(
-    userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
-    calendarId: 18,
-    id: '0',
-    slotName: 'period1',
-    type: 'period',
-    stringStartTime: '09:00',
-    stringEndTime: '09:45',
-    startTime: const TimeOfDay(hour: 9, minute: 00),
-    endTime: const TimeOfDay(hour: 9, minute: 45),
-    isCustomeSlot: false,
-  ),
-  PeriodModel(
-    userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
-    calendarId: 18,
-    id: '0',
-    slotName: 'period2',
-    type: 'period',
-    stringStartTime: '09:45',
-    stringEndTime: '10:30',
-    isCustomeSlot: false,
-    startTime: const TimeOfDay(hour: 9, minute: 45),
-    endTime: const TimeOfDay(hour: 10, minute: 30),
-  ),
-  PeriodModel(
-    userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
-    calendarId: 18,
-    id: '0',
-    slotName: 'Recess',
-    type: 'break',
-    stringStartTime: '11:00',
-    stringEndTime: '11:15',
-    startTime: const TimeOfDay(hour: 11, minute: 00),
-    endTime: const TimeOfDay(hour: 11, minute: 15),
-    isCustomeSlot: true,
-  ),
-  PeriodModel(
-    userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
-    calendarId: 18,
-    id: '0',
-    slotName: 'period3',
-    type: 'period',
-    isCustomeSlot: false,
-    stringStartTime: '11:15',
-    stringEndTime: '12:00',
-    startTime: const TimeOfDay(hour: 11, minute: 15),
-    endTime: const TimeOfDay(hour: 12, minute: 00),
-  ),
-  PeriodModel(
-    userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
-    calendarId: 18,
-    id: '0',
-    slotName: 'Lunch',
-    type: 'break',
-    isCustomeSlot: true,
-    stringStartTime: '12:00',
-    stringEndTime: '13:00',
-    startTime: const TimeOfDay(hour: 12, minute: 00),
-    endTime: const TimeOfDay(hour: 13, minute: 00),
-  ),
-  PeriodModel(
-    userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
-    calendarId: 18,
-    id: '0',
-    slotName: 'Period 4',
-    type: 'period',
-    stringStartTime: '13:00',
-    stringEndTime: '13:45',
-    startTime: const TimeOfDay(hour: 13, minute: 00),
-    endTime: const TimeOfDay(hour: 13, minute: 45),
-    isCustomeSlot: false,
-  ),
-  PeriodModel(
-    userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
-    calendarId: 18,
-    id: '0',
-    slotName: 'period5',
-    type: 'period',
-    isCustomeSlot: false,
-    stringStartTime: '13:45',
-    stringEndTime: '14:30',
-    startTime: const TimeOfDay(hour: 13, minute: 45),
-    endTime: const TimeOfDay(hour: 14, minute: 30),
-  ),
-  PeriodModel(
-    userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
-    calendarId: 18,
-    id: '0',
-    slotName: 'break3',
-    stringStartTime: '15:00',
-    type: 'break',
-    isCustomeSlot: true,
-    stringEndTime: '15:30',
-    startTime: const TimeOfDay(hour: 15, minute: 00),
-    endTime: const TimeOfDay(hour: 15, minute: 30),
-  ),
-  PeriodModel(
-    userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
-    calendarId: 18,
-    id: '0',
-    slotName: 'perio6',
-    stringStartTime: '15:30',
-    type: 'period',
-    isCustomeSlot: false,
-    stringEndTime: '16:15',
-    startTime: const TimeOfDay(hour: 15, minute: 30),
-    endTime: const TimeOfDay(hour: 16, minute: 15),
-  ),
-  PeriodModel(
-    userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
-    calendarId: 18,
-    id: '0',
-    slotName: 'period7',
-    stringStartTime: '16:15',
-    type: 'period',
-    isCustomeSlot: false,
-    stringEndTime: '17:00',
-    startTime: const TimeOfDay(hour: 16, minute: 15),
-    endTime: const TimeOfDay(hour: 17, minute: 00),
-  ),
-  PeriodModel(
-    userId: '5a26b415-467b-468f-a30a-e657222a7ea6',
-    calendarId: 18,
-    id: '0',
-    slotName: 'period8',
-    stringStartTime: '17:00',
-    type: 'period',
-    isCustomeSlot: false,
-    stringEndTime: '17:45',
-    startTime: const TimeOfDay(hour: 17, minute: 00),
-    endTime: const TimeOfDay(hour: 17, minute: 45),
-  ),
-];
+  static DateTime get startDate => DateTime.now();
+
+  ///stendart date of the calendar
+
+  static DateTime get endDate => DateTime.now().add(const Duration(days: 90));
+}
+
+///Default parameter for the calendar
+class CalendarParams {
+  ///default timeline width
+  static double get timelineWidth => 60;
+
+  ///default breack height
+  static double get breakHeighth => 35;
+
+  ///default cell height
+  static double get cellHeighth => 110;
+
+  ///default infinite scrooling
+  static bool get infiniteScrolling=>true;
+}

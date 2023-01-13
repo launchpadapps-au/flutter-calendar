@@ -9,8 +9,9 @@ import 'package:flutter_calendar/flutter_calendar.dart';
 
 ///create lsit of object from the json encoded string
 
-List<PeriodModel> periodModelFromJson(String str) => List<PeriodModel>.from(
-    json.decode(str).map((dynamic x) => PeriodModel.fromJson(x)));
+List<PeriodModel> periodModelFromJson(String str) =>
+    List<PeriodModel>.from(
+        json.decode(str).map((dynamic x) => PeriodModel.fromJson(x)));
 
 ///create json encoded string from the list of the object
 String periodModelToJson(List<PeriodModel> data) =>
@@ -20,19 +21,18 @@ String periodModelToJson(List<PeriodModel> data) =>
 ///PeriodModel class
 class PeriodModel implements Period {
   ///initilize the period model
-  PeriodModel(
-      {required this.id,
-      required this.slotName,
-      required this.type,
-      required this.stringStartTime,
-      required this.stringEndTime,
-      required this.userId,
-      required this.calendarId,
-      required this.endTime,
-      required this.startTime,
-      required this.isCustomeSlot}) {
+  PeriodModel({required this.id,
+    required this.slotName,
+    required this.type,
+    required this.stringStartTime,
+    required this.stringEndTime,
+    required this.userId,
+    required this.calendarId,
+    required this.endTime,
+    required this.startTime,
+    required this.isCustomeSlot}) {
     title = slotName;
-    isCustomeSlot = type == 'break';
+    isCustomeSlot = type != 'period';
     if (title == 'break_1') {
       title = 'Recess';
     } else if (title == 'break_2') {
@@ -47,17 +47,18 @@ class PeriodModel implements Period {
   }
 
   ///create model from the json
-  factory PeriodModel.fromJson(Map<String, dynamic> json) => PeriodModel(
-      id: json['id'].toString(),
-      slotName: json['slot_name'],
-      type: json['type'],
-      stringStartTime: json['start_time'],
-      stringEndTime: json['end_time'],
-      userId: json['user_id'],
-      calendarId: json['calendar_id'],
-      isCustomeSlot: json['type'] == 'period',
-      startTime: parseTimeOfDay(json['start_time']),
-      endTime: parseTimeOfDay(json['end_time']));
+  factory PeriodModel.fromJson(Map<String, dynamic> json) =>
+      PeriodModel(
+          id: json['id'].toString(),
+          slotName: json['slot_name'],
+          type: json['type'],
+          stringStartTime: json['start_time'],
+          stringEndTime: json['end_time'],
+          userId: json['user_id'],
+          calendarId: json['calendar_id'],
+          isCustomeSlot: json['type'] == 'period',
+          startTime: parseTimeOfDay(json['start_time']),
+          endTime: parseTimeOfDay(json['end_time']));
 
   ///int id of the period
   @override
@@ -94,8 +95,15 @@ class PeriodModel implements Period {
   @override
   TimeOfDay startTime;
 
+  ///return true if break type is before school
+  bool get isBeforeSchool => type == 'before_school';
+
+  ///return true if break type is after school
+  bool get isAfterSchool => type == 'after_school';
+
   @override
-  Map<String, dynamic> get toMap => <String, dynamic>{
+  Map<String, dynamic> get toMap =>
+      <String, dynamic>{
         'id': id,
         'slot_name': slotName,
         'type': type,
@@ -111,7 +119,8 @@ class PeriodModel implements Period {
 
   ///create json object from the
   @override
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  Map<String, dynamic> toJson() =>
+      <String, dynamic>{
         'id': id,
         'slot_name': slotName,
         'type': type,

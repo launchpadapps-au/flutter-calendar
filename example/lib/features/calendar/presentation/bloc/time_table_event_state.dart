@@ -1,3 +1,4 @@
+import 'package:edgar_planner_calendar_flutter/features/export/data/models/export_settings.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/term_model.dart';
 import 'package:equatable/equatable.dart';
@@ -14,6 +15,12 @@ class InitialState extends TimeTableState {
 
 ///loading state
 class LoadingState extends TimeTableState {
+  @override
+  List<Object> get props => <Object>[];
+}
+
+///use for rebuilding ui
+class UpdatedState extends TimeTableState {
   @override
   List<Object> get props => <Object>[];
 }
@@ -37,6 +44,7 @@ class JumpToDateState extends TimeTableState {
 
   ///DateTime date
   final DateTime dateTime;
+
   @override
   List<Object> get props => <Object>[dateTime];
 }
@@ -58,6 +66,7 @@ class LoadedState extends TimeTableState {
 
   ///terms model
   final TermModel termModel;
+
   @override
   List<Object> get props => <Object>[events, viewType, periods, termModel];
 }
@@ -65,14 +74,12 @@ class LoadedState extends TimeTableState {
 ///loaded state
 class EventUpdatedState extends TimeTableState {
   ///
-  EventUpdatedState(
-    this.events,
-    this.oldEvent,
-    this.newEvent,
-    this.viewType,
-    this.periods,
-    this.termModel,
-  );
+  EventUpdatedState(this.events,
+      this.oldEvent,
+      this.newEvent,
+      this.viewType,
+      this.periods,
+      this.termModel,);
 
   ///list of events
   ///list of events
@@ -92,6 +99,7 @@ class EventUpdatedState extends TimeTableState {
 
   ///terms model
   final TermModel termModel;
+
   @override
   List<Object> get props =>
       <Object>[events, oldEvent, newEvent, viewType, periods, termModel];
@@ -115,6 +123,7 @@ class ViewUpdated implements TimeTableState {
   ///terms model
 
   final TermModel termModel;
+
   @override
   List<Object> get props => <Object>[events, viewType, periods, termModel];
 
@@ -195,6 +204,7 @@ class PeriodsUpdated implements TimeTableState {
   ///terms model
 
   final TermModel termModel;
+
   @override
   List<Object> get props => <Object>[periods, viewType, events, termModel];
 
@@ -346,6 +356,7 @@ class EventsUpdated implements TimeTableState {
   ///terms model
 
   final TermModel termModel;
+
   @override
   List<Object> get props =>
       <Object>[periods, events, viewType, updatedEvents, termModel];
@@ -376,6 +387,7 @@ class DeletedEvents implements TimeTableState {
   ///terms model
 
   final TermModel termModel;
+
   @override
   List<Object> get props =>
       <Object>[periods, events, viewType, deletedEvents, termModel];
@@ -413,8 +425,10 @@ class ChangeToCurrentDate implements TimeTableState {
   ///terms model
 
   final TermModel termModel;
+
   @override
-  List<Object> get props => <Object>[
+  List<Object> get props =>
+      <Object>[
         periods,
         events,
         termModel,
@@ -423,6 +437,21 @@ class ChangeToCurrentDate implements TimeTableState {
         isDateChanged,
         isViewChanged
       ];
+
+  @override
+  bool? get stringify => false;
+}
+
+///export
+class ExportPreview implements TimeTableState {
+  ///initilize the state
+  ExportPreview(this.exportSetting);
+
+  ///object of the export setting
+  final ExportSetting exportSetting;
+
+  @override
+  List<Object?> get props => throw UnimplementedError();
 
   @override
   bool? get stringify => false;
