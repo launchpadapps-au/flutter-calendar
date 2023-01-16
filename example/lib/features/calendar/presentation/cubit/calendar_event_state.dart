@@ -1,3 +1,4 @@
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_notes.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/data/models/export_settings.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/term_model.dart';
@@ -52,11 +53,15 @@ class JumpToDateState extends TimeTableState {
 ///loaded state
 class LoadedState extends TimeTableState {
   ///
-  LoadedState(this.events, this.viewType, this.periods, this.termModel);
+  LoadedState(
+      this.events, this.notes, this.viewType, this.periods, this.termModel);
 
   ///list of events
   ///list of events
   final List<PlannerEvent> events;
+
+  ///list of events
+  final List<CalendarEvent<Note>> notes;
 
   /// view type of the calendar
   final CalendarViewType viewType;
@@ -68,18 +73,21 @@ class LoadedState extends TimeTableState {
   final TermModel termModel;
 
   @override
-  List<Object> get props => <Object>[events, viewType, periods, termModel];
+  List<Object> get props =>
+      <Object>[events, notes, viewType, periods, termModel];
 }
 
 ///loaded state
 class EventUpdatedState extends TimeTableState {
   ///
-  EventUpdatedState(this.events,
-      this.oldEvent,
-      this.newEvent,
-      this.viewType,
-      this.periods,
-      this.termModel,);
+  EventUpdatedState(
+    this.events,
+    this.oldEvent,
+    this.newEvent,
+    this.viewType,
+    this.periods,
+    this.termModel,
+  );
 
   ///list of events
   ///list of events
@@ -427,8 +435,7 @@ class ChangeToCurrentDate implements TimeTableState {
   final TermModel termModel;
 
   @override
-  List<Object> get props =>
-      <Object>[
+  List<Object> get props => <Object>[
         periods,
         events,
         termModel,
@@ -452,6 +459,37 @@ class ExportPreview implements TimeTableState {
 
   @override
   List<Object?> get props => throw UnimplementedError();
+
+  @override
+  bool? get stringify => false;
+}
+
+///EventsAdded event state
+class NotesAdded implements TimeTableState {
+  ///initialize start
+  NotesAdded(
+      this.periods, this.notes, this.viewType, this.addedNotes, this.termModel);
+
+  ///list of events
+  final List<CalendarEvent<Note>> notes;
+
+  ///added [Notes]
+  final List<CalendarEvent<Note>> addedNotes;
+
+  /// view type of the calendar
+  final CalendarViewType viewType;
+
+  ///list of the period
+
+  final List<Period> periods;
+
+  ///terms model
+
+  final TermModel termModel;
+
+  @override
+  List<Object> get props =>
+      <Object>[periods, notes, addedNotes, viewType, termModel];
 
   @override
   bool? get stringify => false;

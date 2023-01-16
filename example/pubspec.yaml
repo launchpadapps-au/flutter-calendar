@@ -40,6 +40,7 @@ dependencies:
   intl: ^0.17.0
   bloc: ^8.1.0
   pdf: ^3.8.4
+  aligned_dialog: ^0.0.6
 
 
 dev_dependencies:

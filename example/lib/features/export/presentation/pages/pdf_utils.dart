@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:edgar_planner_calendar_flutter/core/themes/assets_path.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/presentation/pages/fileutils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -10,11 +11,7 @@ import 'package:pdf/widgets.dart';
 
 ///Pdf functionality for the app
 class PdfUtils {
-  // final ByteData font =
-  //     await rootBundle.load('assets/fonts/sofiapro-Regular.ttf');
-
-  // final pw.Font ttf = pw.Font.ttf(font);
-  ///it will sabe pdf from the images
+  ///it will sabe pdf in the local storage
   Future<void> savePdf(List<Uint8List> items, List<String> titles,
       PdfPageFormat pageFormat, String fileName) async {
     final double width = pageFormat.availableWidth;
@@ -22,18 +19,16 @@ class PdfUtils {
     log('page format $pageFormat');
     log('Pdf size width:$width height:$height');
     final Uint8List fontData =
-        (await rootBundle.load('assets/fonts/sofiapro-Regular.ttf'))
-            .buffer
-            .asUint8List();
+        (await rootBundle.load(AssetPath.sofiaProFont)).buffer.asUint8List();
     final Font ttf = Font.ttf(fontData.buffer.asByteData());
     final Document pdf = Document(
       pageMode: PdfPageMode.fullscreen,
     );
     final MemoryImage titleLogo = MemoryImage(
-      (await rootBundle.load('assets/logo.png')).buffer.asUint8List(),
+      (await rootBundle.load(AssetPath.logo)).buffer.asUint8List(),
     );
     final MemoryImage smallLogo = MemoryImage(
-      (await rootBundle.load('assets/small_logo.png')).buffer.asUint8List(),
+      (await rootBundle.load(AssetPath.smallLogo)).buffer.asUint8List(),
     );
     for (final Uint8List item in items) {
       final int index = items.indexOf(item);

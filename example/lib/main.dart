@@ -1,5 +1,5 @@
 import 'package:edgar_planner_calendar_flutter/core/themes/fonts.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/calendar_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/calendar_view.dart'; 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';

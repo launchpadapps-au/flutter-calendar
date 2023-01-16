@@ -5,13 +5,14 @@ import 'package:edgar_planner_calendar_flutter/core/themes/constants.dart';
 import 'package:edgar_planner_calendar_flutter/core/static.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/core/utils/calendar_utils.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_notes.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/data/models/export_settings.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/term_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/method_name.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_event_state.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/method_name.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/calendar_cubit.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/calendar_event_state.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/month_planner.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/day_planner.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/pages/schedule_planner.dart';
@@ -66,8 +67,7 @@ class _CalendarViewState extends State<CalendarView> {
           timelineWidth: CalendarParams.timelineWidth,
           breakHeight: CalendarParams.breakHeighth,
           cellHeight: CalendarParams.cellHeighth);
-  TimetableController<EventData> monthController =
-      TimetableController<EventData>(
+  TimetableController<Note> monthController = TimetableController<Note>(
     start: DefaultDates.startDate,
     infiniteScrolling: CalendarParams.infiniteScrolling,
     end: DefaultDates.endDate,
@@ -75,8 +75,7 @@ class _CalendarViewState extends State<CalendarView> {
     breakHeight: CalendarParams.breakHeighth,
     cellHeight: CalendarParams.cellHeighth,
   );
-  TimetableController<EventData> termController =
-      TimetableController<EventData>(
+  TimetableController<Note> termController = TimetableController<Note>(
     start: DefaultDates.startDate,
     infiniteScrolling: CalendarParams.infiniteScrolling,
     end: DefaultDates.endDate,
@@ -161,8 +160,8 @@ class _CalendarViewState extends State<CalendarView> {
                   .where((PlannerEvent element) => element.eventData!.isLesson)
                   .toList(),
               replace: true);
-          monthController.addEvent(event.events, replace: true);
-          termController.addEvent(event.events, replace: true);
+          monthController.addEvent(event.notes, replace: true);
+          termController.addEvent(event.notes, replace: true);
         }
       } else if (event is EventUpdatedState) {
         debugPrint('updating events in calendar');
@@ -179,9 +178,11 @@ class _CalendarViewState extends State<CalendarView> {
                 .where((PlannerEvent element) => element.eventData!.isLesson)
                 .toList(),
             replace: true);
+      } else if (event is NotesAdded) {
+        debugPrint('adding notes in calendar');
 
-        monthController.addEvent(event.events, replace: true);
-        termController.addEvent(event.events, replace: true);
+        monthController.addEvent(event.notes, replace: true);
+        termController.addEvent(event.notes, replace: true);
       } else if (event is PeriodsUpdated) {
         periods = event.periods;
         setState(() {
@@ -191,8 +192,7 @@ class _CalendarViewState extends State<CalendarView> {
         timeTableController.removeEvent(event.deletedEvents);
         dayController.removeEvent(event.deletedEvents);
         scheduleController.removeEvent(event.deletedEvents);
-        monthController.removeEvent(event.deletedEvents);
-        termController.removeEvent(event.deletedEvents);
+
         debugPrint('removing events from calendar');
       } else if (event is TermsUpdated) {
         final Term term = BlocProvider.of<TimeTableCubit>(context).term;
@@ -617,16 +617,16 @@ class _CalendarViewState extends State<CalendarView> {
               dateTime = DateTime(month.year, month.month, 15);
             });
           },
-          onTap: (DateTime dateTime, List<CalendarEvent<EventData>> event) {
+          onTap: (DateTime dateTime, List<CalendarEvent<Note>> event) {
             final TimeTableCubit cubit =
                 BlocProvider.of<TimeTableCubit>(context);
             if (event.isEmpty) {
-              cubit.nativeCallBack.sendAddEventToNativeApp(
-                  dateTime, cubit.viewType, null,
-                  jsonEcoded: sendJsonEcnoded);
-            } else {
+              cubit.nativeCallBack.sendAddNote(dateTime, cubit.viewType);
+            } else if (event.length == 1) {
               cubit.nativeCallBack
-                  .sendShowEventToNativeApp(dateTime, event, cubit.viewType);
+                  .sendShowNote(event.first.eventData!, cubit.viewType);
+            } else {
+              debugPrint('No method for multiple note tap');
             }
           },
         ),
@@ -637,15 +637,16 @@ class _CalendarViewState extends State<CalendarView> {
               dateTime = DateTime(month.year, month.month, 15);
             });
           },
-          onTap: (DateTime dateTime, List<CalendarEvent<EventData>> event) {
+          onTap: (DateTime dateTime, List<CalendarEvent<Note>> event) {
             final TimeTableCubit cubit =
                 BlocProvider.of<TimeTableCubit>(context);
             if (event.isEmpty) {
+              cubit.nativeCallBack.sendAddNote(dateTime, cubit.viewType);
+            } else if (event.length == 1) {
               cubit.nativeCallBack
-                  .sendAddEventToNativeApp(dateTime, cubit.viewType, null);
+                  .sendShowNote(event.first.eventData!, cubit.viewType);
             } else {
-              cubit.nativeCallBack
-                  .sendShowEventToNativeApp(dateTime, event, cubit.viewType);
+              debugPrint('No method for multiple note tap');
             }
           },
         ),

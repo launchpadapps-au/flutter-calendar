@@ -1,4 +1,4 @@
- 
+import 'package:edgar_planner_calendar_flutter/core/themes/assets_path.dart';
 import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:flutter/material.dart';
@@ -67,7 +67,7 @@ class ExportMonthEvent extends StatelessWidget {
                               child: showMore &&
                                       showitem.indexOf(e) == (maxchild - 1)
                                   ? Row(
-                                      children:<Widget> [
+                                      children: <Widget>[
                                         SmallEventTile(
                                           event: e,
                                           width: size.width - 43 - 38 - 16,
@@ -149,7 +149,7 @@ class SmallEventTile extends StatelessWidget {
           crossAxisAlignment: crossAxisAlignment,
           children: <Widget>[
             Image.asset(
-              'assets/notes.png',
+              AssetPath.notes,
               width: 8,
               height: 8,
             ),

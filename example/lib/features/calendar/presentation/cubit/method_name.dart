@@ -25,6 +25,9 @@ class ReceiveMethods {
   ///set events called from native ios
   static const String setEvents = 'setEvents';
 
+  ///set notes called from native ios
+  static const String setNots = 'setNotes';
+
   ///add event called from native app
   static const String addEvent = 'addEvents';
 
@@ -82,7 +85,7 @@ class SendMethods {
 
   static const String showEvent = 'showEvent';
 
-  /// showDuty method called when user tan on cell 
+  /// showDuty method called when user tan on cell
   /// which have duty in before of after school slot
 
   static const String showDuty = 'showDuty';
@@ -122,4 +125,12 @@ class SendMethods {
 
   ///open url
   static const String openUrl = 'openUrl';
+
+  /// [addNote] method called when user tap on empty cell in month view
+
+  static const String addNote = 'addNote';
+
+  /// showEvent method called when user tan on cell which have events
+
+  static const String showNote = 'showNote';
 }

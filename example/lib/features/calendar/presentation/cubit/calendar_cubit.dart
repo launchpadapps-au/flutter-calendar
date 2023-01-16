@@ -4,17 +4,19 @@ import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:edgar_planner_calendar_flutter/core/static.dart';
+import 'package:edgar_planner_calendar_flutter/core/themes/assets_path.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/change_view_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/date_change_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_notes.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/data/models/export_settings.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/loading_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/term_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/mock_method.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/callbacks.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/method_name.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_event_state.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/mock_method.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/callbacks.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/method_name.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/calendar_event_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -42,7 +44,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
     } on MissingPluginException {
       debugPrint('Project is running as app');
       standAlone = true;
-      await getDummyData(addDummyEvent: false);
+      await getDummyData();
     }
   }
 
@@ -52,7 +54,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   ///true if want use mock platform method
   static bool mockMethod = false;
 
-  ///current date time
+  ///current date timex
   static DateTime now = DateTime.now();
 
   ///current date  for the calendar
@@ -264,6 +266,17 @@ class TimeTableCubit extends Cubit<TimeTableState> {
               periods, _events, viewType, getEvents.events, termModel));
           break;
 
+        ///handle setNotes methods
+        case ReceiveMethods.setNots:
+          final GetNotes getNotes = GetNotes.fromRawJson(
+              await rootBundle.loadString(AssetPath.noteJson));
+          _monthNote = getNotes.note;
+          debugPrint(
+              'Set Notes received from ios: no Notes:${_monthNote.length}');
+          emit(NotesAdded(
+              periods, _monthNote, viewType, getNotes.note, termModel));
+          break;
+
         case ReceiveMethods.nextDay:
           debugPrint('Next dat received from native app');
           nextDay();
@@ -316,6 +329,12 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   ///events of timetable
   List<PlannerEvent> _events = <PlannerEvent>[];
 
+  ///events of timetable
+  List<CalendarEvent<Note>> _monthNote = <CalendarEvent<Note>>[];
+
+  ///return list of month event
+  List<CalendarEvent<Note>> get monthNote => _monthNote;
+
   ///String id
   String? id;
 
@@ -339,7 +358,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
     final Map<String, dynamic> jData = await jsonDecode(data);
 
     id = jData['id'].toString();
-    emit(LoadedState(_events, viewType, periods, termModel));
+    emit(LoadedState(_events, _monthNote, viewType, periods, termModel));
   }
 
   ///get dummy events
@@ -349,7 +368,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
       await Future<dynamic>.delayed(const Duration(seconds: 3));
       if (addDummyEvent) {
         final String response1 =
-            await rootBundle.loadString('assets/period.json');
+            await rootBundle.loadString( AssetPath.periodJson);
 
         final List<PeriodModel> newPeriods = periodModelFromJson(response1);
 
@@ -361,11 +380,15 @@ class TimeTableCubit extends Cubit<TimeTableState> {
         }
         emit(PeriodsUpdated(periods, _events, viewType, termModel));
         final String response =
-            await rootBundle.loadString('assets/event.json');
+            await rootBundle.loadString(AssetPath.eventJson);
         final dynamic data = jsonDecode(response);
         final GetEvents getEvents = GetEvents.fromJsonWithPeriod(data, periods);
         _events = getEvents.events;
-        emit(LoadedState(_events, viewType, periods, termModel));
+
+        final GetNotes getNotes = GetNotes.fromRawJson(
+            await rootBundle.loadString(AssetPath.noteJson));
+        _monthNote = getNotes.note;
+        emit(LoadedState(_events, _monthNote, viewType, periods, termModel));
       }
     } on Exception catch (e) {
       debugPrint(e.toString());
@@ -831,7 +854,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
     if (state is LoadedState) {
     } else {
       _events.add(value);
-      emit(LoadedState(_events, viewType, periods, termModel));
+      emit(LoadedState(_events, _monthNote, viewType, periods, termModel));
     }
   }
 

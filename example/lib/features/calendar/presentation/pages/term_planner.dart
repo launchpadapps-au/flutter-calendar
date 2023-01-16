@@ -3,11 +3,11 @@ import 'dart:developer';
 import 'package:edgar_planner_calendar_flutter/core/themes/constants.dart';
 import 'package:edgar_planner_calendar_flutter/core/static.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/time_table_cubit.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_notes.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/calendar_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/day_name.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/dead_cell.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/small_event.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/termview/term_note.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -28,11 +28,10 @@ class TermPlanner extends StatefulWidget {
   final String? id;
 
   ///timetable controller
-  final TimetableController<EventData> timetableController;
+  final TimetableController<Note> timetableController;
 
   ///provide calalback user tap on the cell
-  final Function(DateTime dateTime, List<CalendarEvent<EventData>> events)
-      onTap;
+  final Function(DateTime dateTime, List<CalendarEvent<Note>> events) onTap;
 
   ///return current month when user swipe and month changed
   final Function(Month) onMonthChanged;
@@ -53,7 +52,7 @@ class _TermPlannerState extends State<TermPlanner> {
   bool isDragEnable = false;
 
   @override
-  Widget build(BuildContext context) => SlTermView<EventData>(
+  Widget build(BuildContext context) => SlTermView<Note>(
         timelines: customStaticPeriods,
         isSwipeEnable: true,
         isDraggable: isDragEnable,
@@ -85,12 +84,12 @@ class _TermPlannerState extends State<TermPlanner> {
           widget.onMonthChanged(month);
         },
         onEventDragged:
-            (CalendarEvent<EventData> old, CalendarEvent<EventData> newEvent) {
-          BlocProvider.of<TimeTableCubit>(context)
-              .updateEvent(old, newEvent, null);
+            (CalendarEvent<Note> old, CalendarEvent<Note> newEvent) {
+          // BlocProvider.of<TimeTableCubit>(context)
+          //     .updateEvent(old, newEvent, null);
         },
-        onWillAccept: (CalendarEvent<EventData>? event, DateTime dateTime,
-            Period period) {
+        onWillAccept:
+            (CalendarEvent<Note>? event, DateTime dateTime, Period period) {
           if (event != null) {
             final List<CalendarEvent<dynamic>> overleapingEvents =
                 BlocProvider.of<TimeTableCubit>(context)
@@ -116,93 +115,24 @@ class _TermPlannerState extends State<TermPlanner> {
         },
         nowIndicatorColor: Colors.red,
         fullWeek: true,
-        onTap: (DateTime date) {
-          widget.onTap(date, <CalendarEvent<EventData>>[]);
-        },
         headerHeight: headerHeight - 10,
         headerCellBuilder: (int index) => SizedBox(
           height: widget.timetableController.headerHeight,
           child: DayName(index: index),
         ),
         controller: widget.timetableController,
-        itemBuilder: (List<CalendarEvent<EventData>> item, Size size,
-                DateTime dateTime) =>
-            item.isEmpty
-                ? const SizedBox.shrink()
-                : SizedBox(
-                    width: size.width,
-                    height: size.height,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        const SizedBox(
-                          height: 35,
-                        ),
-                        SizedBox(
-                          width: size.width,
-                          height: 19,
-                          child: Row(
-                            children: <Widget>[
-                              GestureDetector(
-                                onTap: () {
-                                  widget.onTap(item.first.eventData!.startDate,
-                                      <CalendarEvent<EventData>>[item.first]);
-                                },
-                                child: ExtraSmallEventTile(
-                                  event: item.first,
-                                  isDraggable: isDragEnable,
-                                  width: (size.width - 6) / 2,
-                                ),
-                              ),
-                              item.length >= 2
-                                  ? GestureDetector(
-                                      onTap: () {
-                                        widget.onTap(
-                                            item[1].eventData!.startDate,
-                                            <CalendarEvent<EventData>>[
-                                              item[1]
-                                            ]);
-                                      },
-                                      child: ExtraSmallEventTile(
-                                        event: item[1],
-                                        isDraggable: isDragEnable,
-                                        width: (size.width - 6) / 2,
-                                      ),
-                                    )
-                                  : const SizedBox.shrink(),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          width: size.width,
-                          height: 19,
-                          child: Row(
-                            children: <Widget>[
-                              item.length >= 3
-                                  ? GestureDetector(
-                                      onTap: () {
-                                        widget.onTap(
-                                            item.first.eventData!.startDate,
-                                            <CalendarEvent<EventData>>[
-                                              item.first
-                                            ]);
-                                      },
-                                      child: ExtraSmallEventTile(
-                                        event: item.first,
-                                        isDraggable: isDragEnable,
-                                        width: (size.width - 6) / 2,
-                                      ),
-                                    )
-                                  : const SizedBox.shrink(),
-                              item.skip(3).isEmpty
-                                  ? const SizedBox.shrink()
-                                  : Text('+${item.skip(3).length}'
-                                      ''),
-                            ],
-                          ),
-                        )
-                      ],
-                    )),
+        onTap: (DateTime date) {
+          widget.onTap(date, <CalendarEvent<Note>>[]);
+        },
+        itemBuilder:
+            (List<CalendarEvent<Note>> item, Size size, DateTime dateTime) =>
+                TermNote(
+                    item: item,
+                    cellHeight: widget.timetableController.cellHeight,
+                    breakHeight: widget.timetableController.breakHeight,
+                    size: size,
+                    isDraggable: false,
+                    onTap: widget.onTap),
         cellBuilder: (Period period) => Container(
           height: period.isCustomeSlot
               ? widget.timetableController.breakHeight

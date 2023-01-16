@@ -5,8 +5,9 @@ import 'dart:developer';
 import 'package:edgar_planner_calendar_flutter/core/utils/calendar_utils.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/date_change_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_notes.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/term_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/bloc/method_name.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/method_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
@@ -44,16 +45,17 @@ class NativeCallBack {
   }
 
   ///send addEvent callback to native app
-  Future<bool> sendAddEventToNativeApp(DateTime dateTime,
-      CalendarViewType viewType, Period? period,
+  Future<bool> sendAddEventToNativeApp(
+      DateTime dateTime, CalendarViewType viewType, Period? period,
       {bool jsonEcoded = false}) async {
     final Map<String, dynamic> data = <String, dynamic>{
       'viewType': viewType.toString(),
       'date': dateTime.toString().substring(0, 10),
     };
     if (period != null) {
-      data..putIfAbsent('period', () => period.toJson())..putIfAbsent(
-          'slotId', () => period.id.toString());
+      data
+        ..putIfAbsent('period', () => period.toJson())
+        ..putIfAbsent('slotId', () => period.id.toString());
     }
     debugPrint('data: $data');
     if (jsonEcoded) {
@@ -67,10 +69,10 @@ class NativeCallBack {
 
   ///send dateChanged to native app
 
-  Future<bool> sendDateChangeToNativeApp(DateTime startTime,
-      DateTime endTime) async {
+  Future<bool> sendDateChangeToNativeApp(
+      DateTime startTime, DateTime endTime) async {
     final DateChange dateChange =
-    DateChange(startTime: startTime, endTime: endTime);
+        DateChange(startTime: startTime, endTime: endTime);
     await sendToNativeApp(SendMethods.dateChanged, dateChange.toJson());
     return true;
   }
@@ -86,7 +88,8 @@ class NativeCallBack {
   }
 
   ///send eventDragged  to native app
-  Future<bool> sendEventDraggedToNativeApp(CalendarEvent<EventData> old,
+  Future<bool> sendEventDraggedToNativeApp(
+      CalendarEvent<EventData> old,
       CalendarEvent<EventData> newEvent,
       CalendarViewType viewType,
       Period? periodModel) async {
@@ -109,11 +112,10 @@ class NativeCallBack {
       'eventId': eventId,
       'is_recurring_event': isRec,
       'reminder_start_time': DateTime(
-          2022, 10, 19, newEvent.startTime.hour, newEvent.startTime.minute)
+              2022, 10, 19, newEvent.startTime.hour, newEvent.startTime.minute)
           .toUtc()
           .toIso8601String()
-    }
-      ..putIfAbsent('slotId', () => id);
+    }..putIfAbsent('slotId', () => id);
     debugPrint('Data: $data');
     await sendToNativeApp(SendMethods.eventDragged, data);
     return true;
@@ -139,7 +141,7 @@ class NativeCallBack {
           'events': events.toString(),
           'eventId': eventID,
           'eventIds': List<String>.from(events.map<String>(
-                  (CalendarEvent<EventData> e) => e.eventData!.id.toString()))
+              (CalendarEvent<EventData> e) => e.eventData!.id.toString()))
         };
         log(data.toString());
         await sendToNativeApp(SendMethods.showEvent, data);
@@ -151,7 +153,7 @@ class NativeCallBack {
         'events': events.toString(),
         'eventId': events.first.eventData!.id.toString(),
         'eventIds': List<String>.from(events.map<String>(
-                (CalendarEvent<EventData> e) => e.eventData!.id.toString()))
+            (CalendarEvent<EventData> e) => e.eventData!.id.toString()))
       };
       log(data.toString());
       await sendToNativeApp(SendMethods.showEvent, data);
@@ -172,7 +174,7 @@ class NativeCallBack {
           'events': events.toString(),
           'eventId': eventID,
           'eventIds': List<String>.from(events.map<String>(
-                  (CalendarEvent<EventData> e) => e.eventData!.id.toString()))
+              (CalendarEvent<EventData> e) => e.eventData!.id.toString()))
         };
         log(data.toString());
         await sendToNativeApp(SendMethods.showDuty, data);
@@ -184,7 +186,7 @@ class NativeCallBack {
         'events': events.toString(),
         'eventId': events.first.eventData!.id.toString(),
         'eventIds': List<String>.from(events.map<String>(
-                (CalendarEvent<EventData> e) => e.eventData!.id.toString()))
+            (CalendarEvent<EventData> e) => e.eventData!.id.toString()))
       };
       log(data.toString());
       await sendToNativeApp(SendMethods.showDuty, data);
@@ -206,8 +208,8 @@ class NativeCallBack {
 
   ///ask native app to fetch more data between speceffic date
 
-  Future<bool> sendFetchDataDatesToNativeApp(DateTime startDate,
-      DateTime endDate) async {
+  Future<bool> sendFetchDataDatesToNativeApp(
+      DateTime startDate, DateTime endDate) async {
     final Map<String, String> data = <String, String>{
       'startDate': startDate.toString().substring(0, 10),
       'endDate': endDate.toString().substring(0, 10)
@@ -247,6 +249,25 @@ class NativeCallBack {
     final Map<String, dynamic> data = <String, dynamic>{};
 
     await sendToNativeApp(SendMethods.showTodos, data);
+    return true;
+  }
+
+  ////---------Callbacks for the Notes--------------///
+  ///sned AddNote method callabck to ios
+  Future<bool> sendAddNote(DateTime dateTime, CalendarViewType viewType) async {
+    final Map<String, dynamic> data = <String, dynamic>{
+      'viewType': viewType.toString(),
+      'date': dateTime.toString().substring(0, 12)
+    };
+    await sendToNativeApp(SendMethods.addNote, data);
+    return true;
+  }
+
+  ///sned showNote method callabck to ios
+  Future<bool> sendShowNote(Note note, CalendarViewType viewType) async {
+    final Map<String, dynamic> data = note.toJson()
+      ..putIfAbsent('viewType', () => viewType.toString());
+    await sendToNativeApp(SendMethods.showNote, data);
     return true;
   }
 
