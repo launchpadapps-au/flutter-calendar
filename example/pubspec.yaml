@@ -41,6 +41,7 @@ dependencies:
   bloc: ^8.1.0
   pdf: ^3.8.4
   aligned_dialog: ^0.0.6
+  logging: ^1.1.0
 
 
 dev_dependencies:

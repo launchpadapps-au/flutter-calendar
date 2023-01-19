@@ -24,16 +24,15 @@ class CalendarModel {
   });
 
   ///create object from the json
-  factory CalendarModel.fromJson(Map<String, dynamic> json) =>
-      CalendarModel(
+  factory CalendarModel.fromJson(Map<String, dynamic> json) => CalendarModel(
         name: json['name'],
         id: json['id'],
         scheduleSettings: List<ScheduleSetting>.from(json['schedule_settings']
           ..map<Map<String, dynamic>>(
-                  (Map<String, dynamic> x) => ScheduleSetting.fromJson(x))),
+              (Map<String, dynamic> x) => ScheduleSetting.fromJson(x))),
         calendarSlots: List<PeriodModel>.from(json['calendar_slots']
           ..map<Map<String, dynamic>>(
-                  (Map<String, dynamic> x) => PeriodModel.fromJson(x))),
+              (Map<String, dynamic> x) => PeriodModel.fromJson(x))),
       );
 
   ///school name
@@ -49,8 +48,7 @@ class CalendarModel {
   List<PeriodModel> calendarSlots;
 
   ///create json from the object
-  Map<String, dynamic> toJson() =>
-      <String, dynamic>{
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'name': name,
         'id': id,
         'schedule_settings': List<dynamic>.from(scheduleSettings
@@ -93,8 +91,7 @@ class ScheduleSetting {
   int? durationOfEachSession;
 
   ///create json from the object
-  Map<String, dynamic> toJson() =>
-      <String, dynamic>{
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'day_start_time': dayStartTime,
         'day_end_time': dayEndTime,
         'id': id,

@@ -1,7 +1,6 @@
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
-import 'package:flutter/material.dart';
-
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/term_model.dart';
+import 'package:flutter/material.dart';
 
 ///custom timePeriods for the timetable
 List<PeriodModel> customStaticPeriods = <PeriodModel>[

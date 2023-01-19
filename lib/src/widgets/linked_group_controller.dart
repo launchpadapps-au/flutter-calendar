@@ -122,6 +122,7 @@ class _LinkedScrollController extends ScrollController {
       : super(
             initialScrollOffset: initialScrollOffset, keepScrollOffset: false);
   final LinkedScrollControllerGroup _controllers;
+
   @override
   void dispose() {
     _controllers._allControllers.remove(this);

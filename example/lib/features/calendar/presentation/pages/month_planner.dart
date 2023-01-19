@@ -1,7 +1,6 @@
-import 'dart:developer';
-
-import 'package:edgar_planner_calendar_flutter/core/themes/constants.dart';
+import 'package:edgar_planner_calendar_flutter/core/logger.dart';
 import 'package:edgar_planner_calendar_flutter/core/static.dart';
+import 'package:edgar_planner_calendar_flutter/core/themes/constants.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_notes.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/calendar_cubit.dart';
@@ -74,10 +73,10 @@ class _MonthPlannerState extends State<MonthPlanner> {
                         isTimeIsEqualOrLess(element.endTime, event.endTime))
                     .toList();
             if (overleapingEvents.isEmpty) {
-              log('Slot available: ${event.toMap}');
+              logInfo('Slot available: ${event.toMap}');
               return true;
             } else {
-              log('Slot Not available-> Start Time: '
+              logInfo('Slot Not available-> Start Time: '
                   '${overleapingEvents.first.startTime}'
                   'End Time: ${overleapingEvents.first.endTime}');
 

@@ -1,11 +1,11 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:flutter_calendar/src/core/app_log.dart';
 import 'package:flutter_calendar/src/core/time_extension.dart';
 import 'package:flutter_calendar/src/models/resize_model.dart';
+import 'package:intl/intl.dart';
 
 ///check if give time is before or not
 bool isTimeBefore(TimeOfDay a, TimeOfDay b) {

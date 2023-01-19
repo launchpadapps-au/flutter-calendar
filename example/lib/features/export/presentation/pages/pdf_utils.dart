@@ -1,7 +1,9 @@
-import 'dart:developer';
+import 'dart:async';
 import 'dart:io';
 
+import 'package:edgar_planner_calendar_flutter/core/logger.dart';
 import 'package:edgar_planner_calendar_flutter/core/themes/assets_path.dart';
+import 'package:edgar_planner_calendar_flutter/features/export/data/models/export_progress.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/presentation/pages/fileutils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -11,13 +13,29 @@ import 'package:pdf/widgets.dart';
 
 ///Pdf functionality for the app
 class PdfUtils {
+  ///strea contriller for export progress
+  StreamController<ExportProgress> streamController =
+      StreamController<ExportProgress>.broadcast();
+
+  ///it will dispose the stram
+  void disposeStream() {
+    streamController.sink.close();
+  }
+
+  ///atream of progress
+  Stream<ExportProgress> get stream => streamController.stream;
+
   ///it will sabe pdf in the local storage
-  Future<void> savePdf(List<Uint8List> items, List<String> titles,
-      PdfPageFormat pageFormat, String fileName) async {
+  ///
+  ///
+
+  Future<String> savePdf(List<Uint8List> items, List<String> titles,
+      PdfPageFormat pageFormat, String fileName, String? localPath) async {
     final double width = pageFormat.availableWidth;
     final double height = pageFormat.availableHeight;
-    log('page format $pageFormat');
-    log('Pdf size width:$width height:$height');
+    log
+      ..info('page format $pageFormat')
+      ..info('Pdf size width:$width height:$height');
     final Uint8List fontData =
         (await rootBundle.load(AssetPath.sofiaProFont)).buffer.asUint8List();
     final Font ttf = Font.ttf(fontData.buffer.asByteData());
@@ -30,6 +48,7 @@ class PdfUtils {
     final MemoryImage smallLogo = MemoryImage(
       (await rootBundle.load(AssetPath.smallLogo)).buffer.asUint8List(),
     );
+    final int length = items.length;
     for (final Uint8List item in items) {
       final int index = items.indexOf(item);
       pdf.addPage(Page(
@@ -102,12 +121,20 @@ class PdfUtils {
                   ])
                 ]),
               )));
+
+      if ((index + 1) != length) {
+ 
+        streamController.sink.add(ExportProgress(
+            status: ExportStatus.inProgress, progress: (index + 1) / length));
+      }
     }
 
-    log('saving pdf');
+    logInfo('saving pdf');
 
-    await FileUtils.saveTopdf(await pdf.save(), filename: fileName);
-    log('file saved');
+    final String? filePath = await FileUtils.saveTopdf(await pdf.save(),
+        filename: fileName, localPath: localPath);
+    logInfo('file saved');
+    return filePath!;
   }
 
   ///it will save demo pdf in the storage
@@ -153,7 +180,7 @@ class PdfUtils {
               ]),
             )));
 
-    log('saving pdf');
+    logInfo('saving pdf');
     final Directory? dir = await getDownloadsDirectory();
     final File file = File(
       '${dir!.path}/$fileName.pdf',
@@ -164,6 +191,6 @@ class PdfUtils {
         ..createSync();
     }
     await file.writeAsBytes(await pdf.save());
-    log('file saved');
+    logInfo('file saved');
   }
 }

@@ -1,4 +1,3 @@
-  
 import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
 import 'package:flutter/material.dart';

@@ -7,7 +7,6 @@ class MonthHourLable extends StatelessWidget {
   ///initilize the widget
   const MonthHourLable({required this.periodModel, super.key});
 
-
   ///Period of the slot
   final PeriodModel periodModel;
 
@@ -19,23 +18,23 @@ class MonthHourLable extends StatelessWidget {
     return Container(
       child: periodModel.isCustomeSlot
           ? Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(periodModel.title ?? '', style: context.subtitle),
-        ],
-      )
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(periodModel.title ?? '', style: context.subtitle),
+              ],
+            )
           : Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(start.format(context).substring(0, 5),
-              style: context.subtitle),
-          const SizedBox(
-            height: 8,
-          ),
-          Text(end.format(context).substring(0, 5),
-              style: context.subtitle),
-        ],
-      ),
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(start.format(context).substring(0, 5),
+                    style: context.subtitle),
+                const SizedBox(
+                  height: 8,
+                ),
+                Text(end.format(context).substring(0, 5),
+                    style: context.subtitle),
+              ],
+            ),
     );
   }
 }

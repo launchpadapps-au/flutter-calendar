@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:flutter_calendar/src/core/constants.dart';
+import 'package:flutter_calendar/src/widgets/cell.dart';
 import 'package:flutter_calendar/src/widgets/hour_cell.dart';
 import 'package:flutter_calendar/src/widgets/time_indicator.dart';
-import 'package:flutter_calendar/flutter_calendar.dart';
-import 'package:flutter_calendar/src/widgets/cell.dart';
 import 'package:flutter_calendar/src/widgets/timetable_event.dart';
 
 import '../core/app_log.dart';
@@ -136,6 +136,7 @@ class NewSlDayView<T> extends StatefulWidget {
 
   ///header divider thickness
   final double headerDivideThickness;
+
   @override
   State<NewSlDayView<T>> createState() => _NewSlDayViewState<T>();
 }
@@ -162,11 +163,11 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
       IndexedScrollController(initialIndex: 75);
 
   PageController finiteScrollController = PageController();
+
   @override
   void initState() {
     controller = widget.controller ?? controller;
-    final int index = dateTime.difference(controller.start).inDays;
-    log('Initial Scroll index $index');
+ 
     indexdController = IndexedScrollController(
         initialIndex: controller.start.difference(dateTime).inDays);
     setState(() {});
@@ -393,12 +394,12 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
 
   // static const int maxPage = 10000;
   bool isScrolling = false;
+
   @override
   Widget build(BuildContext context) => LayoutBuilder(
       key: _key,
       builder: (BuildContext context, BoxConstraints constraints) {
         final Size size = widget.size ?? constraints.biggest;
-        log('render box Size of $size');
 
         return SingleChildScrollView(
           controller: timeScrollController,
@@ -729,8 +730,6 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
           ],
         ),
       );
-
-
 
   ///jump to given date
   Future<dynamic> _jumpTo(DateTime date) async {

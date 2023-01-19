@@ -1,23 +1,20 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 
+import 'package:edgar_planner_calendar_flutter/core/logger.dart';
 import 'package:edgar_planner_calendar_flutter/core/utils/calendar_utils.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/date_change_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_notes.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/term_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/method_name.dart';
-import 'package:flutter/material.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/method_name.dart'; 
 import 'package:flutter/services.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 
 ///this class contains all method related to callBack
 class NativeCallBack {
   ///initialized the class
-  NativeCallBack() {
-    log('Call back initialized');
-  }
+  NativeCallBack();
 
   /// set method handler to receive data from flutter
   late MethodChannel platform;
@@ -27,22 +24,13 @@ class NativeCallBack {
     platform = MethodChannel(channelName);
     platform.setMethodCallHandler((MethodCall call) async {
       onDataReceived.add(call);
+      logInfo('Call back initialized');
     });
   }
 
   ///function called when we receive data from native app
 
   StreamController<MethodCall> onDataReceived = StreamController<MethodCall>();
-
-  ///send onTap callback to native app
-  Future<bool> onTap(DateTime dateTime, List<PlannerEvent> events) async {
-    final Map<String, dynamic> data = <String, dynamic>{
-      'events': events.toString(),
-      'date': dateTime.toString().substring(0, 10),
-    };
-    await sendToNativeApp(SendMethods.onTap, data);
-    return true;
-  }
 
   ///send addEvent callback to native app
   Future<bool> sendAddEventToNativeApp(
@@ -57,7 +45,7 @@ class NativeCallBack {
         ..putIfAbsent('period', () => period.toJson())
         ..putIfAbsent('slotId', () => period.id.toString());
     }
-    debugPrint('data: $data');
+    logInfo('data: $data');
     if (jsonEcoded) {
       final String string = jsonEncode(data);
       await sendToNativeApp(SendMethods.addEvent, string);
@@ -96,7 +84,7 @@ class NativeCallBack {
     final Period? period = periodModel;
 
     final String sid = period == null ? newEvent.eventData!.slots : period.id;
-    log(periodModel.toString());
+    logInfo(periodModel.toString());
     final int id = int.parse(sid);
     final int eventId = int.parse(newEvent.eventData!.id);
     bool isRec = false;
@@ -116,14 +104,14 @@ class NativeCallBack {
           .toUtc()
           .toIso8601String()
     }..putIfAbsent('slotId', () => id);
-    debugPrint('Data: $data');
+    logInfo('Data: $data');
     await sendToNativeApp(SendMethods.eventDragged, data);
     return true;
   }
 
   ///send visible date changed to native app
   Future<bool> sendVisibleDateChnged(DateTime dateTime) async {
-    log(dateTime.toString().substring(0, 10));
+    logInfo(dateTime.toString().substring(0, 10));
     await sendToNativeApp(SendMethods.visibleDateChanged,
         <String, String>{'date': dateTime.toString().substring(0, 10)});
     return true;
@@ -143,7 +131,7 @@ class NativeCallBack {
           'eventIds': List<String>.from(events.map<String>(
               (CalendarEvent<EventData> e) => e.eventData!.id.toString()))
         };
-        log(data.toString());
+        logInfo(data.toString());
         await sendToNativeApp(SendMethods.showEvent, data);
       }
     } else {
@@ -155,7 +143,7 @@ class NativeCallBack {
         'eventIds': List<String>.from(events.map<String>(
             (CalendarEvent<EventData> e) => e.eventData!.id.toString()))
       };
-      log(data.toString());
+      logInfo(data.toString());
       await sendToNativeApp(SendMethods.showEvent, data);
     }
 
@@ -176,7 +164,7 @@ class NativeCallBack {
           'eventIds': List<String>.from(events.map<String>(
               (CalendarEvent<EventData> e) => e.eventData!.id.toString()))
         };
-        log(data.toString());
+        logInfo(data.toString());
         await sendToNativeApp(SendMethods.showDuty, data);
       }
     } else {
@@ -188,7 +176,7 @@ class NativeCallBack {
         'eventIds': List<String>.from(events.map<String>(
             (CalendarEvent<EventData> e) => e.eventData!.id.toString()))
       };
-      log(data.toString());
+      logInfo(data.toString());
       await sendToNativeApp(SendMethods.showDuty, data);
     }
 
@@ -229,7 +217,7 @@ class NativeCallBack {
     final Map<String, dynamic> data = <String, dynamic>{
       'message': 'Show records',
     };
-    log(data.toString());
+    logInfo(data.toString());
     await sendToNativeApp(SendMethods.showRecord, data);
     return true;
   }
@@ -239,7 +227,7 @@ class NativeCallBack {
     final Map<String, dynamic> data = <String, dynamic>{
       'message': 'Open Google Drive',
     };
-    log(data.toString());
+    logInfo(data.toString());
     await sendToNativeApp(SendMethods.openDrive, data);
     return true;
   }
@@ -272,15 +260,15 @@ class NativeCallBack {
   }
 
   ///send data to native app
-  Future<bool> sendToNativeApp(String methodName, dynamic data) {
+  Future<bool> sendToNativeApp(String methodName, dynamic data ) {
+    logPrety(data);
     platform
         .invokeMethod<dynamic>(
       methodName,
       data,
     )
         .then((dynamic value) {
-      debugPrint('MethodName: $methodName');
-      debugPrint('Data: $data');
+      logInfo('MethodName: $methodName');
     });
 
     return Future<bool>.value(true);

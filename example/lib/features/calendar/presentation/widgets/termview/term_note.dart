@@ -38,6 +38,7 @@ class TermNote extends StatelessWidget {
 
   /// pass true if is draggable
   final bool isDraggable;
+
   @override
   Widget build(BuildContext context) => item.isEmpty
       ? const SizedBox.shrink()
@@ -79,7 +80,6 @@ class TermNote extends StatelessWidget {
                   width: showFullSize ? size.width - 8 : (size.width - 12) / 2,
                   child: GestureDetector(
                     onTapDown: (TapDownDetails details) {
-
                       showAlignedDialog<dynamic>(
                           context: context,
                           avoidOverflow: true,

@@ -1,5 +1,5 @@
-import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
+import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:intl/intl.dart';
@@ -16,72 +16,71 @@ class WeekHeader extends StatelessWidget {
   final DateTime date;
 
   @override
-  Widget build(BuildContext context) =>
-      isMobile
-          ? Container(
-        color: white,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text(
-              DateFormat('E').format(date).toUpperCase(),
-              style: context.hourLabelMobile.copyWith(
-                color: isSameDate(date) ? primaryPink : textBlack,
+  Widget build(BuildContext context) => isMobile
+      ? Container(
+          color: white,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(
+                DateFormat('E').format(date).toUpperCase(),
+                style: context.hourLabelMobile.copyWith(
+                  color: isSameDate(date) ? primaryPink : textBlack,
+                ),
               ),
-            ),
-            Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12.5),
-                    color:
-                    isSameDate(date) ? primaryPink : Colors.transparent),
-                child: Center(
-                  child: Text(
-                    date.day.toString(),
-                    style: context.headline2Fw500.copyWith(
-                        fontSize: isMobile ? 16 : 24,
-                        color: isSameDate(date) ? Colors.white : null),
-                  ),
-                )),
-            const SizedBox(
-              height: 2,
-            ),
-          ],
-        ),
-      )
-          :
+              Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12.5),
+                      color:
+                          isSameDate(date) ? primaryPink : Colors.transparent),
+                  child: Center(
+                    child: Text(
+                      date.day.toString(),
+                      style: context.headline2Fw500.copyWith(
+                          fontSize: isMobile ? 16 : 24,
+                          color: isSameDate(date) ? Colors.white : null),
+                    ),
+                  )),
+              const SizedBox(
+                height: 2,
+              ),
+            ],
+          ),
+        )
+      :
 
       /// Creating a container widget.
       Container(
-        color: white,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text(
-              DateFormat('E').format(date).toUpperCase(),
-              style: context.subtitle,
-            ),
-            Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12.5),
-                    color:
-                    isSameDate(date) ? primaryPink : Colors.transparent),
-                child: Center(
-                  child: Text(
-                    date.day.toString(),
-                    style: context.headline1WithNotoSans.copyWith(
-                        color: isSameDate(date) ? Colors.white : null),
-                  ),
-                )),
-            const SizedBox(
-              height: 2,
-            ),
-          ],
-        ),
-      );
+          color: white,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(
+                DateFormat('E').format(date).toUpperCase(),
+                style: context.subtitle,
+              ),
+              Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12.5),
+                      color:
+                          isSameDate(date) ? primaryPink : Colors.transparent),
+                  child: Center(
+                    child: Text(
+                      date.day.toString(),
+                      style: context.headline1WithNotoSans.copyWith(
+                          color: isSameDate(date) ? Colors.white : null),
+                    ),
+                  )),
+              const SizedBox(
+                height: 2,
+              ),
+            ],
+          ),
+        );
 }

@@ -4,7 +4,7 @@ import 'package:flutter_calendar/flutter_calendar.dart';
 ///return formatted tine
 String getFormattedTime(Period period, BuildContext context) =>
     '${period.startTime.format(context)}'
-        ' - ${period.endTime.format(context)}';
+    ' - ${period.endTime.format(context)}';
 
 ///return true if date is same
 bool isSameDate(DateTime date, {DateTime? ref}) {

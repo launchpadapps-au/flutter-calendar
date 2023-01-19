@@ -1,7 +1,7 @@
-import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_notes.dart';
-import 'package:edgar_planner_calendar_flutter/features/export/data/models/export_settings.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_notes.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/term_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/export/data/models/export_settings.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 
@@ -450,9 +450,9 @@ class ChangeToCurrentDate implements TimeTableState {
 }
 
 ///export
-class ExportPreview implements TimeTableState {
+class GeneratePreview implements TimeTableState {
   ///initilize the state
-  ExportPreview(this.exportSetting);
+  GeneratePreview(this.exportSetting);
 
   ///object of the export setting
   final ExportSetting exportSetting;

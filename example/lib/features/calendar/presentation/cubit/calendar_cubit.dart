@@ -1,28 +1,26 @@
 import 'dart:convert';
-import 'dart:developer';
-import 'dart:io';
 
 import 'package:bloc/bloc.dart';
+import 'package:edgar_planner_calendar_flutter/core/logger.dart';
 import 'package:edgar_planner_calendar_flutter/core/static.dart';
 import 'package:edgar_planner_calendar_flutter/core/themes/assets_path.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/change_view_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/date_change_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_notes.dart';
-import 'package:edgar_planner_calendar_flutter/features/export/data/models/export_settings.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_notes.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/loading_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/term_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/mock_method.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/calendar_event_state.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/callbacks.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/method_name.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/calendar_event_state.dart';
-import 'package:flutter/foundation.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/mock_method.dart';
+import 'package:edgar_planner_calendar_flutter/features/export/data/models/export_settings.dart';
+import 'package:edgar_planner_calendar_flutter/features/export/presentation/pages/export_view.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:flutter_calendar/flutter_calendar.dart';
 
 ///timetable cubit
 class TimeTableCubit extends Cubit<TimeTableState> {
@@ -32,7 +30,6 @@ class TimeTableCubit extends Cubit<TimeTableState> {
     nativeCallBack.initializeChannel('com.example.demo/data');
     checkRunningStatus();
 
-    setListener(mock: mockMethod);
     setThreeYearTerm(termModel);
   }
 
@@ -40,19 +37,18 @@ class TimeTableCubit extends Cubit<TimeTableState> {
 
   Future<void> checkRunningStatus() async {
     try {
-      await nativeCallBack.platform.invokeMethod<dynamic>('method');
+      await platform.invokeMethod<dynamic>(SendMethods.checkMethodImpl);
     } on MissingPluginException {
-      debugPrint('Project is running as app');
+      logInfo('Project is running as app');
       standAlone = true;
       await getDummyData();
     }
+    setListener(mock: standAlone);
   }
 
-  ///true if running as standalone
+  ///If code will be running in module then it will be false
+  ///if code is running as stand alone app then it will be true
   bool standAlone = false;
-
-  ///true if want use mock platform method
-  static bool mockMethod = false;
 
   ///current date timex
   static DateTime now = DateTime.now();
@@ -174,8 +170,15 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   ///mock method object
   MockMethod mockObject = MockMethod();
 
+  ///object for the export preview
+  late ExportView exportView = ExportView(nativeCallBack);
+
   ///set listner for
   void setListener({bool mock = false}) {
+    if (mock) {
+      logInfo('============= Mocking Platform Channel ============');
+    }
+
     (mock ? mockObject.stream : nativeCallBack.onDataReceived.stream)
         .listen((MethodCall call) async {
       switch (call.method) {
@@ -184,7 +187,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
               loadingModelFromJson(jsonEncode(call.arguments));
 
           isLoading = loadingModel.isLoading;
-          debugPrint('setLoading received from native app: $isLoading');
+          logInfo('setLoading received from native app: $isLoading');
           emit(LoadingUpdated(periods, _events, viewType, termModel,
               isLoading: isLoading));
           break;
@@ -192,7 +195,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
         ///receive data change command from ios
         ///handle data change
         case ReceiveMethods.setDates:
-          debugPrint('date receive from flutter');
+          logInfo('date receive from flutter');
           final DateChange dateChange =
               DateChange.fromJson(jsonDecode(call.arguments));
           startDate = dateChange.startTime;
@@ -203,7 +206,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
 
         ///handle view change
         case ReceiveMethods.setView:
-          debugPrint('set view received from native app');
+          logInfo('set view received from native app');
           final ChangeView changeView =
               ChangeView.fromJson(jsonDecode(call.arguments));
 
@@ -211,13 +214,13 @@ class TimeTableCubit extends Cubit<TimeTableState> {
           break;
 
         case ReceiveMethods.jumpToCurrentDate:
-          debugPrint('JumpTo Current Date received from native app');
+          logInfo('JumpTo Current Date received from native app');
           // final JumpToDateModel jumpToDateModel =
           //     jumpToDateFromJson(jsonEncode(call.arguments));
 
           if (viewType == CalendarViewType.monthView ||
               viewType == CalendarViewType.termView) {
-            debugPrint('Current view is $viewType');
+            logInfo('Current view is $viewType');
             changeViewType(CalendarViewType.weekView);
           } else {}
 
@@ -229,17 +232,17 @@ class TimeTableCubit extends Cubit<TimeTableState> {
 
         ///handle set periods method
         case ReceiveMethods.setPeriods:
-          debugPrint('Periods: ${call.arguments}');
-          debugPrint('set periods received from native app');
+          logInfo('Periods: ${call.arguments}');
+          logInfo('set periods received from native app');
 
           final List<PeriodModel> newPeriods =
               periodModelFromJson(jsonEncode(call.arguments));
 
           if (newPeriods.isEmpty) {
-            debugPrint('Received empty slots,no changes made');
+            logInfo('Received empty slots,no changes made');
           } else {
             periods = newPeriods;
-            debugPrint('Received  slots,perios updated');
+            logInfo('Received  slots,perios updated');
           }
           emit(PeriodsUpdated(periods, _events, viewType, termModel));
 
@@ -247,11 +250,11 @@ class TimeTableCubit extends Cubit<TimeTableState> {
 
         ///handle set Terms method when data recieve from native app
         case ReceiveMethods.setTerms:
-          debugPrint('set Terms recived from native app');
+          logInfo('set Terms recived from native app');
           termModel = termModelFromJson(jsonEncode(call.arguments));
 
           setThreeYearTerm(termModel);
-          debugPrint(termModel.toJson().toString());
+          logInfo(termModel.toJson().toString());
           emit(TermsUpdated(periods, _events, viewType, termModel));
           break;
 
@@ -260,7 +263,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
           final GetEvents getEvents = GetEvents.fromJsonWithPeriod(
               jsonDecode(jsonEncode(call.arguments)), periods);
           _events = getEvents.events;
-          debugPrint(
+          logInfo(
               'set events received from native app:${getEvents.events.length}');
           emit(EventsAdded(
               periods, _events, viewType, getEvents.events, termModel));
@@ -271,53 +274,63 @@ class TimeTableCubit extends Cubit<TimeTableState> {
           final GetNotes getNotes = GetNotes.fromRawJson(
               await rootBundle.loadString(AssetPath.noteJson));
           _monthNote = getNotes.note;
-          debugPrint(
-              'Set Notes received from ios: no Notes:${_monthNote.length}');
+          logInfo('Set Notes received from ios: no Notes:${_monthNote.length}');
           emit(NotesAdded(
               periods, _monthNote, viewType, getNotes.note, termModel));
           break;
 
         case ReceiveMethods.nextDay:
-          debugPrint('Next dat received from native app');
+          logInfo('Next dat received from native app');
           nextDay();
           break;
         case ReceiveMethods.previousDay:
-          debugPrint('Previous dat received from native app');
+          logInfo('Previous dat received from native app');
           previousDay();
           break;
         case ReceiveMethods.nextWeek:
-          debugPrint('Next Week received from native app');
+          logInfo('Next Week received from native app');
           nextWeek();
           break;
         case ReceiveMethods.previousWeek:
-          debugPrint('Previous Week received from native app');
+          logInfo('Previous Week received from native app');
           previousWeek();
           break;
         case ReceiveMethods.nextMonth:
-          debugPrint('Next month received from native app');
+          logInfo('Next month received from native app');
           nextMonth();
           break;
         case ReceiveMethods.previousMonth:
-          debugPrint('Previous month received from native app');
+          logInfo('Previous month received from native app');
           previousMonth();
           break;
         case ReceiveMethods.nextTerm:
-          debugPrint('Previous Term received from native app');
+          logInfo('Previous Term received from native app');
           nextTerm();
           break;
         case ReceiveMethods.previousTerm:
-          debugPrint('Previous Term received from native app');
+          logInfo('Previous Term received from native app');
           previousTerm();
           break;
 
-        case ReceiveMethods.exportPreview:
+        case ReceiveMethods.generatePreview:
           final ExportSetting exportSetting =
               ExportSetting.fromJson(jsonDecode(jsonEncode(call.arguments)));
-          debugPrint('Export setting received from native app');
-          emit(ExportPreview(exportSetting));
+          logInfo('Generate Preview received from native app');
+          await exportView.generatePreview(
+              exportSetting, periods, _events, _monthNote);
           break;
+
+        case ReceiveMethods.downloadPdf:
+          logInfo('Download pdf received from native app');
+          await exportView.exportPdf();
+          break;
+        case ReceiveMethods.canclePreview:
+          logInfo('Cancle Preview received from native app');
+          await exportView.canclePreview();
+          break;
+
         default:
-          debugPrint('Data receive from flutter:No handler');
+          logInfo('Data receive from flutter:No handler');
       }
     });
   }
@@ -368,15 +381,15 @@ class TimeTableCubit extends Cubit<TimeTableState> {
       await Future<dynamic>.delayed(const Duration(seconds: 3));
       if (addDummyEvent) {
         final String response1 =
-            await rootBundle.loadString( AssetPath.periodJson);
+            await rootBundle.loadString(AssetPath.periodJson);
 
         final List<PeriodModel> newPeriods = periodModelFromJson(response1);
 
         if (newPeriods.isEmpty) {
-          debugPrint('Received empty slots,no changes made');
+          logInfo('Received empty slots,no changes made');
         } else {
           periods = newPeriods;
-          debugPrint('Received  slots,perios updated');
+          logInfo('Received  slots,perios updated');
         }
         emit(PeriodsUpdated(periods, _events, viewType, termModel));
         final String response =
@@ -391,7 +404,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
         emit(LoadedState(_events, _monthNote, viewType, periods, termModel));
       }
     } on Exception catch (e) {
-      debugPrint(e.toString());
+      logInfo(e.toString());
       emit(ErrorState());
     }
   }
@@ -572,7 +585,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   ///setCurrent Month
   void setMonth(DateTime monthStart, DateTime monthEnd) {
     currentDate = monthStart;
-    log('Start Date : $monthStart End Date : $monthEnd');
+    logInfo('Start Date : $monthStart End Date : $monthEnd');
     final Iterable<Term> terms = listOfTerm.where((Term element) =>
         element.startDate.isBefore(monthStart) &&
         element.endDate.isAfter(monthStart));
@@ -670,7 +683,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
       getDataDateWise(tempDate);
     }
     currentDate = tempDate;
-    log('Next Monday: $currentDate');
+    logInfo('Next Monday: $currentDate');
     getDataDateWise(currentDate);
     emit(JumpToDateState(currentDate));
   }
@@ -688,7 +701,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
       getDataDateWise(tempDate);
     }
     currentDate = tempDate;
-    log('Previous Monday: $currentDate');
+    logInfo('Previous Monday: $currentDate');
     getDataDateWise(currentDate);
     emit(JumpToDateState(currentDate));
   }
@@ -731,7 +744,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
     final Term pre = listOfTerm[index - 1];
 
     if (isSameDate(dateTime, ref: next.startDate)) {
-      debugPrint('Load data for :${next.type} - ${next.startDate.year}');
+      logInfo('Load data for :${next.type} - ${next.startDate.year}');
       nativeCallBack.sendFetchDataToNativeApp(next);
       Term last = listOfTerm.last;
       if (last.type == 'term4') {
@@ -760,7 +773,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
           ..add(last);
       }
 
-      log('Last term: $last');
+      logInfo('Last term: $last');
       final Term term1 = listOfTerm[4];
       final Term term2 = listOfTerm[5];
       final Term term3 = listOfTerm[6];
@@ -782,13 +795,13 @@ class TimeTableCubit extends Cubit<TimeTableState> {
       };
       termModel = TermModel.fromJson(json);
       currentTerm = listOfTerm[index];
-      debugPrint('Pre term ${listOfTerm[index - 1]}');
-      debugPrint('Current term ${listOfTerm[index]}');
-      debugPrint('Next term ${listOfTerm[index + 1]}');
+      logInfo('Pre term ${listOfTerm[index - 1]}');
+      logInfo('Current term ${listOfTerm[index]}');
+      logInfo('Next term ${listOfTerm[index + 1]}');
       emit(TermsUpdated(periods, events, viewType, termModel));
     } else if (isSameDate(dateTime, ref: pre.endDate)) {
       nativeCallBack.sendFetchDataToNativeApp(pre);
-      debugPrint('Load data for :${pre.type} - ${pre.startDate.year}');
+      logInfo('Load data for :${pre.type} - ${pre.startDate.year}');
       Term first = listOfTerm.first;
       if (first.type == 'term4') {
         first = Term.fromString(term3String,
@@ -816,7 +829,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
           ..insert(0, first);
       }
 
-      log('first term: $first');
+      logInfo('first term: $first');
       final Term term1 = listOfTerm[4];
       final Term term2 = listOfTerm[5];
       final Term term3 = listOfTerm[6];
@@ -838,9 +851,9 @@ class TimeTableCubit extends Cubit<TimeTableState> {
       };
       termModel = TermModel.fromJson(json);
       currentTerm = listOfTerm[index];
-      debugPrint('Pre term ${listOfTerm[index - 1]}');
-      debugPrint('Current term ${listOfTerm[index]}');
-      debugPrint('Next term ${listOfTerm[index + 1]}');
+      logInfo('Pre term ${listOfTerm[index - 1]}');
+      logInfo('Current term ${listOfTerm[index]}');
+      logInfo('Next term ${listOfTerm[index + 1]}');
       emit(TermsUpdated(periods, events, viewType, termModel));
     }
   }
@@ -867,14 +880,14 @@ class TimeTableCubit extends Cubit<TimeTableState> {
       newEvent.eventData!.slots = period.id;
     }
 
-    log('removed${old.toMap}');
+    logInfo('removed${old.toMap}');
     _events.add(PlannerEvent(
         startTime: newEvent.startTime,
         endTime: newEvent.endTime,
         eventData: newEvent.eventData));
     emit(EventUpdatedState(
         _events, old, newEvent, viewType, periods, termModel));
-    log('added${newEvent.toMap}');
+    logInfo('added${newEvent.toMap}');
     return true;
   }
 
@@ -887,14 +900,14 @@ class TimeTableCubit extends Cubit<TimeTableState> {
       newEvent.eventData!.slots = period.id;
     }
 
-    log('removed${old.toMap}');
+    logInfo('removed${old.toMap}');
     _events.add(PlannerEvent(
         startTime: newEvent.startTime,
         endTime: newEvent.endTime,
         eventData: newEvent.eventData));
     emit(EventUpdatedState(
         _events, old, newEvent, viewType, periods, termModel));
-    log('added${newEvent.toMap}');
+    logInfo('added${newEvent.toMap}');
 
     nativeCallBack.sendEventDraggedToNativeApp(old, newEvent, viewType, period);
     return true;
@@ -909,34 +922,15 @@ class TimeTableCubit extends Cubit<TimeTableState> {
       newEvent.eventData!.slots = period.id;
     }
 
-    log('removed${old.toMap}');
+    logInfo('removed${old.toMap}');
     _events.add(PlannerEvent(
         startTime: newEvent.startTime,
         endTime: newEvent.endTime,
         eventData: newEvent.eventData));
     emit(EventUpdatedState(
         _events, old, newEvent, viewType, periods, termModel));
-    log('added${newEvent.toMap}');
+    logInfo('added${newEvent.toMap}');
     return true;
-  }
-
-  ///void save image as pdf
-
-  Future<void> saveToPdf(Uint8List image) async {
-    // final pw.Document pdf = pw.Document()
-    //   ..addPage(pw.Page(
-    //       build: (pw.Context context) =>
-    //           pw.Image(pw.RawImage(bytes: image, width: 100, height: 100))));
-
-    final Directory? path = await getDownloadsDirectory();
-    try {
-      // await FileSaver.instance
-      //     .saveFile("example", image, "pdf", mimeType: MimeType.PDF);
-      final File file = File('${path!.path}/example.png');
-      await file.writeAsBytes(image);
-    } on FileSystemException catch (e) {
-      debugPrint(e.message);
-    }
   }
 
   ///chang calendar view

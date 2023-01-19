@@ -1,8 +1,7 @@
-import 'package:edgar_planner_calendar_flutter/core/utils/calendar_utils.dart';
-import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
-
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
+import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/themes/constants.dart';
+import 'package:edgar_planner_calendar_flutter/core/utils/calendar_utils.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/dayview/day_cell.dart';
@@ -10,8 +9,8 @@ import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/wi
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/dayview/day_header.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/dayview/day_hour_lable.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
+import 'package:intl/intl.dart';
 
 ///planner
 class DayPlanner extends StatefulWidget {
@@ -96,6 +95,7 @@ class _DayPlannerState extends State<DayPlanner> {
       },
       nowIndicatorColor: timeIndicatorColor,
       fullWeek: true,
+      showNowIndicator: false,
       cornerBuilder: (DateTime current) => const SizedBox.shrink(),
       onTap: widget.onTap,
       headerHeight: widget.isMobile ? headerHeightForDayView : 40,

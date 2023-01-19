@@ -65,5 +65,5 @@ const Color timeIndicatorColor = Color(0xFFED5833);
 
 const Color white = Colors.white;
 
-///blue color for the month tile
-const Color blue = Color(0xFF2F80ED);
+///blueGrey color for the month tile
+const Color blueGrey = Color(0xFF9AB7D3);

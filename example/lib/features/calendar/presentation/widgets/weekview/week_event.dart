@@ -1,5 +1,5 @@
-import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
+import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/url.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
@@ -64,8 +64,8 @@ class _WeekEventState extends State<WeekEvent> {
     borderColor = textGrey;
     if (periodModel != null) {
       if (periodModel.isAfterSchool || periodModel.isBeforeSchool) {
-        dutyColor = lightPink;
-        borderColor = lightPinkBorder;
+        // dutyColor = lightPink;
+        // borderColor = lightPinkBorder;
       }
     }
     margin = widget.item.eventData!.isDutyTime ? 0 : 4;
@@ -76,9 +76,7 @@ class _WeekEventState extends State<WeekEvent> {
     hideIcon = widget.item.eventData!.extraCurricular == null || tileWidth < 34;
 
     hideCircle = tileWidth < 10;
-    setState(() {
-      
-    });
+    setState(() {});
   }
 
   @override
@@ -174,7 +172,6 @@ class _WeekEventState extends State<WeekEvent> {
                               widget.item.eventData!.extraCurricular!,
                               width: 24,
                               height: 24,
-                           
                               errorBuilder: (BuildContext context, Object error,
                                       StackTrace? stackTrace) =>
                                   const SizedBox.shrink(),

@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'dart:developer';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_calendar/src/core/constants.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
+import 'package:flutter_calendar/src/core/constants.dart';
 import 'package:flutter_calendar/src/widgets/cell.dart';
 import 'package:flutter_calendar/src/widgets/corner_cell.dart';
 import 'package:flutter_calendar/src/widgets/header_cell.dart';
@@ -126,6 +127,7 @@ class SlNewWeekView<T> extends StatefulWidget {
 
   ///Size of the view
   final Size? size;
+
   @override
   State<SlNewWeekView<T>> createState() => _SlNewWeekViewState<T>();
 }
@@ -160,6 +162,7 @@ class _SlNewWeekViewState<T> extends State<SlNewWeekView<T>> {
       IndexedScrollController(initialIndex: 75);
   IndexedScrollController indexdHeaderController =
       IndexedScrollController(initialIndex: 75);
+
   @override
   void initState() {
     controller = widget.controller ?? controller;
@@ -167,8 +170,7 @@ class _SlNewWeekViewState<T> extends State<SlNewWeekView<T>> {
     dayScrolController = groupController.addAndGet();
     verticalScrollController1 = verticalgroupController.addAndGet();
     verticalScrollController2 = verticalgroupController.addAndGet();
-    final int index = dateTime.difference(controller.start).inDays;
-    log('Initial Scroll index $index');
+   
     indexdController = IndexedScrollController(
         initialIndex: controller.start.difference(dateTime).inDays);
     indexdHeaderController = IndexedScrollController(
@@ -396,7 +398,6 @@ class _SlNewWeekViewState<T> extends State<SlNewWeekView<T>> {
       return;
     }
     if (box.hasSize) {
-      log('box resize');
       final Size size = widget.size ?? box.size;
       // size = widget.size ?? size;
 
@@ -417,8 +418,10 @@ class _SlNewWeekViewState<T> extends State<SlNewWeekView<T>> {
   bool _isTableScrolling = false;
   bool _isHeaderScrolling = false;
   bool isScrolling = false;
+
   bool isDragEnable(CalendarEvent<T> event) =>
       widget.isCellDraggable == null || widget.isCellDraggable!(event);
+
   @override
   Widget build(BuildContext context) => LayoutBuilder(
       key: _key,
@@ -765,6 +768,7 @@ class _SlNewWeekViewState<T> extends State<SlNewWeekView<T>> {
   final Curve _animationCurve = Curves.linear;
 
   bool _isSnapping = false;
+
   Future<void> _snapToCloset() async {
     if (_isSnapping || !widget.snapToDay) {
       return;

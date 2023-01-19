@@ -5,10 +5,10 @@ library screenshot;
 // import 'dart:io';
 import 'dart:async';
 import 'dart:typed_data';
-
 // import 'package:path_provider/path_provider.dart';
 import 'dart:ui' as ui;
 
+import 'package:edgar_planner_calendar_flutter/core/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -22,24 +22,23 @@ class ScreenshotController {
   late GlobalKey _containerKey;
 
   ///it will capture ui image
-  Future<ui.Image?> captureAsUiImage({double? pixelRatio = 1,
-    Duration delay = const Duration(milliseconds: 20)}) =>
+  Future<ui.Image?> captureAsUiImage(
+          {double? pixelRatio = 1,
+          Duration delay = const Duration(milliseconds: 20)}) =>
       Future<ui.Image?>.delayed(delay, () async {
         late double? pr;
         try {
           final RenderObject? findRenderObject =
-          _containerKey.currentContext?.findRenderObject();
+              _containerKey.currentContext?.findRenderObject();
           if (findRenderObject == null) {
             return null;
           }
           final RenderRepaintBoundary boundary =
-          findRenderObject as RenderRepaintBoundary;
+              findRenderObject as RenderRepaintBoundary;
           final BuildContext? context = _containerKey.currentContext;
           if (pixelRatio == null) {
             if (context != null) {
-              pr = pixelRatio ?? MediaQuery
-                  .of(context)
-                  .devicePixelRatio;
+              pr = pixelRatio ?? MediaQuery.of(context).devicePixelRatio;
             }
           }
           final ui.Image image = await boundary.toImage(pixelRatio: pr ?? 1);
@@ -54,7 +53,8 @@ class ScreenshotController {
 
   ///[context] parameter is used to Inherit App Theme and MediaQuery data.
 
-  Future<Uint8List> captureFromWidget(Widget widget, {
+  Future<Uint8List> captureFromWidget(
+    Widget widget, {
     Duration delay = const Duration(seconds: 1),
     double? pixelRatio,
     BuildContext? context,
@@ -66,14 +66,15 @@ class ScreenshotController {
         context: context,
         targetSize: targetSize);
     final ByteData? byteData =
-    await image.toByteData(format: ui.ImageByteFormat.png);
+        await image.toByteData(format: ui.ImageByteFormat.png);
     image.dispose();
 
     return byteData!.buffer.asUint8List();
   }
 
   ///conver widhet to ui
-  static Future<ui.Image> widgetToUiImage(Widget widget, {
+  static Future<ui.Image> widgetToUiImage(
+    Widget widget, {
     Duration delay = const Duration(seconds: 1),
     double? pixelRatio,
     BuildContext? context,
@@ -136,12 +137,12 @@ class ScreenshotController {
     renderView.prepareInitialFrame();
 
     final RenderObjectToWidgetElement<RenderBox> rootElement =
-    RenderObjectToWidgetAdapter<RenderBox>(
-        container: repaintBoundary,
-        child: Directionality(
-          textDirection: TextDirection.ltr,
-          child: child,
-        )).attachToRenderTree(
+        RenderObjectToWidgetAdapter<RenderBox>(
+            container: repaintBoundary,
+            child: Directionality(
+              textDirection: TextDirection.ltr,
+              child: child,
+            )).attachToRenderTree(
       buildOwner,
     );
     ////
@@ -211,7 +212,7 @@ class ScreenshotController {
       });
       buildOwner.finalizeTree();
     } on Exception catch (e) {
-      debugPrint(e.toString());
+      logInfo(e.toString());
     }
 
     return image; // Adapted to directly return the image and not the Uint8List
@@ -247,8 +248,7 @@ class _ScreenshotState extends State<Screenshot> with TickerProviderStateMixin {
   }
 
   @override
-  Widget build(BuildContext context) =>
-      RepaintBoundary(
+  Widget build(BuildContext context) => RepaintBoundary(
         key: _controller._containerKey,
         child: widget.child,
       );

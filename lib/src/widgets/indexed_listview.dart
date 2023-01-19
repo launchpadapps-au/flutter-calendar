@@ -106,12 +106,15 @@ class IndexedListView extends StatefulWidget {
           addRepaintBoundaries: addRepaintBoundaries,
         ),
         super(key: key);
-///defualt empty builder for the view
+
+  ///defualt empty builder for the view
   static Widget defaultEmptyItemBuilder(BuildContext context, int index) =>
       const SizedBox(width: 5, height: 5);
-///empty builder for the lsitview
+
+  ///empty builder for the lsitview
   final IndexedWidgetBuilderOrNull emptyItemBuilder;
-///pass tru if items are sperated
+
+  ///pass tru if items are sperated
   final bool separated;
 
   /// See: [ScrollView.scrollDirection]
@@ -310,7 +313,7 @@ class _AlwaysScrollableScrollPhysics extends ScrollPhysics {
 /// Besides regular [ScrollController] methods,
 /// offers [IndexedScrollController.jumpToIndex]
 /// and [IndexedScrollController.animateToIndex].
- 
+
 class IndexedScrollController extends ScrollController {
   ///initilize the scroll controller
   IndexedScrollController({
@@ -324,12 +327,14 @@ class IndexedScrollController extends ScrollController {
           keepScrollOffset: keepScrollOffset,
           debugLabel: debugLabel,
         );
-  ///initila index 
+
+  ///initila index
   final int initialIndex;
 
   /// the origin-index changes as the list jumps by index.
   int _originIndex = 0;
-///orgin index 
+
+  ///orgin index
   int get originIndex => _originIndex;
 
   @override
@@ -360,7 +365,7 @@ class IndexedScrollController extends ScrollController {
     }
   }
 
-  ///Jumps the origin-index to the given [index], 
+  ///Jumps the origin-index to the given [index],
   ///and the scroll-position to 0.0,
   /// without animation, and without checking if the new value is in range.
   ///
@@ -414,7 +419,7 @@ class IndexedScrollController extends ScrollController {
           index: index, offset: 0, duration: duration, curve: curve);
 
   /// Goes to origin-index 0,
-  /// and then jumps the scroll position 
+  /// and then jumps the scroll position
   /// from its current value to the given [offset],
   /// without animation, and without checking if the new value is in range.
   ///

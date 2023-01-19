@@ -1,5 +1,5 @@
-import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
+import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
@@ -7,11 +7,12 @@ import 'package:flutter_calendar/flutter_calendar.dart';
 ///small even tile
 class SmallEventTile extends StatelessWidget {
   ///small event constructor
-  const SmallEventTile({required this.event,
-    Key? key,
-    this.tileHeight = 30,
-    this.width,
-    this.isDraggable = false})
+  const SmallEventTile(
+      {required this.event,
+      Key? key,
+      this.tileHeight = 30,
+      this.width,
+      this.isDraggable = false})
       : super(key: key);
 
   ///heigh of the tile
@@ -27,8 +28,7 @@ class SmallEventTile extends StatelessWidget {
   final bool isDraggable;
 
   @override
-  Widget build(BuildContext context) =>
-      Draggable<CalendarEvent<EventData>>(
+  Widget build(BuildContext context) => Draggable<CalendarEvent<EventData>>(
         feedback: Card(child: buildTile(context)),
         maxSimultaneousDrags: isDraggable ? 1 : 0,
         data: event,
@@ -37,8 +37,7 @@ class SmallEventTile extends StatelessWidget {
       );
 
   ///render the tile
-  Widget buildTile(BuildContext context) =>
-      Container(
+  Widget buildTile(BuildContext context) => Container(
         margin: const EdgeInsets.all(1),
         width: width,
         padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -71,11 +70,12 @@ class SmallEventTile extends StatelessWidget {
 ///small even tile
 class ExtraSmallEventTile extends StatelessWidget {
   ///small event constructor
-  const ExtraSmallEventTile({required this.event,
-    Key? key,
-    this.tileHeight = 19,
-    this.width,
-    this.isDraggable = false})
+  const ExtraSmallEventTile(
+      {required this.event,
+      Key? key,
+      this.tileHeight = 19,
+      this.width,
+      this.isDraggable = false})
       : super(key: key);
 
   ///heigh of the tile
@@ -91,8 +91,7 @@ class ExtraSmallEventTile extends StatelessWidget {
   final bool isDraggable;
 
   @override
-  Widget build(BuildContext context) =>
-      Draggable<CalendarEvent<EventData>>(
+  Widget build(BuildContext context) => Draggable<CalendarEvent<EventData>>(
         feedback: Card(child: buildTile(context)),
         maxSimultaneousDrags: isDraggable ? 1 : 0,
         data: event,
@@ -101,8 +100,7 @@ class ExtraSmallEventTile extends StatelessWidget {
       );
 
   ///build tile
-  Widget buildTile(BuildContext context) =>
-      Container(
+  Widget buildTile(BuildContext context) => Container(
         margin: const EdgeInsets.all(1),
         width: width,
         height: tileHeight,

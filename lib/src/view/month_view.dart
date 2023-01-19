@@ -393,11 +393,14 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
                                       calendarDay: dates[index],
                                       columnWidth: columnWidth,
                                       isDraggable: widget.isDraggable,
-                                      deadCellBuilder: widget.deadCellBuilder!,
-                                      itemBuilder: (List<CalendarEvent<T>>
-                                              dayEvents) =>
-                                          widget.itemBuilder!(dayEvents,
-                                              Size(columnWidth, columnHeight)),
+                                      deadCellBuilder: (DateTime current,
+                                              Size cellSize) =>
+                                          widget.deadCellBuilder!(
+                                              dateTime, Size(cw, columnHeight)),
+                                      itemBuilder:
+                                          (List<CalendarEvent<T>> dayEvents) =>
+                                              widget.itemBuilder!(dayEvents,
+                                                  Size(cw, columnHeight)),
                                       events: events,
                                       breakHeight: controller.breakHeight,
                                       cellHeight: controller.cellHeight,

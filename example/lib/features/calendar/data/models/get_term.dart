@@ -2,8 +2,9 @@
 //
 //     final getTerm = getTermFromJson(jsonString);
 
-import 'package:flutter/material.dart';
 import 'dart:convert';
+
+import 'package:flutter/material.dart';
 
 ///create term model from the data
 class GetTerm {
@@ -18,6 +19,7 @@ class GetTerm {
         term: Terms.fromJson(json['term']),
         id: json['id'],
       );
+
 ////create object from the json encoded string
   factory GetTerm.fromRawJson(String str) => GetTerm.fromJson(json.decode(str));
 

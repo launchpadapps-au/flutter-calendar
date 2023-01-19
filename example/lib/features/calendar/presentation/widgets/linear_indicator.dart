@@ -20,10 +20,8 @@ class LinearIndicator extends StatelessWidget {
                   ),
                   secondChild: const SizedBox.shrink(),
                   crossFadeState:
-                  BlocProvider
-                      .of<TimeTableCubit>(context)
-                      .isLoading
-                      ? CrossFadeState.showFirst
-                      : CrossFadeState.showSecond,
+                      BlocProvider.of<TimeTableCubit>(context).isLoading
+                          ? CrossFadeState.showFirst
+                          : CrossFadeState.showSecond,
                   duration: const Duration(milliseconds: 400)));
 }

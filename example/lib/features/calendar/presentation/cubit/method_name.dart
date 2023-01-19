@@ -67,15 +67,21 @@ class ReceiveMethods {
   ///set margin from the top in ui
   static const String topMargin = 'topMargin';
 
-  /// start capturing image preview
-  static const String exportPreview = 'exportPreview';
+  ///end export
+  static const String canclePreview = 'canclePreview';
+
+  ///it will start generating preview from selected parameter
+  static const String generatePreview = 'generatePreview';
+
+  ///dowanload pdf
+  static const String downloadPdf = 'downloadPdf';
 }
 
 ///class which contain static method name which used to send data to native app
 
 class SendMethods {
   ///onTap method called when user tap on cell with the event
-  static const String onTap = 'onTap';
+  static const String checkMethodImpl = 'checkMethodImpl';
 
   /// addEvent method called when user tap on empty cell
 
@@ -133,4 +139,10 @@ class SendMethods {
   /// showEvent method called when user tan on cell which have events
 
   static const String showNote = 'showNote';
+
+  ///provide callback when generate preview progress
+  static const String previewProgress = 'previewProgress';
+
+  ///provide callback when generate export progress
+  static const String downloadProgress = 'downloadProgress';
 }

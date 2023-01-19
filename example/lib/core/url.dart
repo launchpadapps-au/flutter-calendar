@@ -4,13 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 ///op[en given url in browser
 Future<void> launchLink(String link, BuildContext context) async {
-  await BlocProvider
-      .of<TimeTableCubit>(context)
-      .nativeCallBack
-      .openUrl(link);
+  await BlocProvider.of<TimeTableCubit>(context).nativeCallBack.openUrl(link);
   // final Uri url = Uri.parse(link);
   // if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
   //   ///can not lauch url
-  //   debugPrint('can not launch url');
+  //   logInfo('can not launch url');
   // }
 }

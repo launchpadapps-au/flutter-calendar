@@ -2,11 +2,9 @@
 //
 //     final exportSetting = exportSettingFromJson(jsonString);
 
-import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
-import 'package:flutter_calendar/flutter_calendar.dart';
-
 import 'dart:convert';
 
+import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:pdf/pdf.dart';
 
 ///create export setting from json encoded from string
@@ -20,38 +18,43 @@ String exportSettingToJson(ExportSetting data) => json.encode(data.toJson());
 class ExportSetting {
   ///initilize the setting
   ExportSetting({
-    required this.startFrom,
-    required this.endTo,
+    required this.startDate,
+    required this.endDate,
     required this.view,
-    required this.subjects,
     required this.fullWeek,
     required this.pageFormat,
+    required this.path,
+    this.subjectId,
+    this.subjectName,
     this.saveImg = false,
   });
 
   ///create object from the json
   factory ExportSetting.fromJson(Map<String, dynamic> json) => ExportSetting(
-      startFrom: DateTime.parse(json['startFrom']),
-      endTo: DateTime.parse(json['endTo']),
-      view: List<CalendarViewType>.from(
-          json['view'].map((String x) => viewTypeFromString(x))),
-      subjects: List<Subject>.from(json['subjects']
-          .map((Map<String, dynamic> x) => Subject.fromJson(x))),
+      startDate: DateTime.parse(json['startDate']),
+      endDate: DateTime.parse(json['endDate']),
+      view: viewTypeFromString(json['view']),
+      subjectId: json['subjectId'],
+      subjectName: json['subjectName'],
       fullWeek: json['fullWeek'],
-      pageFormat: PdfPageFormat.a4.landscape,
-      saveImg: json['saveImg']);
+      pageFormat: PdfPageFormat.a4.landscape.copyWith(
+          marginLeft: 10, marginRight: 10, marginTop: 0, marginBottom: 10),
+      path: json['path']);
 
   ///starting date
-  DateTime startFrom;
+  DateTime startDate;
 
   ///end date
-  DateTime endTo;
+  DateTime endDate;
 
   ///list of calendar view that need to export
-  List<CalendarViewType> view;
+  CalendarViewType view;
 
-  ///list of subject that need to export
-  List<Subject> subjects;
+  ///id of subject that need to export
+  String? subjectId;
+
+  ///name of subject that need to export
+  String? subjectName;
 
   ///true if want to export week end
   bool fullWeek;
@@ -62,16 +65,18 @@ class ExportSetting {
   ///page formart
   PdfPageFormat pageFormat = PdfPageFormat.a4.landscape;
 
+  ///String path of the local storage
+  String path;
+
   ///create json from the object
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'startFrom': startFrom.toIso8601String(),
-        'endTo': endTo.toIso8601String(),
-        'view': List<String>.from(
-            view.map<String>((CalendarViewType x) => x.toString())),
-        'subjects': List<Map<String, dynamic>>.from(
-            subjects.map<Map<String, dynamic>>((Subject x) => x.toJson())),
+        'startFrom': startDate.toIso8601String(),
+        'endTo': endDate.toIso8601String(),
+        'view': view.toString(),
+        'subjects': subjectId,
+        'subjectName': subjectName,
         'fullWeek': fullWeek,
-        'saveImg': saveImg
+        'path': path
       };
 }
 

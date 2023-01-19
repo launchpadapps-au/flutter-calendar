@@ -1,5 +1,5 @@
-import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
+import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/url.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
@@ -52,6 +52,7 @@ class _DayEventState extends State<DayEvent> {
   late bool hideIcon;
 
   late bool hideCircle;
+
   void setUI() {
     PeriodModel? periodModel;
 
@@ -67,8 +68,8 @@ class _DayEventState extends State<DayEvent> {
     borderColor = textGrey;
     if (periodModel != null) {
       if (periodModel.isAfterSchool || periodModel.isBeforeSchool) {
-        dutyColor = lightPink;
-        borderColor = lightPinkBorder;
+        // dutyColor = lightPink;
+        // borderColor = lightPinkBorder;
       }
     }
     margin = widget.item.eventData!.isDutyTime ? 0 : 4;

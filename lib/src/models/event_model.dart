@@ -13,7 +13,7 @@ class CalendarEvent<T> {
   ///extra data for the event
   T? eventData;
 
-///id of the event
+  ///id of the event
 
   ///return map object of the parameter
   Map<String, dynamic> get toMap => <String, dynamic>{

@@ -1,8 +1,7 @@
-import 'dart:developer';
-
-import 'package:edgar_planner_calendar_flutter/core/themes/constants.dart';
+import 'package:edgar_planner_calendar_flutter/core/logger.dart';
 import 'package:edgar_planner_calendar_flutter/core/static.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
+import 'package:edgar_planner_calendar_flutter/core/themes/constants.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_notes.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/calendar_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/day_name.dart';
@@ -10,8 +9,8 @@ import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/wi
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/termview/term_note.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
+import 'package:intl/intl.dart';
 
 ///TermPlaner which show continues date for view
 class TermPlanner extends StatefulWidget {
@@ -100,10 +99,10 @@ class _TermPlannerState extends State<TermPlanner> {
                         isTimeIsEqualOrLess(element.endTime, event.endTime))
                     .toList();
             if (overleapingEvents.isEmpty) {
-              log('Slot available: ${event.toMap}');
+              logInfo('Slot available: ${event.toMap}');
               return true;
             } else {
-              log('Slot Not available-> Start Time: '
+              logInfo('Slot Not available-> Start Time: '
                   '${overleapingEvents.first.startTime}'
                   'End Time: ${overleapingEvents.first.endTime}');
 

@@ -1,5 +1,5 @@
-import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
+import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/utils/utils.dart';
 import 'package:flutter/material.dart';
 
@@ -12,8 +12,7 @@ class DayName extends StatelessWidget {
   final int index;
 
   @override
-  Widget build(BuildContext context) =>
-      Column(
+  Widget build(BuildContext context) => Column(
         children: <Widget>[
           Expanded(
             child: Container(

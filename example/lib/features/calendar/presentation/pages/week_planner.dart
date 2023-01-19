@@ -1,6 +1,6 @@
-import 'package:edgar_planner_calendar_flutter/core/utils/calendar_utils.dart';
 import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/themes/constants.dart';
+import 'package:edgar_planner_calendar_flutter/core/utils/calendar_utils.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/weekview/week_cell.dart';
@@ -94,6 +94,7 @@ class _WeekPlannerState extends State<WeekPlanner<EventData>> {
 
         return !periodModel.isCustomeSlot;
       },
+      showNowIndicator: false,
       nowIndicatorColor: timeIndicatorColor,
       cornerBuilder: (DateTime current) => Container(
             color: white,

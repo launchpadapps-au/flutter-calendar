@@ -1,5 +1,6 @@
 import 'package:edgar_planner_calendar_flutter/core/themes/constants.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/calendar_cubit.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/calendar_event_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
@@ -46,130 +47,137 @@ class _SettingDrawerState extends State<SettingDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery
-        .of(context)
-        .size;
+    final Size size = MediaQuery.of(context).size;
     final bool isMobile = size.width < mobileThreshold;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: <Widget>[
-        Container(
-          height: size.height,
-          color: Colors.white,
-          width: isMobile ? size.width * 0.85 : size.width * .5,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const Text('Calendar View'),
-              Wrap(
-                runSpacing: mainMargin,
-                spacing: mainMargin,
-                children: <Widget>[
-                  ElevatedButton(
-                      child: const Text('Day view'),
-                      onPressed: () {
-                        BlocProvider.of<TimeTableCubit>(context)
-                            .changeViewType(CalendarViewType.dayView);
-                      }),
-                  ElevatedButton(
-                    child: const Text('Week view'),
-                    onPressed: () {
-                      BlocProvider.of<TimeTableCubit>(context)
-                          .changeViewType(CalendarViewType.weekView);
-                    },
+    return BlocBuilder<TimeTableCubit, TimeTableState>(
+      builder: (BuildContext context, TimeTableState state) => BlocProvider.of<
+                  TimeTableCubit>(context)
+              .standAlone
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Container(
+                  height: size.height,
+                  color: Colors.white,
+                  width: isMobile ? size.width * 0.85 : size.width * .5,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      const Text('Calendar View'),
+                      Wrap(
+                        runSpacing: mainMargin,
+                        spacing: mainMargin,
+                        children: <Widget>[
+                          ElevatedButton(
+                              child: const Text('Day view'),
+                              onPressed: () {
+                                BlocProvider.of<TimeTableCubit>(context)
+                                    .changeViewType(CalendarViewType.dayView);
+                              }),
+                          ElevatedButton(
+                            child: const Text('Week view'),
+                            onPressed: () {
+                              BlocProvider.of<TimeTableCubit>(context)
+                                  .changeViewType(CalendarViewType.weekView);
+                            },
+                          ),
+                          ElevatedButton(
+                              child: const Text('Schedule view'),
+                              onPressed: () {
+                                BlocProvider.of<TimeTableCubit>(context)
+                                    .changeViewType(
+                                        CalendarViewType.scheduleView);
+                              }),
+                          isMobile
+                              ? const SizedBox.shrink()
+                              : ElevatedButton(
+                                  child: const Text('Month view'),
+                                  onPressed: () {
+                                    BlocProvider.of<TimeTableCubit>(context)
+                                        .changeViewType(
+                                            CalendarViewType.monthView);
+                                  },
+                                ),
+                          isMobile
+                              ? const SizedBox.shrink()
+                              : ElevatedButton(
+                                  child: const Text('Term view'),
+                                  onPressed: () {
+                                    BlocProvider.of<TimeTableCubit>(context)
+                                        .changeViewType(
+                                            CalendarViewType.termView);
+                                  },
+                                ),
+                          // ElevatedButton(
+                          //     child: const Text('Gl Schedule view'),
+                          //     onPressed: () {
+                          //       BlocProvider.of<TimeTableCubit>(context)
+                          //   .changeViewType(CalendarViewType.glScheduleView);
+                          //     }),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: mainMargin,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const <Widget>[
+                          Text('Calendar Dates'),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: mainMargin,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          ElevatedButton(
+                            child: Text(startDate.toString().substring(0, 10)),
+                            onPressed: () {
+                              showDatePicker(
+                                      context: context,
+                                      initialDate: startDate,
+                                      firstDate: DateTime(1900),
+                                      lastDate: DateTime(2200))
+                                  .then((DateTime? value) {
+                                if (value != null) {
+                                  setState(() {
+                                    startDate = value;
+                                    widget.onDateChange(startDate, endDate);
+                                  });
+                                }
+                              });
+                            },
+                          ),
+                          const SizedBox(
+                            width: mainMargin,
+                          ),
+                          ElevatedButton(
+                            child: Text(endDate.toString().substring(0, 10)),
+                            onPressed: () {
+                              showDatePicker(
+                                      context: context,
+                                      initialDate: endDate,
+                                      firstDate: DateTime(1900),
+                                      lastDate: DateTime(2200))
+                                  .then((DateTime? value) {
+                                if (value != null) {
+                                  setState(() {
+                                    endDate = value;
+                                    widget.onDateChange(startDate, endDate);
+                                  });
+                                }
+                              });
+                            },
+                          ),
+                        ],
+                      )
+                    ],
                   ),
-                  ElevatedButton(
-                      child: const Text('Schedule view'),
-                      onPressed: () {
-                        BlocProvider.of<TimeTableCubit>(context)
-                            .changeViewType(CalendarViewType.scheduleView);
-                      }),
-                  isMobile
-                      ? const SizedBox.shrink()
-                      : ElevatedButton(
-                    child: const Text('Month view'),
-                    onPressed: () {
-                      BlocProvider.of<TimeTableCubit>(context)
-                          .changeViewType(CalendarViewType.monthView);
-                    },
-                  ),
-                  isMobile
-                      ? const SizedBox.shrink()
-                      : ElevatedButton(
-                    child: const Text('Term view'),
-                    onPressed: () {
-                      BlocProvider.of<TimeTableCubit>(context)
-                          .changeViewType(CalendarViewType.termView);
-                    },
-                  ),
-                  // ElevatedButton(
-                  //     child: const Text('Gl Schedule view'),
-                  //     onPressed: () {
-                  //       BlocProvider.of<TimeTableCubit>(context)
-                  //           .changeViewType(CalendarViewType.glScheduleView);
-                  //     }),
-                ],
-              ),
-              const SizedBox(
-                height: mainMargin,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const <Widget>[
-                  Text('Calendar Dates'),
-                ],
-              ),
-              const SizedBox(
-                height: mainMargin,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  ElevatedButton(
-                    child: Text(startDate.toString().substring(0, 10)),
-                    onPressed: () {
-                      showDatePicker(
-                          context: context,
-                          initialDate: startDate,
-                          firstDate: DateTime(1900),
-                          lastDate: DateTime(2200))
-                          .then((DateTime? value) {
-                        if (value != null) {
-                          setState(() {
-                            startDate = value;
-                            widget.onDateChange(startDate, endDate);
-                          });
-                        }
-                      });
-                    },
-                  ),
-                  const SizedBox(
-                    width: mainMargin,
-                  ),
-                  ElevatedButton(
-                    child: Text(endDate.toString().substring(0, 10)),
-                    onPressed: () {
-                      showDatePicker(
-                          context: context,
-                          initialDate: endDate,
-                          firstDate: DateTime(1900),
-                          lastDate: DateTime(2200))
-                          .then((DateTime? value) {
-                        if (value != null) {
-                          setState(() {
-                            endDate = value;
-                            widget.onDateChange(startDate, endDate);
-                          });
-                        }
-                      });
-                    },
-                  ),
-                ],
-              )
-            ],
-          ),
-        ),
-      ],
+                ),
+              ],
+            )
+          : const SizedBox.shrink(),
     );
   }
 }

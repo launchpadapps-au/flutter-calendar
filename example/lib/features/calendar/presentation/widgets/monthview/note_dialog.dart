@@ -23,6 +23,7 @@ class NoteDialog extends StatelessWidget {
 
   ///provide calalback user tap on the cell
   final Function(DateTime dateTime, List<CalendarEvent<Note>>) onTap;
+
   @override
   Widget build(BuildContext context) => Container(
         width: 233,
@@ -86,7 +87,7 @@ class NoteDialog extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           height: 49,
           decoration: BoxDecoration(
-              color: blue, borderRadius: BorderRadius.circular(4)),
+              color: blueGrey, borderRadius: BorderRadius.circular(4)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[

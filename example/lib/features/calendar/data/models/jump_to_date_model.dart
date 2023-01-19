@@ -20,15 +20,14 @@ class JumpToDateModel {
   factory JumpToDateModel.fromJson(Map<String, dynamic> json) =>
       JumpToDateModel(
         date:
-        json['date'] == '' ? DateTime.now() : DateTime.parse(json['date']),
+            json['date'] == '' ? DateTime.now() : DateTime.parse(json['date']),
       );
 
   ///start date
   DateTime date;
 
   ///convert dateChange object to json
-  Map<String, dynamic> toJson() =>
-      <String, dynamic>{
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'date': date.toIso8601String(),
       };
 }

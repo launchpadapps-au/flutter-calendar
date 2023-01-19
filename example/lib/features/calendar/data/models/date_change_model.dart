@@ -18,8 +18,7 @@ class DateChange {
   });
 
   ///return DateChange object from json
-  factory DateChange.fromJson(Map<String, dynamic> json) =>
-      DateChange(
+  factory DateChange.fromJson(Map<String, dynamic> json) => DateChange(
         startTime: DateTime.parse(json['startTime']),
         endTime: DateTime.parse(json['endTime']),
       );
@@ -31,8 +30,7 @@ class DateChange {
   DateTime endTime;
 
   ///convert dateChange object to json
-  Map<String, dynamic> toJson() =>
-      <String, dynamic>{
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'startTime': startTime.toIso8601String(),
         'endTime': endTime.toIso8601String(),
       };

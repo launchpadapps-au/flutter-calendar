@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_calendar/src/core/constants.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:flutter_calendar/src/core/app_log.dart';
+import 'package:flutter_calendar/src/core/constants.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 /// The [SlScheduleView] widget displays calendar like view of the events
@@ -162,11 +162,11 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
   DateTime dateTime = DateTime.now();
   IndexedScrollController indexdController =
       IndexedScrollController(initialIndex: 75);
+
   @override
   void initState() {
     controller = widget.controller ?? controller;
-    final int index = dateTime.difference(controller.start).inDays;
-    log('Initial Scroll index $index');
+    
     indexdController = IndexedScrollController(
         initialIndex: controller.start.difference(dateTime).inDays);
     setState(() {});
@@ -357,6 +357,7 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
   bool isSavingTimeTable = false;
   int? emptyIndex;
   bool isScrolling = false;
+
   @override
   Widget build(BuildContext context) => LayoutBuilder(
       key: _key,
@@ -452,13 +453,12 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
 
                               final bool isToday =
                                   DateUtils.isSameDay(date, DateTime.now());
-                
+
                               final List<CalendarEvent<T>> events = items
                                   .where((CalendarEvent<T> event) =>
                                       DateUtils.isSameDay(
                                           date, event.startTime))
                                   .toList();
- 
 
                               return buildView(date, events, isToday: isToday);
                             })),
@@ -580,6 +580,7 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
       : widget.isCellDraggable!(e)
           ? 1
           : 0;
+
   Future<dynamic> _jumpTo(DateTime date) async {
     if (controller.infiniteScrolling) {
       isScrolling = true;

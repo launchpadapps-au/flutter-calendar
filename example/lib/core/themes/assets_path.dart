@@ -16,8 +16,8 @@ class AssetPath {
   static String sofiaProFont = 'assets/fonts/sofiapro-Regular.ttf';
 
   /// path of the logo 
-  static String logo = 'assets/logo.json';
+  static String logo = 'assets/logo.png';
 
   ///path of the small logo
-  static String smallLogo = 'assets/small_logo.json';
+  static String smallLogo = 'assets/small_logo.png';
 }

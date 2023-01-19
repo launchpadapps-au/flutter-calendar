@@ -39,6 +39,7 @@ class MonthNote extends StatelessWidget {
 
   /// pass true if is draggable
   final bool isDraggable;
+
   @override
   Widget build(BuildContext context) => item.isEmpty
       ? const SizedBox.shrink()
@@ -77,10 +78,8 @@ class MonthNote extends StatelessWidget {
                                       children: <Widget>[
                                         Builder(
                                             builder: (BuildContext context) {
-                                          final double width = size.width -
-                                              43 -
-                                              heightFraction -
-                                              16;
+                                          final double width =
+                                              size.width - heightFraction;
                                           final int index = showitem.indexOf(e);
                                           return width.isNegative
                                               ? const SizedBox.shrink()
@@ -118,9 +117,15 @@ class MonthNote extends StatelessWidget {
                                                 barrierColor:
                                                     Colors.transparent);
                                           },
-                                          child: Text(
-                                            ' +$moreCount',
-                                            style: context.moreCount,
+                                          child: SizedBox(
+                                            width:
+                                                heightFraction.toDouble() - 8,
+                                            child: Center(
+                                              child: Text(
+                                                ' +$moreCount',
+                                                style: context.moreCount,
+                                              ),
+                                            ),
                                           ),
                                         )
                                       ],
@@ -175,7 +180,8 @@ class SmallEventTile extends StatelessWidget {
 
   ///cross axis alignment
   final CrossAxisAlignment crossAxisAlignment;
-///index of the event
+
+  ///index of the event
 
   final int index;
 
@@ -201,7 +207,7 @@ class SmallEventTile extends StatelessWidget {
             padding: const EdgeInsets.all(4),
             height: tileHeight,
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4), color: blue),
+                borderRadius: BorderRadius.circular(4), color: blueGrey),
             child: Row(
               crossAxisAlignment: crossAxisAlignment,
               children: <Widget>[

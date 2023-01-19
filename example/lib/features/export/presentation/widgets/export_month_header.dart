@@ -1,7 +1,7 @@
 import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/themes/fonts.dart';
 import 'package:edgar_planner_calendar_flutter/core/utils/utils.dart';
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
 
 ///render dayName for the month view and tern view
 class ExportMonthHeader extends StatelessWidget {

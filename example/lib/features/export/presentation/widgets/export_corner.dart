@@ -1,7 +1,6 @@
- 
-import 'package:flutter/material.dart';
-  
 import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
+import 'package:flutter/material.dart';
+
 ///Export cell for the week view
 class ExportCorner extends StatelessWidget {
   ///initilize the week view

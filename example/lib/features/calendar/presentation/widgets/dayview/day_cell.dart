@@ -6,11 +6,12 @@ import 'package:flutter/material.dart';
 ///day cell for the week view
 class DayCell extends StatelessWidget {
   ///initilize the week view
-  const DayCell({required this.periodModel,
-    required this.breakHeight,
-    required this.cellHeight,
-    required this.isMobile,
-    super.key});
+  const DayCell(
+      {required this.periodModel,
+      required this.breakHeight,
+      required this.cellHeight,
+      required this.isMobile,
+      super.key});
 
   ///height and width of the cell
   final double cellHeight, breakHeight;
@@ -22,31 +23,30 @@ class DayCell extends StatelessWidget {
   final bool isMobile;
 
   @override
-  Widget build(BuildContext context) =>
-      CellBorder(
-          borderWidth: 1,
-          borderRadius: 0,
-          color: periodModel.isAfterSchool || periodModel.isBeforeSchool
-              ? Colors.transparent
-              : periodModel.isCustomeSlot
+  Widget build(BuildContext context) => CellBorder(
+      borderWidth: 1,
+      borderRadius: 0,
+      color: periodModel.isAfterSchool || periodModel.isBeforeSchool
+          ? Colors.transparent
+          : periodModel.isCustomeSlot
               ? isMobile
-              ? lightGrey
-              : grey
+                  ? lightGrey
+                  : grey
               : Colors.transparent,
-          borderColor: grey,
-          border: !periodModel.isCustomeSlot
-              ? null
-              : Border(
+      borderColor: grey,
+      border: !periodModel.isCustomeSlot
+          ? null
+          : Border(
               left: isMobile ||
-                  periodModel.isAfterSchool ||
-                  periodModel.isBeforeSchool
+                      periodModel.isAfterSchool ||
+                      periodModel.isBeforeSchool
                   ? const BorderSide(
-                color: grey,
-              )
+                      color: grey,
+                    )
                   : const BorderSide(
-                color: textGrey,
-                width: 5,
-              ),
+                      color: textGrey,
+                      width: 5,
+                    ),
               top: const BorderSide(
                 color: grey,
               ),
@@ -56,5 +56,5 @@ class DayCell extends StatelessWidget {
               bottom: const BorderSide(
                 color: grey,
               )),
-          cellHeight: periodModel.isCustomeSlot ? breakHeight : cellHeight);
+      cellHeight: periodModel.isCustomeSlot ? breakHeight : cellHeight);
 }

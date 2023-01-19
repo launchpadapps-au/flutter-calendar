@@ -3,10 +3,10 @@
 //     final getEvents = getEventsFromJson(jsonString);
 
 import 'dart:convert';
-import 'dart:developer';
 
-import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/extension/date_extension.dart';
+import 'package:edgar_planner_calendar_flutter/core/logger.dart';
+import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
@@ -36,8 +36,8 @@ class GetEvents {
   //     );
 
   ///create object from the json iwth period
-  factory GetEvents.fromJsonWithPeriod(Map<String, dynamic> json,
-      List<PeriodModel> periods) =>
+  factory GetEvents.fromJsonWithPeriod(
+          Map<String, dynamic> json, List<PeriodModel> periods) =>
       GetEvents(
         events: List<PlannerEvent>.from(json['events']
             .map((dynamic x) => PlannerEvent.fromJsonWithPeriod(x, periods))),
@@ -48,8 +48,7 @@ class GetEvents {
   List<PlannerEvent> events;
 
   ///convert to json object
-  Map<String, dynamic> toJson() =>
-      <String, dynamic>{
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'events': List<dynamic>.from(
             events.map<dynamic>((PlannerEvent x) => x.toJson())),
       };
@@ -88,8 +87,8 @@ class PlannerEvent implements CalendarEvent<EventData> {
   // }
 
   ///create event object from the json
-  factory PlannerEvent.fromJsonWithPeriod(Map<String, dynamic> json,
-      List<PeriodModel> periods) {
+  factory PlannerEvent.fromJsonWithPeriod(
+      Map<String, dynamic> json, List<PeriodModel> periods) {
     final DateTime start = DateTime.parse(json['start_date']);
     final DateTime end = DateTime.parse(json['end_date']);
 
@@ -102,7 +101,7 @@ class PlannerEvent implements CalendarEvent<EventData> {
       startTime: DateTime(
           start.year, start.month, start.day, startTime.hour, startTime.minute),
       endTime:
-      DateTime(end.year, end.month, end.day, endTime.hour, endTime.minute),
+          DateTime(end.year, end.month, end.day, endTime.hour, endTime.minute),
       eventData: EventData.fromJsonWithPeriod(json, periods),
     );
   }
@@ -123,8 +122,7 @@ class PlannerEvent implements CalendarEvent<EventData> {
   EventData? eventData;
 
   ///convert object to json
-  Map<String, dynamic> toJson() =>
-      <String, dynamic>{
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'id': id,
         'startTime': "${startTime.year.toString().padLeft(4, '0')}-"
             "${startTime.month.toString().padLeft(2, '0')}-"
@@ -136,8 +134,7 @@ class PlannerEvent implements CalendarEvent<EventData> {
       };
 
   @override
-  Map<String, dynamic> get toMap =>
-      <String, dynamic>{
+  Map<String, dynamic> get toMap => <String, dynamic>{
         'id': id,
         'startTime': startTime,
         'endTime': endTime,
@@ -184,31 +181,32 @@ class EventData {
   //       eventLinks: json['event_links'],
   //     );
   ///initialize the event
-  EventData({required this.id,
-    required this.title,
-    required this.location,
-    required this.startDate,
-    required this.endDate,
-    required this.startTime,
-    required this.endTime,
-    required this.reminderEnabled,
-    required this.slots,
-    required this.type,
-    required this.updatedAt,
-    required this.lessonPlans,
-    required this.googleDriveFiles,
-    this.event,
-    // required this.period,
-    this.subject,
-    this.color = darkestGrey,
-    this.freeTime = false,
-    this.isDutyTime = false,
-    this.remindBefore,
-    this.recurrenceUntil,
-    this.recurringEventId,
-    this.recurrenceFreq,
-    this.eventLinks,
-    this.extraCurricular}) {
+  EventData(
+      {required this.id,
+      required this.title,
+      required this.location,
+      required this.startDate,
+      required this.endDate,
+      required this.startTime,
+      required this.endTime,
+      required this.reminderEnabled,
+      required this.slots,
+      required this.type,
+      required this.updatedAt,
+      required this.lessonPlans,
+      required this.googleDriveFiles,
+      this.event,
+      // required this.period,
+      this.subject,
+      this.color = darkestGrey,
+      this.freeTime = false,
+      this.isDutyTime = false,
+      this.remindBefore,
+      this.recurrenceUntil,
+      this.recurringEventId,
+      this.recurrenceFreq,
+      this.eventLinks,
+      this.extraCurricular}) {
     if (type == 'freetime') {
       title = 'Free Time';
       freeTime = true;
@@ -226,14 +224,15 @@ class EventData {
   }
 
   ///create object from the json
-  factory EventData.fromJsonWithPeriod(Map<String, dynamic> jsonData,
-      List<PeriodModel> periods) {
+  factory EventData.fromJsonWithPeriod(
+      Map<String, dynamic> jsonData, List<PeriodModel> periods) {
     try {
       final Iterable<PeriodModel> ps = periods.where((PeriodModel element) =>
-      element.id.toString() == jsonData['slots'].toString());
-      if (ps.isNotEmpty) {} else {}
+          element.id.toString() == jsonData['slots'].toString());
+      if (ps.isNotEmpty) {
+      } else {}
     } on Exception catch (e) {
-      log('Error: $e');
+      logInfo('Error: $e');
       final Map<String, dynamic> data = <String, dynamic>{
         'id': 62,
         'calendar_id': 32,
@@ -274,8 +273,8 @@ class EventData {
         googleDriveFiles: jsonData['google_drive_files'] == null
             ? <GoogleDriveFile>[]
             : List<GoogleDriveFile>.from(json
-            .decode(jsonData['google_drive_files'])
-            .map((dynamic x) => GoogleDriveFile.fromJson(x))),
+                .decode(jsonData['google_drive_files'])
+                .map((dynamic x) => GoogleDriveFile.fromJson(x))),
         eventLinks: jsonData['event_links'],
         extraCurricular: jsonData['extra_curricular']);
   }
@@ -368,8 +367,7 @@ class EventData {
   String? extraCurricular;
 
   ///convert json object from the model
-  Map<String, dynamic> toJson() =>
-      <String, dynamic>{
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'id': id,
         'title': title,
         'location': location,
@@ -392,7 +390,7 @@ class EventData {
         'type': type,
         'updated_at': updatedAt.toIso8601String(),
         'lesson_plans':
-        List<dynamic>.from(lessonPlans.map<dynamic>((dynamic x) => x)),
+            List<dynamic>.from(lessonPlans.map<dynamic>((dynamic x) => x)),
         'google_drive_files': List<dynamic>.from(
             googleDriveFiles.map<dynamic>((dynamic x) => x.toJson())),
         'event_links': eventLinks,
@@ -427,8 +425,7 @@ class GoogleDriveFile {
   String url;
 
   ///create json from the object
-  Map<String, dynamic> toJson() =>
-      <String, dynamic>{
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'id': id,
         'name': name,
         'url': url,
@@ -445,8 +442,7 @@ class Subject {
   });
 
   ///cretae object fron the json
-  factory Subject.fromJson(Map<String, dynamic> json) =>
-      Subject(
+  factory Subject.fromJson(Map<String, dynamic> json) => Subject(
         id: json['id'],
         colorCode: HexColor(
           json['color_code'],
@@ -466,8 +462,7 @@ class Subject {
 
   ///create json from the
 
-  Map<String, dynamic> toJson() =>
-      <String, dynamic>{
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'id': id,
         'color_code': colorCode,
         'subject_name': subjectName,
@@ -502,12 +497,11 @@ class EdgarEvent {
   });
 
   ///cretae object fron the json
-  factory EdgarEvent.fromJson(Map<String, dynamic> json) =>
-      EdgarEvent(
-          id: json['id'].toString(),
-          isRecurringEvent: json['is_recurring_event'],
-          recurrenceUntil: DateTime.parse(json['recurrence_until']),
-          recurrenceFreq: json['recurrence_freq']);
+  factory EdgarEvent.fromJson(Map<String, dynamic> json) => EdgarEvent(
+      id: json['id'].toString(),
+      isRecurringEvent: json['is_recurring_event'],
+      recurrenceUntil: DateTime.parse(json['recurrence_until']),
+      recurrenceFreq: json['recurrence_freq']);
 
   ///id of the subject
   String id;
@@ -524,8 +518,7 @@ class EdgarEvent {
 
   ///create json from the
 
-  Map<String, dynamic> toJson() =>
-      <String, dynamic>{
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'id': id,
         'is_recurring_event': isRecurringEvent,
         'recurrence_until': recurrenceUntil,

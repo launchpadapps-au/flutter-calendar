@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'dart:developer';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_calendar/src/core/constants.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
+import 'package:flutter_calendar/src/core/constants.dart';
 import 'package:flutter_calendar/src/widgets/cell.dart';
 import 'package:flutter_calendar/src/widgets/corner_cell.dart';
 import 'package:flutter_calendar/src/widgets/header_cell.dart';
@@ -130,6 +131,7 @@ class SlWeekView<T> extends StatefulWidget {
 
   ///header divider thickness
   final double headerDivideThickness;
+
   @override
   State<SlWeekView<T>> createState() => _SlWeekViewState<T>();
 }
@@ -159,13 +161,13 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
   DateTime dateTime = DateTime.now();
   IndexedScrollController indexdController = IndexedScrollController();
   IndexedScrollController indexdHeaderController = IndexedScrollController();
+
   @override
   void initState() {
     controller = widget.controller ?? controller;
     headerController = groupController.addAndGet();
     dayScrolController = groupController.addAndGet();
-    final int index = dateTime.difference(controller.start).inDays;
-    log('Initial Scroll index $index');
+   
     indexdController = IndexedScrollController(
         initialIndex: controller.start.difference(dateTime).inDays);
     indexdHeaderController = IndexedScrollController(
@@ -395,7 +397,6 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
       return;
     }
     if (box.hasSize) {
-      log('box resize');
       final Size size = widget.size ?? box.size;
       // size = widget.size ?? size;
 
@@ -414,10 +415,12 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
   }
 
   bool isScrolling = false;
+
   bool isDragEnable(CalendarEvent<T> event) =>
       widget.isCellDraggable == null || widget.isCellDraggable!(event);
   bool headerIsScrolling = false;
   bool tabIsScrolling = false;
+
   bool syncWithHeader(ScrollNotification notification) {
     if (tabIsScrolling || isScrolling) {
     } else if (notification is ScrollStartNotification) {
@@ -457,7 +460,6 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
       builder: (BuildContext context, BoxConstraints contraints) {
         adjustColumnWidth();
         final Size size = widget.size ?? MediaQuery.of(context).size;
-        log('render box size $size');
         final double height = getTimelineHeight(
             widget.timelines, controller.cellHeight, controller.breakHeight);
         return Container(
@@ -762,6 +764,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
   final Curve _animationCurve = Curves.linear;
 
   bool _isSnapping = false;
+
   Future<void> _snapToCloset() async {
     if (_isSnapping || !widget.snapToDay) {
       return;

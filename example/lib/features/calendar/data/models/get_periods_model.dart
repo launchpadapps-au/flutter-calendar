@@ -21,8 +21,7 @@ class GetPeriods {
   });
 
   /// return object from json
-  factory GetPeriods.fromJson(Map<String, dynamic> json) =>
-      GetPeriods(
+  factory GetPeriods.fromJson(Map<String, dynamic> json) => GetPeriods(
         periods: List<Period>.from(json['periods']
             .map((Map<String, dynamic> x) => Period.fromJson(x))),
       );
@@ -31,9 +30,8 @@ class GetPeriods {
   List<Period> periods;
 
   ///convert object to json
-  Map<String, dynamic> toJson() =>
-      <String, dynamic>{
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'periods':
-        List<dynamic>.from(periods.map<dynamic>((Period x) => x.toJson())),
+            List<dynamic>.from(periods.map<dynamic>((Period x) => x.toJson())),
       };
 }
