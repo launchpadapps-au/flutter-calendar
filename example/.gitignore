@@ -9,7 +9,6 @@
 .history
 .svn/
 migrate_working_dir/
-.ios
 
 # IntelliJ related
 *.iml
@@ -32,9 +31,6 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
-
-# Web related
-lib/generated_plugin_registrant.dart
 
 # Symbolication related
 app.*.symbols

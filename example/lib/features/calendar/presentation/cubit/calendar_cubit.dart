@@ -28,27 +28,29 @@ class TimeTableCubit extends Cubit<TimeTableState> {
 
   TimeTableCubit() : super(InitialState()) {
     nativeCallBack.initializeChannel('com.example.demo/data');
-    checkRunningStatus();
+    setListener(mock: standAlone);
+    getDummyData(addDummyEvent: standAlone);
 
     setThreeYearTerm(termModel);
   }
 
   ///check for standalone
 
-  Future<void> checkRunningStatus() async {
-    try {
-      await platform.invokeMethod<dynamic>(SendMethods.checkMethodImpl);
-    } on MissingPluginException {
-      logInfo('Project is running as app');
-      standAlone = true;
-      await getDummyData();
-    }
-    setListener(mock: standAlone);
-  }
+  // Future<void> checkRunningStatus() async {
+  //   try {
+  //     await platform.invokeMethod<dynamic>(SendMethods.checkMethodImpl);
+  //     logPrety('Project is running as module');
+  //   } on MissingPluginException {
+  //     logPrety('Project is running as app');
+  //     standAlone = false;
+  //     await getDummyData(addDummyEvent: false);
+  //   }
+  //   setListener();
+  // }
 
   ///If code will be running in module then it will be false
   ///if code is running as stand alone app then it will be true
-  bool standAlone = false;
+  bool standAlone = const bool.fromEnvironment('standalone',defaultValue: false);
 
   ///current date timex
   static DateTime now = DateTime.now();
@@ -260,19 +262,33 @@ class TimeTableCubit extends Cubit<TimeTableState> {
 
         ///handle setEvents methods
         case ReceiveMethods.setEvents:
-          final GetEvents getEvents = GetEvents.fromJsonWithPeriod(
-              jsonDecode(jsonEncode(call.arguments)), periods);
+          final String jsonString = jsonEncode(call.arguments);
+          eventString = jsonString;
+          final GetEvents getEvents =
+              GetEvents.fromJsonWithPeriod(jsonDecode(jsonString), periods);
           _events = getEvents.events;
+
           logInfo(
               'set events received from native app:${getEvents.events.length}');
           emit(EventsAdded(
               periods, _events, viewType, getEvents.events, termModel));
           break;
+        case ReceiveMethods.resetEvent:
+          logPrety('Reset event recived from the IOS');
+          if (eventString != null) {
+            final GetEvents getEvents =
+                GetEvents.fromJsonWithPeriod(jsonDecode(eventString!), periods);
+            _events = getEvents.events;
+            emit(EventsAdded(
+                periods, _events, viewType, getEvents.events, termModel));
+          }
+
+          break;
 
         ///handle setNotes methods
         case ReceiveMethods.setNots:
-          final GetNotes getNotes = GetNotes.fromRawJson(
-              await rootBundle.loadString(AssetPath.noteJson));
+          final GetNotes getNotes =
+              GetNotes.fromRawJson(jsonEncode(call.arguments));
           _monthNote = getNotes.note;
           logInfo('Set Notes received from ios: no Notes:${_monthNote.length}');
           emit(NotesAdded(
@@ -313,9 +329,10 @@ class TimeTableCubit extends Cubit<TimeTableState> {
           break;
 
         case ReceiveMethods.generatePreview:
-          final ExportSetting exportSetting =
-              ExportSetting.fromJson(jsonDecode(jsonEncode(call.arguments)));
           logInfo('Generate Preview received from native app');
+          final ExportSetting exportSetting =
+              exportSettingFromJson(call.arguments);
+
           await exportView.generatePreview(
               exportSetting, periods, _events, _monthNote);
           break;
@@ -341,6 +358,9 @@ class TimeTableCubit extends Cubit<TimeTableState> {
 
   ///events of timetable
   List<PlannerEvent> _events = <PlannerEvent>[];
+
+  ///json encoded string of the event for the backup
+  String? eventString;
 
   ///events of timetable
   List<CalendarEvent<Note>> _monthNote = <CalendarEvent<Note>>[];
@@ -394,6 +414,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
         emit(PeriodsUpdated(periods, _events, viewType, termModel));
         final String response =
             await rootBundle.loadString(AssetPath.eventJson);
+        eventString = response;
         final dynamic data = jsonDecode(response);
         final GetEvents getEvents = GetEvents.fromJsonWithPeriod(data, periods);
         _events = getEvents.events;
@@ -601,6 +622,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
       index = listOfTerm.indexOf(term);
       currentTerm = term;
     }
+    nativeCallBack.sendVisibleDateChnged(monthStart);
     nativeCallBack.sendFetchDataDatesToNativeApp(monthStart, monthEnd);
     emit(MonthUpdated(
         periods, events, viewType, termModel, monthStart, monthEnd));

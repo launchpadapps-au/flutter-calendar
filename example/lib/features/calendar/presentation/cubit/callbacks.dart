@@ -261,7 +261,7 @@ class NativeCallBack {
 
   ///send data to native app
   Future<bool> sendToNativeApp(String methodName, dynamic data ) {
-    logPrety(data);
+   
     platform
         .invokeMethod<dynamic>(
       methodName,

@@ -120,18 +120,24 @@ class _TermPlannerState extends State<TermPlanner> {
           child: DayName(index: index),
         ),
         controller: widget.timetableController,
-        onTap: (DateTime date) {
-          widget.onTap(date, <CalendarEvent<Note>>[]);
+        onTap: (CalendarDay date) {
+          if (!date.deadCell) {
+            widget.onTap(date.dateTime, <CalendarEvent<Note>>[]);
+          }
         },
         itemBuilder:
-            (List<CalendarEvent<Note>> item, Size size, DateTime dateTime) =>
+            (List<CalendarEvent<Note>> item, Size size, CalendarDay dateTime) =>
                 TermNote(
-                    item: item,
-                    cellHeight: widget.timetableController.cellHeight,
-                    breakHeight: widget.timetableController.breakHeight,
-                    size: size,
-                    isDraggable: false,
-                    onTap: widget.onTap),
+          item: item,
+          calendarDay: dateTime,
+          cellHeight: widget.timetableController.cellHeight,
+          breakHeight: widget.timetableController.breakHeight,
+          size: size,
+          isDraggable: false,
+          onTap: (dateTime, p1) {
+            widget.onTap(dateTime.dateTime, p1);
+          },
+        ),
         cellBuilder: (Period period) => Container(
           height: period.isCustomeSlot
               ? widget.timetableController.breakHeight

@@ -47,7 +47,8 @@ class SlMonthView<T> extends StatefulWidget {
   final Widget Function(int)? headerCellBuilder;
 
   /// Renders event card from `TimetableItem<T>` for each item
-  final Widget Function(List<CalendarEvent<T>>, Size size)? itemBuilder;
+  final Widget Function(
+      List<CalendarEvent<T>>, Size size, CalendarDay calendarDay)? itemBuilder;
 
   /// Renders hour label given [TimeOfDay] for each hour
   final Widget Function(Period period)? hourLabelBuilder;
@@ -81,7 +82,7 @@ class SlMonthView<T> extends StatefulWidget {
   final double headerHeight;
 
   ///onTap callback
-  final Function(DateTime dateTime)? onTap;
+  final Function(CalendarDay dateTime)? onTap;
 
   /// The [SlMonthView] widget displays calendar like view
   /// of the events that scrolls
@@ -166,40 +167,6 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
     controller.jumpTo(controller.start);
   }
 
-  ///get data range
-  List<DateTime> getDateRange() {
-    final List<DateTime> tempDateRange = <DateTime>[];
-    appLog('Setting dates');
-    final int diff = controller.end.difference(controller.start).inDays;
-    dateRange.clear();
-    for (int i = 0; i < diff; i++) {
-      final DateTime date = controller.start.add(Duration(days: i));
-      if (widget.fullWeek) {
-        dateRange.add(CalendarDay(dateTime: date));
-      } else {
-        if (date.weekday > 5) {
-        } else {
-          dateRange.add(CalendarDay(dateTime: date));
-        }
-      }
-    }
-
-    return tempDateRange;
-  }
-
-  ///return count of periods and break that are overlapping
-  List<int> getOverLappingTimeline(TimeOfDay start, TimeOfDay end) {
-    const int p = 0;
-    const int b = 0;
-
-    appLog('Event P:$p and B:$b');
-    return <int>[p, b];
-  }
-
-  ///get cell height
-  double getCellHeight(List<int> data) =>
-      data[0] * controller.cellHeight + data[1] * controller.breakHeight;
-
   @override
   void dispose() {
     if (_listenerId != null) {
@@ -269,32 +236,6 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
     if (mounted) {
       setState(() {});
     }
-  }
-
-  double getHeightOfTheEvent(CalendarEvent<dynamic> item) {
-    double h = 0;
-
-    final List<Period> periods = <Period>[];
-
-    for (final Period period in widget.timelines) {
-      if (period.startTime.hour >= item.startTime.hour) {
-        if (period.endTime.hour <= item.endTime.hour) {
-          if (period.startTime.minute >= item.startTime.minute) {
-            if (period.endTime.minute <= item.endTime.minute) {
-              periods.add(period);
-            }
-          }
-        }
-      }
-    }
-
-    for (final Period element in periods) {
-      h = h +
-          (element.isCustomeSlot
-              ? controller.breakHeight
-              : controller.cellHeight);
-    }
-    return h;
   }
 
   double maxColumn = 5;
@@ -389,6 +330,7 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
                                           DateUtils.isSameDay(
                                               dateTime, event.startTime))
                                       .toList();
+                                  final CalendarDay day = dates[index];
                                   return DayCell<T>(
                                       calendarDay: dates[index],
                                       columnWidth: columnWidth,
@@ -399,13 +341,15 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
                                               dateTime, Size(cw, columnHeight)),
                                       itemBuilder:
                                           (List<CalendarEvent<T>> dayEvents) =>
-                                              widget.itemBuilder!(dayEvents,
-                                                  Size(cw, columnHeight)),
+                                              widget.itemBuilder!(
+                                                dayEvents,
+                                                Size(cw, columnHeight),day
+                                              ),
                                       events: events,
                                       breakHeight: controller.breakHeight,
                                       cellHeight: controller.cellHeight,
                                       dateTime: dateTime,
-                                      onTap: (DateTime date) {
+                                      onTap: (CalendarDay date) {
                                         if (widget.onTap != null) {
                                           widget.onTap!(date);
                                         }

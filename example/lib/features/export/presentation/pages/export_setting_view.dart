@@ -1,16 +1,17 @@
 // ignore_for_file: invalid_use_of_protected_member
-import 'dart:io';
+
+import 'dart:convert';
 
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/calendar_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/method_name.dart';
+import 'package:edgar_planner_calendar_flutter/features/export/presentation/pages/fileutils.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/presentation/pages/pdf_utils.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/presentation/widgets/dummy_subject.dart';
 import 'package:flutter/material.dart';
 // ignore: implementation_imports
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 
 ///This page show list of view and datarange for export
@@ -36,6 +37,12 @@ class _ExportSettingViewState extends State<ExportSettingView> {
   bool fullWeek = true;
   dynamic selectedSubject;
 
+  void sendData(var data, BuildContext context) {
+    BlocProvider.of<TimeTableCubit>(context)
+        .mockObject
+        .invokeMethod(ReceiveMethods.generatePreview, jsonEncode(data));
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -43,7 +50,7 @@ class _ExportSettingViewState extends State<ExportSettingView> {
       appBar: AppBar(title: const Text('Export view')),
       body: Row(children: <Widget>[
         SizedBox(
-          width: size.width / 2,
+          width: size.width,
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -71,8 +78,8 @@ class _ExportSettingViewState extends State<ExportSettingView> {
                   items: types
                       .map((CalendarViewType e) =>
                           DropdownMenuItem<CalendarViewType>(
-                            child: Text(e.toString()),
                             value: e,
+                            child: Text(e.toString()),
                           ))
                       .toList(),
                   onChanged: (CalendarViewType? value) {
@@ -86,6 +93,7 @@ class _ExportSettingViewState extends State<ExportSettingView> {
                   hint: const Text('Select Subjects'),
                   items: dummySubject
                       .map((dynamic e) => DropdownMenuItem<dynamic>(
+                            value: e,
                             child: ListTile(
                                 leading: Container(
                                   width: 30,
@@ -97,7 +105,6 @@ class _ExportSettingViewState extends State<ExportSettingView> {
                                       )),
                                 ),
                                 title: Text(e['subject_name'])),
-                            value: e,
                           ))
                       .toList(),
                   onChanged: (dynamic value) {
@@ -112,8 +119,9 @@ class _ExportSettingViewState extends State<ExportSettingView> {
                       fullWeek = value;
                       setState(() {});
                     }),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                Wrap(
+                  runSpacing: 20,
+                  spacing: 20,
                   children: <Widget>[
                     ElevatedButton(
                       onPressed: () async {
@@ -122,30 +130,28 @@ class _ExportSettingViewState extends State<ExportSettingView> {
                       child: const Text('Save Demo'),
                     ),
                     ElevatedButton(
-                      onPressed: () async {
+                      onPressed: () {
                         final String id =
                             Subject.fromJson(selectedSubject).id.toString();
                         final String subjectName =
                             Subject.fromJson(selectedSubject)
                                 .subjectName
                                 .toString();
-                        final Directory path = (Platform.isIOS
-                            ? await getApplicationSupportDirectory()
-                            : await getDownloadsDirectory())!;
-                        final Map<String, dynamic> data = <String, dynamic>{
-                          'startDate': start.toIso8601String(),
-                          'endDate': end.toIso8601String(),
-                          'view': currentView.toString(),
-                          'subjectId': id == '0' ? null : id,
-                          'subjectName': id == '0' ? null : subjectName,
-                          'fullWeek': fullWeek,
-                          'path': path.path
-                        };
-                        BlocProvider.of<TimeTableCubit>(context)
-                            .mockObject
-                            .invokeMethod(ReceiveMethods.generatePreview, data);
+                        FileUtils.getPath().then((path) {
+                          final Map<String, dynamic> data = <String, dynamic>{
+                            'startDate': start.toIso8601String(),
+                            'endDate': end.toIso8601String(),
+                            'view': currentView.toString(),
+                            'subjectId': id,
+                            'subjectName': subjectName,
+                            'fullWeek': fullWeek,
+                            'path': path!.path,
+                            'allSubject': id == '0'
+                          };
+                          sendData(data, context);
+                        });
                       },
-                      child: const Text('Generate '),
+                      child: const Text('Generate'),
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -170,9 +176,6 @@ class _ExportSettingViewState extends State<ExportSettingView> {
             ),
           ),
         ),
-        SizedBox(
-          width: size.width / 2,
-        )
       ]),
     );
   }

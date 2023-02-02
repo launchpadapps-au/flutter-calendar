@@ -110,6 +110,16 @@ class CalendarAppBar extends StatelessWidget implements PreferredSizeWidget {
         actions: <Widget>[
           IconButton(
               icon: const Icon(
+                Icons.undo,
+                color: Colors.black,
+              ),
+              onPressed: () {
+                BlocProvider.of<TimeTableCubit>(context)
+                    .mockObject
+                    .invokeMethod(ReceiveMethods.resetEvent, null);
+              }),
+          IconButton(
+              icon: const Icon(
                 Icons.calendar_month,
                 color: Colors.black,
               ),
@@ -120,7 +130,7 @@ class CalendarAppBar extends StatelessWidget implements PreferredSizeWidget {
               }),
           IconButton(
               icon: const Icon(
-                Icons.image,
+                Icons.file_download,
                 color: Colors.black,
               ),
               onPressed: () {

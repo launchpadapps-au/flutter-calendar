@@ -16,6 +16,7 @@ class TermNote extends StatelessWidget {
     required this.size,
     required this.isDraggable,
     required this.onTap,
+    required this.calendarDay,
     this.onMoreTap,
     super.key,
   });
@@ -24,7 +25,7 @@ class TermNote extends StatelessWidget {
   final double cellHeight, breakHeight;
 
   ///provide calalback user tap on the cell
-  final Function(DateTime dateTime, List<CalendarEvent<Note>>) onTap;
+  final Function(CalendarDay dateTime, List<CalendarEvent<Note>>) onTap;
 
   ///list of event
   final List<CalendarEvent<Note>> item;
@@ -39,6 +40,8 @@ class TermNote extends StatelessWidget {
   /// pass true if is draggable
   final bool isDraggable;
 
+  ///Calendar Day of the event
+  final CalendarDay calendarDay;
   @override
   Widget build(BuildContext context) => item.isEmpty
       ? const SizedBox.shrink()
@@ -63,6 +66,7 @@ class TermNote extends StatelessWidget {
                     return width.isNegative
                         ? const SizedBox.shrink()
                         : SmallEventTile(
+                            calendarDay: calendarDay,
                             event: e,
                             crossAxisAlignment: showFullSize
                                 ? CrossAxisAlignment.start
@@ -85,10 +89,8 @@ class TermNote extends StatelessWidget {
                           avoidOverflow: true,
                           builder: (BuildContext context) => NoteDialog(
                                 dateTime: item.first.startTime,
-                                notes: item
-                                    .skip(item.length - moreCount)
-                                    .take(moreCount)
-                                    .toList(),
+                                calendarDay: calendarDay,
+                                notes: item,
                                 onTap: onTap,
                               ),
                           barrierColor: Colors.transparent);

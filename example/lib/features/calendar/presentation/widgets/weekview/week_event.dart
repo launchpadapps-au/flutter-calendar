@@ -2,12 +2,11 @@ import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/url.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 
 ///event tile for the week
-class WeekEvent extends StatefulWidget {
+class WeekEvent extends StatelessWidget {
   ///initilize the week event
   const WeekEvent(
       {required this.item,
@@ -34,179 +33,155 @@ class WeekEvent extends StatefulWidget {
   final double width;
 
   @override
-  State<WeekEvent> createState() => _WeekEventState();
-}
+  Widget build(BuildContext context) {
+    double margin = 4;
+    double padding = 8;
+    double borderRadius = 4;
+    double borderWidth = 0;
+    const Color borderColor = textGrey;
+    late Color bgColor = darkestGrey;
+    late double tileWidth;
+    late bool hideIcon;
 
-class _WeekEventState extends State<WeekEvent> {
-  double margin = 4;
-  double padding = 8;
-  double borderRadius = 4;
-  double borderWidth = 0;
-  Color borderColor = textGrey;
-  late Color dutyColor;
-  late double tileWidth;
-  late bool hideIcon;
+    late bool hideCircle;
+    margin = item.eventData!.isDutyTime ? 0 : 4;
+    padding = item.eventData!.isDutyTime ? 0 : 8;
+    borderRadius = item.eventData!.isDutyTime ? 0 : 4;
+    borderWidth = item.eventData!.isDutyTime ? 8 : 0;
+    tileWidth = width - 2 * margin - 2 * padding;
 
-  late bool hideCircle;
-
-  void setUI() {
-    PeriodModel? periodModel;
-
-    try {
-      final Period p = widget.periods.firstWhere(
-          (Period element) => element.id == widget.item.eventData!.slots);
-      periodModel = p as PeriodModel;
-    } on StateError {
-      periodModel = null;
+    if (item.eventData!.isDutyTime) {
+      bgColor = grey;
+    } else if (item.eventData!.isFreeTime) {
+      bgColor = freeTimeColor;
+    } else if (item.eventData!.subject != null) {
+      bgColor = item.eventData!.color;
+    } else {
+      bgColor = darkestGrey;
     }
-
-    dutyColor = widget.item.eventData!.color;
-    borderColor = textGrey;
-    if (periodModel != null) {
-      if (periodModel.isAfterSchool || periodModel.isBeforeSchool) {
-        // dutyColor = lightPink;
-        // borderColor = lightPinkBorder;
-      }
-    }
-    margin = widget.item.eventData!.isDutyTime ? 0 : 4;
-    padding = widget.item.eventData!.isDutyTime ? 0 : 8;
-    borderRadius = widget.item.eventData!.isDutyTime ? 0 : 4;
-    borderWidth = widget.item.eventData!.isDutyTime ? 8 : 0;
-    tileWidth = widget.width - 2 * margin - 2 * padding;
-    hideIcon = widget.item.eventData!.extraCurricular == null || tileWidth < 34;
+    hideIcon = item.eventData!.extraCurricular == null || tileWidth < 34;
 
     hideCircle = tileWidth < 10;
-    setState(() {});
-  }
-
-  @override
-  void initState() {
-    setUI();
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) => InkWell(
-      onTap: () {
-        widget.onTap!(widget.item.startTime, null, widget.item);
-      },
-      child: Container(
-        width: widget.width,
-        height: widget.cellHeight,
-        margin: EdgeInsets.all(margin),
-        padding: EdgeInsets.all(padding),
-        decoration: BoxDecoration(
-            color: dutyColor,
-            border: widget.item.eventData!.isDutyTime
-                ? Border(
-                    left: BorderSide(color: borderColor, width: borderWidth))
-                : null,
-            borderRadius: widget.item.eventData!.isDutyTime
-                ? null
-                : BorderRadius.circular(borderRadius)),
-        child: widget.item.eventData!.isDuty
-            ? SizedBox(
-                height: widget.breakHeight,
-                child: Center(
-                    child: Text(
-                  widget.item.eventData!.title,
-                  style: context.subtitle,
-                )),
-              )
-            : Column(
-                children: <Widget>[
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Expanded(
-                          child: Column(
-                        children: <Widget>[
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              hideCircle
-                                  ? const SizedBox.shrink()
-                                  : const Padding(
-                                      padding: EdgeInsets.only(top: 3),
-                                      child: Icon(
-                                        Icons.circle,
-                                        color: Colors.black,
-                                        size: 6,
+    return InkWell(
+        onTap: () {
+          onTap!(item.startTime, null, item);
+        },
+        child: Container(
+          width: width,
+          height: cellHeight,
+          margin: EdgeInsets.all(margin),
+          padding: EdgeInsets.all(padding),
+          decoration: BoxDecoration(
+              color: bgColor,
+              border: item.eventData!.isDutyTime
+                  ? Border(
+                      left: BorderSide(color: borderColor, width: borderWidth))
+                  : null,
+              borderRadius: item.eventData!.isDutyTime
+                  ? null
+                  : BorderRadius.circular(borderRadius)),
+          child: item.eventData!.isDuty
+              ? SizedBox(
+                  height: breakHeight,
+                  child: Center(
+                      child: Text(
+                    item.eventData!.title,
+                    style: context.subtitle,
+                  )),
+                )
+              : Column(
+                  children: <Widget>[
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Expanded(
+                            child: Column(
+                          children: <Widget>[
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                hideCircle
+                                    ? const SizedBox.shrink()
+                                    : const Padding(
+                                        padding: EdgeInsets.only(top: 3),
+                                        child: Icon(
+                                          Icons.circle,
+                                          color: Colors.black,
+                                          size: 6,
+                                        ),
                                       ),
-                                    ),
-                              hideCircle
-                                  ? const SizedBox.shrink()
-                                  : const SizedBox(
-                                      width: 4,
-                                    ),
-                              Flexible(
+                                hideCircle
+                                    ? const SizedBox.shrink()
+                                    : const SizedBox(
+                                        width: 4,
+                                      ),
+                                Flexible(
+                                  child: Text(
+                                    item.eventData!.title,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: context.eventTitle,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            item.eventData!.freeTime
+                                ? const SizedBox.shrink()
+                                : Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Flexible(
+                                        child: Text(
+                                          item.eventData!.location ?? '',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: context.eventTitle,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                          ],
+                        )),
+                        hideIcon
+                            ? const SizedBox.shrink()
+                            : Transform(
+                                transform: Matrix4.translationValues(0, -4, 0),
                                 child: Text(
-                                  widget.item.eventData!.title,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: context.eventTitle,
+                                  item.eventData!.extraCurricular!,
+                                  style: const TextStyle(fontSize: 20),
                                 ),
                               ),
-                            ],
-                          ),
-                          widget.item.eventData!.freeTime
-                              ? const SizedBox.shrink()
-                              : Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Flexible(
-                                      child: Text(
-                                        widget.item.eventData!.location ?? '',
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: context.eventTitle,
-                                      ),
-                                    ),
-                                  ],
-                                )
-                        ],
-                      )),
-                      hideIcon
-                          ? const SizedBox.shrink()
-                          : Image.network(
-                              widget.item.eventData!.extraCurricular!,
-                              width: 24,
-                              height: 24,
-                              errorBuilder: (BuildContext context, Object error,
-                                      StackTrace? stackTrace) =>
-                                  const SizedBox.shrink(),
-                            )
-                    ],
-                  ),
-                  widget.item.eventData!.freeTime ||
-                          widget.item.eventData!.isDutyTime
-                      ? const SizedBox.shrink()
-                      : const Spacer(),
-                  widget.item.eventData!.freeTime ||
-                          widget.item.eventData!.eventLinks == null ||
-                          widget.item.eventData!.eventLinks.toString() == ''
-                      ? const SizedBox.shrink()
-                      : GestureDetector(
-                          onTap: () {
-                            launchLink(
-                                widget.item.eventData!.eventLinks, context);
-                          },
-                          child: Container(
-                              width: MediaQuery.of(context).size.width,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 4, vertical: 2),
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20)),
-                              child: Center(
-                                child: Text(
-                                  '${widget.item.eventData!.eventLinks}',
-                                  overflow: TextOverflow.ellipsis,
-                                  style: context.subtitle,
-                                ),
-                              )),
-                        )
-                ],
-              ),
-      ));
+                      ],
+                    ),
+                    item.eventData!.freeTime || item.eventData!.isDutyTime
+                        ? const SizedBox.shrink()
+                        : const Spacer(),
+                    item.eventData!.freeTime ||
+                            item.eventData!.eventLinks == null ||
+                            item.eventData!.eventLinks.toString() == ''
+                        ? const SizedBox.shrink()
+                        : GestureDetector(
+                            onTap: () {
+                              launchLink(item.eventData!.eventLinks, context);
+                            },
+                            child: Container(
+                                width: MediaQuery.of(context).size.width,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 4, vertical: 2),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20)),
+                                child: Center(
+                                  child: Text(
+                                    '${item.eventData!.eventLinks}',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: context.subtitle,
+                                  ),
+                                )),
+                          )
+                  ],
+                ),
+        ));
+  }
 }

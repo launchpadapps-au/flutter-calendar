@@ -24,8 +24,9 @@ class ExportSetting {
     required this.fullWeek,
     required this.pageFormat,
     required this.path,
-    this.subjectId,
-    this.subjectName,
+    required this.subjectId,
+    required this.subjectName,
+    this.allSubject = true,
     this.saveImg = false,
   });
 
@@ -37,6 +38,7 @@ class ExportSetting {
       subjectId: json['subjectId'],
       subjectName: json['subjectName'],
       fullWeek: json['fullWeek'],
+      allSubject: json['allSubject'],
       pageFormat: PdfPageFormat.a4.landscape.copyWith(
           marginLeft: 10, marginRight: 10, marginTop: 0, marginBottom: 10),
       path: json['path']);
@@ -51,13 +53,16 @@ class ExportSetting {
   CalendarViewType view;
 
   ///id of subject that need to export
-  String? subjectId;
+  String subjectId;
 
   ///name of subject that need to export
-  String? subjectName;
+  String subjectName;
 
   ///true if want to export week end
   bool fullWeek;
+
+  ///true if want to export all subject
+  bool allSubject;
 
   ///true if want to save img
   bool saveImg;
@@ -76,6 +81,7 @@ class ExportSetting {
         'subjects': subjectId,
         'subjectName': subjectName,
         'fullWeek': fullWeek,
+        'allSubject': allSubject,
         'path': path
       };
 }

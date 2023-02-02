@@ -891,3 +891,41 @@ List<List<CalendarEvent<T>>> getEventList<T>(List<CalendarEvent<T>> events) {
   }
   return eventMap.values.toList();
 }
+
+///return list of date between given parameter
+List<DateTime> getDateRange(DateTime start, DateTime end,
+    {bool fullWeek = true}) {
+  final List<DateTime> dateRange = <DateTime>[];
+  final int diff = end.difference(start).inDays;
+
+  for (int i = 0; i <= diff; i++) {
+    final DateTime date = start.add(Duration(days: i));
+    if (fullWeek) {
+      dateRange.add(date);
+    } else {
+      if (date.weekday > 5) {
+      } else {
+        dateRange.add(DateUtils.dateOnly(date));
+      }
+    }
+  }
+  return dateRange;
+}
+
+///return view port size for the week view
+double getViewPortSize(int maxColumn,
+    {required bool isMobile, required bool fullWeek}) {
+  switch (isMobile) {
+    case true:
+      return 1 / 3;
+
+    case false:
+      if (maxColumn < 7) {
+        return 1 / 5;
+      } else {
+        return 1 / 7;
+      }
+    default:
+      return 1;
+  }
+}

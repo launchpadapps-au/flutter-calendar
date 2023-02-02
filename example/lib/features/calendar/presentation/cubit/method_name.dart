@@ -75,6 +75,9 @@ class ReceiveMethods {
 
   ///dowanload pdf
   static const String downloadPdf = 'downloadPdf';
+
+  ///it will rest event to state before dragging
+  static const String resetEvent = 'resetEvent';
 }
 
 ///class which contain static method name which used to send data to native app

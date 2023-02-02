@@ -103,6 +103,7 @@ class ExportView {
             subjectName: exportSetting.subjectName,
             event: event,
             subjectId: exportSetting.subjectId,
+            allSubject: exportSetting.allSubject,
             fullWeek: exportSetting.fullWeek);
         break;
       case CalendarViewType.dayView:
@@ -115,6 +116,7 @@ class ExportView {
             timelines: timelines,
             event: event,
             fullWeek: exportSetting.fullWeek,
+            allSubject: exportSetting.allSubject,
             subjectId: exportSetting.subjectId,
             subjectName: exportSetting.subjectName);
         break;
@@ -153,10 +155,15 @@ class ExportView {
     final PdfUtils pdfUtils = PdfUtils();
     pdfUtils.stream.listen((ExportProgress event) async {
       logInfo('stram is working');
-      await nativeCallBack.sendToNativeApp(SendMethods.downloadProgress, event.toJson());
+      await nativeCallBack.sendToNativeApp(
+          SendMethods.downloadProgress, event.toJson());
     });
     final String filePath = await pdfUtils.savePdf(
         datalist, titles, pageFormat, pdfTitle, localPath);
+
+    for (var path in paths) {
+      FileUtils.deleteFile(path);
+    }
     await nativeCallBack.sendToNativeApp(
         SendMethods.downloadProgress,
         ExportProgress(
@@ -172,8 +179,9 @@ class ExportView {
       required DateTime endDate,
       required List<Period> timelines,
       required List<PlannerEvent> event,
-      String? subjectId,
-      String? subjectName,
+      required bool allSubject,
+      required String subjectId,
+      required String subjectName,
       bool fullWeek = true,
       bool appBar = false,
       bool isMobile = false}) async {
@@ -196,7 +204,7 @@ class ExportView {
       cellWidth = (size.width - timeLineWidth) / numberOfCell;
 
       List<PlannerEvent> filterdEvent;
-      if (subjectId == null) {
+      if (allSubject) {
         logPrety('Exporting All Subject');
         filterdEvent = event
             .where((PlannerEvent element) =>
@@ -233,6 +241,7 @@ class ExportView {
                   infiniteScrolling: false,
                   timelineWidth: timeLineWidth,
                   breakHeight: breakHeight,
+                  maxColumns: fullWeek ? 7 : 5,
                   cellHeight: cellHeight)
                 ..addEvent(filterdEvent);
           final DateTime first = week.start;
@@ -249,9 +258,16 @@ class ExportView {
                           decoration: BoxDecoration(
                               color: white, border: Border.all(width: 0)),
                           child: SlWeekView<EventData>(
-                              backgroundColor: white,
                               fullWeek: fullWeek,
+                              snapToDay: true,
+                              onDateChanged: (dateTime) {},
+                              onEventToEventDragged:
+                                  (existing, old, newEvent, periodModel) {},
+                              onWillAcceptForEvent:
+                                  (draggeed, existing, dateTime) => false,
+                              autoScrollToday: false,
                               headerDivideThickness: 0,
+                              
                               columnWidth: cellWidth,
                               showNowIndicator: false,
                               size: size,
@@ -261,9 +277,8 @@ class ExportView {
                                   Period? period) {},
                               onTap: (DateTime date, Period period,
                                   CalendarEvent<EventData>? event) {},
-                              onWillAccept:
-                                  (CalendarEvent<EventData>? event, Period p) =>
-                                      true,
+                              onWillAccept: (CalendarEvent<EventData>? event, Period p) =>
+                                  true,
                               showActiveDateIndicator: false,
                               nowIndicatorColor: timeIndicatorColor,
                               cornerBuilder: (DateTime current) =>
@@ -279,18 +294,15 @@ class ExportView {
                                   cellHeight: cellHeight,
                                   timelineWidth: timeLineWidth,
                                   isMobile: isMobile),
-                              isCellDraggable:
-                                  (CalendarEvent<EventData> event) =>
-                                      isCelldraggable(event),
+                              isCellDraggable: (CalendarEvent<EventData> event) =>
+                                  isCelldraggable(event),
                               controller: simpleController,
-                              itemBuilder: (CalendarEvent<EventData> item,
-                                      double width) =>
-                                  WeekEvent(
-                                      item: item,
-                                      cellHeight: cellHeight,
-                                      breakHeight: breakHeight,
-                                      width: width,
-                                      periods: timelines),
+                              itemBuilder: (CalendarEvent<EventData> item, double width) => WeekEvent(
+                                  item: item,
+                                  cellHeight: cellHeight,
+                                  breakHeight: breakHeight,
+                                  width: width,
+                                  periods: timelines),
                               cellBuilder: (Period period, DateTime dateTime) =>
                                   ExportCell(
                                       periodModel: period as PeriodModel,
@@ -298,18 +310,19 @@ class ExportView {
                                       cellHeight: simpleController.cellHeight)),
                         ),
                       )),
-                  targetSize: size)
+                  targetSize: size,
+                  delay: const Duration(seconds: 2))
               .then((Uint8List value) async {
             final String fileName = 'Week ${weeks.indexOf(week) + 1}';
             logInfo(' Week view image received from planner');
-            final String imagePath =
-                await FileUtils.saveTomImage(value, filename: fileName);
+            final String imagePath = await FileUtils.saveTomImage(value,
+                filename: fileName, localPath: localPath);
             paths.add(imagePath);
             datalist.add(value);
             String subtitle = 'All Subjects';
             final String weekendsTitle = fullWeek ? '/ Weekend included' : '';
-            if (subjectId != null) {
-              subtitle = subjectName!;
+            if (!allSubject) {
+              subtitle = subjectName;
             }
             titles.add(
               'From ${DateFormat('d MMM').format(first)}To ${DateFormat('d MMMM y').format(last)}/ $subtitle$weekendsTitle',
@@ -348,8 +361,9 @@ class ExportView {
       required DateTime endDate,
       required List<Period> timelines,
       required List<PlannerEvent> event,
-      String? subjectId,
-      String? subjectName,
+      required bool allSubject,
+      required String subjectId,
+      required String subjectName,
       bool fullWeek = true,
       bool appBar = false,
       bool isMobile = false}) async {
@@ -370,9 +384,9 @@ class ExportView {
       size = Size(timeLigneHeight * ar, timeLigneHeight + 5);
       cellWidth = (size.width - timeLineWidth) / numberOfCell;
 
-      final int dif = endDate.difference(startDate).inDays;
+      final int dif = endDate.difference(startDate).inDays + 1;
       List<PlannerEvent> filterdEvent;
-      if (subjectId == null) {
+      if (allSubject) {
         logPrety('Exporting All Subject');
         filterdEvent = event
             .where((PlannerEvent element) =>
@@ -443,6 +457,8 @@ class ExportView {
                                   true,
                               nowIndicatorColor: timeIndicatorColor,
                               fullWeek: fullWeek,
+                              snapToDay: true,
+                              autoScrollToday: false,
                               cornerBuilder: (DateTime current) =>
                                   const SizedBox.shrink(),
                               onTap: (DateTime dateTime, Period p1,
@@ -489,14 +505,17 @@ class ExportView {
                   ),
                   targetSize: size)
               .then((Uint8List value) async {
-            const String subtitle = 'All Subjects';
+            String subtitle = 'All Subjects';
             final String weekendsTitle = fullWeek ? '/ Weekend included' : '';
             final String fileName = 'Day ${i + 1}';
             logInfo(' Day view image received from planner');
 
-            final String imagePath =
-                await FileUtils.saveTomImage(value, filename: fileName);
+            final String imagePath = await FileUtils.saveTomImage(value,
+                filename: fileName, localPath: localPath);
             paths.add(imagePath);
+            if (!allSubject) {
+              subtitle = subjectName;
+            }
             datalist.add(value);
             titles.add(
               '${DateFormat('d MMMM y').format(date)}/ $subtitle$weekendsTitle',
@@ -514,8 +533,7 @@ class ExportView {
       if (generatingPreview) {
         await nativeCallBack.sendToNativeApp(
             SendMethods.previewProgress,
-            ExportProgress(
-                    status: ExportStatus.inProgress, progress: 1, path: paths)
+            ExportProgress(status: ExportStatus.done, progress: 1, path: paths)
                 .toJson());
       }
       return true;
@@ -580,7 +598,7 @@ class ExportView {
                                     const Expanded(
                                       child: DeadCell(),
                                     ),
-                            onTap: (DateTime date) {},
+                            onTap: (CalendarDay date) {},
                             headerHeight: 40,
                             headerCellBuilder: (int index) => ExportMonthHeader(
                                   height: timetableController.headerHeight,
@@ -589,17 +607,18 @@ class ExportView {
                             hourLabelBuilder: (Period period) => MonthHourLable(
                                 periodModel: period as PeriodModel),
                             controller: timetableController,
-                            itemBuilder:
-                                (List<CalendarEvent<Note>> item, Size size) =>
-                                    MonthNote(
-                                      item: item,
-                                      cellHeight: cellHeight,
-                                      breakHeight: breakHeight,
-                                      size: size,
-                                      isDraggable: false,
-                                      onTap: (DateTime dateTime,
-                                          List<CalendarEvent<Note>> p1) {},
-                                    ),
+                            itemBuilder: (List<CalendarEvent<Note>> item,
+                                    Size size, CalendarDay calendarDay) =>
+                                MonthNote(
+                                  item: item,
+                                  calendarDay: calendarDay,
+                                  cellHeight: cellHeight,
+                                  breakHeight: breakHeight,
+                                  size: size,
+                                  isDraggable: false,
+                                  onTap: (CalendarDay dateTime,
+                                      List<CalendarEvent<Note>> p1) {},
+                                ),
                             cellBuilder: (Period period) => MonthCell(
                                 periodModel: period as PeriodModel,
                                 breakHeight: timetableController.breakHeight,
@@ -607,13 +626,15 @@ class ExportView {
                   ),
                   targetSize: size)
               .then((Uint8List value) async {
+            final String formated =
+                DateFormat('MMMM').format(DateTime(month.year, month.month));
             final String fileName = 'Month '
-                "${DateFormat('MMMM').format(DateTime(month.year, month.month))}";
+                '$formated';
             const String subtitle = 'All Notes';
             logInfo(' Month view image received from planner');
 
-            final String imagePath =
-                await FileUtils.saveTomImage(value, filename: fileName);
+            final String imagePath = await FileUtils.saveTomImage(value,
+                filename: fileName, localPath: localPath);
             paths.add(imagePath);
             datalist.add(value);
             titles.add(

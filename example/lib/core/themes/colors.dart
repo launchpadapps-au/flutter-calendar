@@ -67,3 +67,6 @@ const Color white = Colors.white;
 
 ///blueGrey color for the month tile
 const Color blueGrey = Color(0xFF9AB7D3);
+
+///color for the freeTime
+Color freeTimeColor = const Color(0xFFCBCE42).withOpacity(0.5);

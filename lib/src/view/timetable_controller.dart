@@ -180,8 +180,8 @@ class TimetableController<T> {
   void setColumns(int i) {
     if (i == _columns) {
       return;
-      // _columns = i;
     }
+    _columns = i;
     dispatch(TimetableColumnsChanged(i));
   }
 
@@ -189,8 +189,8 @@ class TimetableController<T> {
   void setMaxColumns(int i) {
     if (i == _columns) {
       return;
-      // _columns = i;
     }
+    _columns = i;
     dispatch(TimetableMaxColumnsChanged(i));
   }
 
@@ -204,6 +204,14 @@ class TimetableController<T> {
     }
     _cellHeight = min(height, 1000);
     dispatch(TimetableCellHeightChanged(height));
+  }
+
+  /// it wil. change cell height
+
+  void chageCellHeight(double cellHeight, double breakHeight) {
+    _breakHeight = breakHeight;
+    _cellHeight = cellHeight;
+    dispatch(TimetableCellSizeChanged(_cellHeight, _breakHeight));
   }
 
   /// This allows the timetable to update the current visible date.
@@ -236,12 +244,11 @@ class TimetableController<T> {
 
   void addEvent(List<CalendarEvent<T>> events, {bool replace = false}) {
     if (replace) {
-      _events.clear();
       _events = events;
     } else {
       _events.addAll(events);
     }
-    dispatch(AddEventToTable<T>(events: events, replace: replace));
+    dispatch(AddEventToTable<T>(events: _events, replace: replace));
   }
 
   ///add event to calendar
@@ -285,6 +292,18 @@ class TimetableCellHeightChanged extends TimetableControllerEvent {
 
   ///cell height
   final double height;
+}
+
+/// Event used to change the cell height of the timetable
+class TimetableCellSizeChanged extends TimetableControllerEvent {
+  /// cell height change event
+  TimetableCellSizeChanged(this.cellHeigh, this.breakHeight);
+
+  ///cell height
+  final double cellHeigh;
+
+  ///cell height
+  final double breakHeight;
 }
 
 /// Event used to change the number of columns in the timetable

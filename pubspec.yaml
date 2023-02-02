@@ -13,6 +13,7 @@ dependencies:
     sdk: flutter
   intl: ^0.17.0  
   scrollable_positioned_list: ^0.3.5
+  shared_preferences: ^2.0.17
  
 dev_dependencies:
   flutter_test:

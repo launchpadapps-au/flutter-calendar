@@ -1,6 +1,7 @@
 import 'package:edgar_planner_calendar_flutter/core/themes/constants.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/calendar_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/calendar_event_state.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/method_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
@@ -73,12 +74,20 @@ class _SettingDrawerState extends State<SettingDrawer> {
                               onPressed: () {
                                 BlocProvider.of<TimeTableCubit>(context)
                                     .changeViewType(CalendarViewType.dayView);
+                                BlocProvider.of<TimeTableCubit>(context)
+                                    .mockObject
+                                    .invokeMethod(
+                                        ReceiveMethods.jumpToCurrentDate, null);
                               }),
                           ElevatedButton(
                             child: const Text('Week view'),
                             onPressed: () {
                               BlocProvider.of<TimeTableCubit>(context)
                                   .changeViewType(CalendarViewType.weekView);
+                              BlocProvider.of<TimeTableCubit>(context)
+                                  .mockObject
+                                  .invokeMethod(
+                                      ReceiveMethods.jumpToCurrentDate, null);
                             },
                           ),
                           ElevatedButton(
@@ -87,6 +96,10 @@ class _SettingDrawerState extends State<SettingDrawer> {
                                 BlocProvider.of<TimeTableCubit>(context)
                                     .changeViewType(
                                         CalendarViewType.scheduleView);
+                                BlocProvider.of<TimeTableCubit>(context)
+                                    .mockObject
+                                    .invokeMethod(
+                                        ReceiveMethods.jumpToCurrentDate, null);
                               }),
                           isMobile
                               ? const SizedBox.shrink()

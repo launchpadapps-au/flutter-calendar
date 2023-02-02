@@ -166,7 +166,7 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
   @override
   void initState() {
     controller = widget.controller ?? controller;
-    
+
     indexdController = IndexedScrollController(
         initialIndex: controller.start.difference(dateTime).inDays);
     setState(() {});
@@ -229,39 +229,6 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
     }
     setState(() {});
   }
-
-  ///get data range
-  List<DateTime> getDateRange() {
-    final List<DateTime> tempDateRange = <DateTime>[];
-    appLog('Setting dates');
-    final int diff = controller.end.difference(controller.start).inDays;
-    dateRange.clear();
-    for (int i = 0; i < diff; i++) {
-      final DateTime date = controller.start.add(Duration(days: i));
-      if (widget.fullWeek) {
-        dateRange.add(date);
-      } else {
-        if (date.weekday > 5) {
-        } else {
-          dateRange.add(date);
-        }
-      }
-    }
-    return tempDateRange;
-  }
-
-  ///return count of periods and break that are overlapping
-  List<int> getOverLappingTimeline(TimeOfDay start, TimeOfDay end) {
-    const int p = 0;
-    const int b = 0;
-
-    appLog('Event P:$p and B:$b');
-    return <int>[p, b];
-  }
-
-  ///get cell height
-  double getCellHeight(List<int> data) =>
-      data[0] * controller.cellHeight + data[1] * controller.breakHeight;
 
   @override
   void dispose() {
@@ -346,6 +313,9 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
     if (event is TimetableJumpToRequested) {
       log('jumping to ${event.date}');
       await _jumpTo(event.date);
+    }
+    if (event is TimetableCellSizeChanged) {
+      setState(() {});
     }
     if (mounted) {
       setState(() {});

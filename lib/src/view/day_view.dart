@@ -18,6 +18,7 @@ class NewSlDayView<T> extends StatefulWidget {
   const NewSlDayView({
     required this.timelines,
     required this.onWillAccept,
+    this.onWillAcceptForEvent,
     this.backgroundColor = Colors.transparent,
     Key? key,
     this.size,
@@ -36,6 +37,7 @@ class NewSlDayView<T> extends StatefulWidget {
     this.headerDecoration,
     this.showNowIndicator = true,
     this.cornerBuilder,
+    this.autoScrollToday = true,
     this.snapToDay = true,
     this.isCellDraggable,
     this.infiteScrolling = false,
@@ -76,6 +78,9 @@ class NewSlDayView<T> extends StatefulWidget {
 
   /// Snap to hour column. Default is `true`.
   final bool snapToDay;
+
+  ///auto scroll to today. default is true
+  final bool autoScrollToday;
 
   ///show now indicator,default is true
   final bool showNowIndicator;
@@ -119,6 +124,16 @@ class NewSlDayView<T> extends StatefulWidget {
   /// [onLeave], if the drag leaves the target.
   final Function(CalendarEvent<T>, DateTime, Period) onWillAccept;
 
+  ///it will use to determine wether event will accept event or not
+  /// Called to determine whether this widget is interested in receiving a given
+  /// piece of data being dragged over this drag target.
+  ///
+  /// Called when a piece of data enters the target. This will be followed by
+  /// either [onAccept] and [onAcceptWithDetails], if the data is dropped, or
+  /// [onLeave], if the drag leaves the target.
+  final bool Function(CalendarEvent<T> draggeed, CalendarEvent<T> existing,
+      DateTime dateTime)? onWillAcceptForEvent;
+
   ///function will handle if event is draggable
   final bool Function(CalendarEvent<T> event)? isCellDraggable;
 
@@ -143,6 +158,7 @@ class NewSlDayView<T> extends StatefulWidget {
 
 class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
   double columnWidth = 50;
+  int initialPage = 0;
   TimetableController<T> controller = TimetableController<T>();
   final GlobalKey<State<StatefulWidget>> _key = GlobalKey();
 
@@ -167,7 +183,7 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
   @override
   void initState() {
     controller = widget.controller ?? controller;
- 
+
     indexdController = IndexedScrollController(
         initialIndex: controller.start.difference(dateTime).inDays);
     setState(() {});
@@ -197,57 +213,19 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
   ///get initial list of dates
   void initDate() {
     appLog('Setting dates');
-    final int diff = controller.end.difference(controller.start).inDays;
-    dateRange.clear();
-    for (int i = 0; i <= diff; i++) {
-      final DateTime date = controller.start.add(Duration(days: i));
-      if (widget.fullWeek) {
-        dateRange.add(date);
-      } else {
-        if (date.weekday > 5) {
-        } else {
-          dateRange.add(date);
-        }
-      }
-    }
+    dateRange = getDateRange(controller.start, controller.end,
+        fullWeek: widget.fullWeek);
     dateForHeader = dateRange[0];
+    if (widget.autoScrollToday) {
+      initialPage = dateRange.indexOf(DateUtils.dateOnly(DateTime.now()));
+      pageController = PageController(initialPage: initialPage);
+      dateForHeader = dateRange[initialPage];
+    }
+
     if (mounted) {
       setState(() {});
     }
   }
-
-  ///get data range
-  List<DateTime> getDateRange() {
-    final List<DateTime> tempDateRange = <DateTime>[];
-    appLog('Setting dates');
-    final int diff = controller.end.difference(controller.start).inDays;
-    dateRange.clear();
-    for (int i = 0; i < diff; i++) {
-      final DateTime date = controller.start.add(Duration(days: i));
-      if (widget.fullWeek) {
-        dateRange.add(date);
-      } else {
-        if (date.weekday > 5) {
-        } else {
-          dateRange.add(date);
-        }
-      }
-    }
-    return tempDateRange;
-  }
-
-  ///return count of periods and break that are overlapping
-  List<int> getOverlappingTimeline(TimeOfDay start, TimeOfDay end) {
-    const int p = 0;
-    const int b = 0;
-
-    appLog('Event P:$p and B:$b');
-    return <int>[p, b];
-  }
-
-  ///get cell height
-  double getCellHeight(List<int> data) =>
-      data[0] * controller.cellHeight + data[1] * controller.breakHeight;
 
   @override
   void dispose() {
@@ -325,35 +303,12 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
       eventNotifier.sink.add(items);
       log('total events  ${items.length}');
     }
+    if (event is TimetableCellSizeChanged) {
+      setState(() {});
+    }
     if (event is TimeTableSave) {
       ///implimet timetable save
     }
-  }
-
-  double getHeightOfTheEvent(CalendarEvent<dynamic> item) {
-    double h = 0;
-
-    final List<Period> periods = <Period>[];
-
-    for (final Period period in widget.timelines) {
-      if (period.startTime.hour >= item.startTime.hour) {
-        if (period.endTime.hour <= item.endTime.hour) {
-          if (period.startTime.minute >= item.startTime.minute) {
-            if (period.endTime.minute <= item.endTime.minute) {
-              periods.add(period);
-            }
-          }
-        }
-      }
-    }
-
-    for (final Period element in periods) {
-      h = h +
-          (element.isCustomeSlot
-              ? controller.breakHeight
-              : controller.cellHeight);
-    }
-    return h;
   }
 
   double maxColumn = 5;
@@ -411,44 +366,56 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
                 widget.headerHeight +
                 12,
             child: controller.infiniteScrolling
-                ? IndexedListView.builder(
-                    controller: indexdController,
-                    cacheExtent: 0,
-                    minItemCount: controller.infiniteScrolling ? null : 0,
-                    maxItemCount: controller.infiniteScrolling
-                        ? null
-                        : controller.end.difference(controller.start).inDays,
-                    scrollDirection: Axis.horizontal,
-                    emptyItemBuilder: (BuildContext context, int index) =>
-                        const SizedBox.shrink(),
-                    itemBuilder: (BuildContext context, int index) {
-                      final DateTime date =
-                          controller.start.add(Duration(days: index));
-                      dateForHeader = date;
+                ? NotificationListener<ScrollNotification>(
+                    onNotification: (ScrollNotification notification) {
+                      if (notification is ScrollEndNotification) {
+                        _snapToCloset(notification, size);
+                      }
+                      return false;
+                    },
+                    child: IndexedListView.builder(
+                        controller: indexdController,
+                        cacheExtent: 0,
+                        minItemCount: controller.infiniteScrolling ? null : 0,
+                        maxItemCount: controller.infiniteScrolling
+                            ? null
+                            : controller.end
+                                .difference(controller.start)
+                                .inDays,
+                        scrollDirection: Axis.horizontal,
+                        emptyItemBuilder: (BuildContext context, int index) =>
+                            const SizedBox.shrink(),
+                        itemBuilder: (BuildContext context, int index) {
+                          final DateTime date =
+                              controller.start.add(Duration(days: index));
+                          dateForHeader = date;
 
-                      final DateTime now = DateTime.now();
-                      final bool isToday =
-                          DateUtils.isSameDay(dateForHeader, now);
+                          final DateTime now = DateTime.now();
+                          final bool isToday =
+                              DateUtils.isSameDay(dateForHeader, now);
 
-                      return !widget.fullWeek && date.weekday > 5
-                          ? null
-                          : buildView(
-                              size,
-                              date,
-                              getTimelineHeight(
-                                  widget.timelines,
-                                  controller.cellHeight,
-                                  controller.breakHeight),
-                              isToday: isToday);
-                    })
+                          return !widget.fullWeek && date.weekday > 5
+                              ? null
+                              : buildView(
+                                  size,
+                                  date,
+                                  getTimelineHeight(
+                                      widget.timelines,
+                                      controller.cellHeight,
+                                      controller.breakHeight),
+                                  isToday: isToday);
+                        }),
+                  )
                 : PageView.builder(
                     controller: finiteScrollController,
                     itemCount: dateRange.length,
                     onPageChanged: (int value) {
                       if (widget.onDateChanged != null) {
-                        widget.onDateChanged!(dateRange[value]);
+                        dateForHeader = dateRange[value];
+                        widget.onDateChanged!(dateForHeader);
                       }
                     },
+                    pageSnapping: widget.snapToDay,
                     itemBuilder: (BuildContext context, int index) {
                       final DateTime date = dateRange[index];
                       dateForHeader = date;
@@ -694,8 +661,16 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
                                               details.data, myEvents, null);
                                         }
                                       },
-                                      onWillAccept: (CalendarEvent<T>? data) =>
-                                          false,
+                                      onWillAccept: (CalendarEvent<T>? data) {
+                                        if (widget.onWillAcceptForEvent !=
+                                            null) {
+                                          log('Event to event drag in day');
+                                          return widget.onWillAcceptForEvent!(
+                                              data!, event, date);
+                                        } else {
+                                          return true;
+                                        }
+                                      },
                                       columnWidth:
                                           size.width - controller.timelineWidth,
                                       event: event,
@@ -730,6 +705,41 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
           ],
         ),
       );
+
+  final Curve _animationCurve = Curves.linear;
+
+  bool _isSnapping = false;
+
+  Future<void> _snapToCloset(
+      ScrollEndNotification endNotification, Size size) async {
+    if (_isSnapping || !widget.snapToDay) {
+      return;
+    }
+
+    _isSnapping = true;
+    // final double w = columnWidth + controller.timelineWidth;
+
+    final int index = endNotification.metrics.pixels ~/ size.width;
+    final int finalIndex =
+        (endNotification.metrics.pixels / size.width).round();
+    log('index $index');
+    log('final index $finalIndex');
+    if (index != finalIndex) {
+      final int dif = finalIndex - index;
+      dateTime = dateForHeader.add(Duration(days: dif));
+    }
+
+    await Future<void>.microtask(() => null);
+    final double snapPosition = finalIndex * size.width;
+    log('new offset:$snapPosition');
+    await indexdController.animateTo(
+      snapPosition,
+      duration: const Duration(milliseconds: 200),
+      curve: _animationCurve,
+    );
+
+    _isSnapping = false;
+  }
 
   ///jump to given date
   Future<dynamic> _jumpTo(DateTime date) async {
@@ -773,32 +783,37 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
       try {
         if (finiteScrollController.hasClients &&
             timeScrollController.hasClients) {
-          final DateTime d = dateRange.firstWhere(
-              (DateTime element) => DateUtils.isSameDay(element, date));
-          final int index = dateRange.indexOf(d);
+          if (date.isAfter(controller.start) && date.isBefore(controller.end)) {
+            final DateTime dateOnly = DateUtils.dateOnly(date);
+            if (dateRange.contains(dateOnly)) {
+              final int index = dateRange.indexOf(dateOnly);
 
-          final double maxScroll =
-              timeScrollController.position.maxScrollExtent;
-          final double scrollTo = hourPosition * maxScroll / height;
-          log('height $height hour $hourPosition '
-              'max $maxScroll scrollTo $scrollTo');
+              final double maxScroll =
+                  timeScrollController.position.maxScrollExtent;
+              final double scrollTo = hourPosition * maxScroll / height;
+              log('height $height hour $hourPosition '
+                  'max $maxScroll scrollTo $scrollTo');
 
-          await finiteScrollController
-              .animateToPage(index,
-                  curve: animationCurve, duration: animationDuration)
-              .then((void value) async {
-            /// Scrolling to the current time.
-            await Future<void>.delayed(const Duration(milliseconds: 150))
-                .then((void value) => timeScrollController
-                        .animateTo(
-                      scrollTo,
-                      duration: animationDuration,
-                      curve: animationCurve,
-                    )
-                        .then((dynamic value) {
-                      isScrolling = false;
-                    }));
-          });
+              await finiteScrollController
+                  .animateToPage(index,
+                      curve: animationCurve, duration: animationDuration)
+                  .then((void value) async {
+                /// Scrolling to the current time.
+                await Future<void>.delayed(const Duration(milliseconds: 150))
+                    .then((void value) => timeScrollController
+                            .animateTo(
+                          scrollTo,
+                          duration: animationDuration,
+                          curve: animationCurve,
+                        )
+                            .then((dynamic value) {
+                          isScrolling = false;
+                        }));
+              });
+            } else {
+              debugPrint('date is out of range');
+            }
+          }
         }
       } on Exception {
         log('');

@@ -12,6 +12,6 @@ export 'src/view/month_view.dart';
 export 'src/view/schedule_view.dart';
 export 'src/view/term_view.dart';
 export 'src/view/timetable_controller.dart';
-export 'src/view/week_view.dart';
-export 'src/view/week_view_new.dart';
+export 'src/view/week_view.dart'; 
 export 'src/widgets/indexed_listview.dart';
+export 'src/view/scroll_physics.dart';

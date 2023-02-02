@@ -42,40 +42,41 @@ class _CalendarViewState extends State<CalendarView> {
     infiniteScrolling: CalendarParams.infiniteScrolling,
     end: DefaultDates.endDate,
     timelineWidth: CalendarParams.timelineWidth,
-    breakHeight: CalendarParams.breakHeighth,
-    cellHeight: CalendarParams.cellHeighth,
+    breakHeight: CalendarParams.mobileBreakHeight,
+    cellHeight: CalendarParams.mobileCellHeight,
   );
   TimetableController<EventData> dayController = TimetableController<EventData>(
     start: DefaultDates.startDate,
     infiniteScrolling: CalendarParams.infiniteScrolling,
     end: DefaultDates.endDate,
     timelineWidth: CalendarParams.timelineWidth,
-    breakHeight: CalendarParams.breakHeighth,
-    cellHeight: CalendarParams.cellHeighth,
+    breakHeight: CalendarParams.mobileBreakHeight,
+    cellHeight: CalendarParams.mobileCellHeight,
   );
   TimetableController<EventData> scheduleController =
       TimetableController<EventData>(
-          start: DefaultDates.startDate,
-          infiniteScrolling: CalendarParams.infiniteScrolling,
-          end: DefaultDates.endDate,
-          timelineWidth: CalendarParams.timelineWidth,
-          breakHeight: CalendarParams.breakHeighth,
-          cellHeight: CalendarParams.cellHeighth);
+    start: DefaultDates.startDate,
+    infiniteScrolling: !CalendarParams.infiniteScrolling,
+    end: DefaultDates.endDate,
+    timelineWidth: CalendarParams.timelineWidth,
+    breakHeight: CalendarParams.mobileBreakHeight,
+    cellHeight: CalendarParams.mobileCellHeight,
+  );
   TimetableController<Note> monthController = TimetableController<Note>(
     start: DefaultDates.startDate,
     infiniteScrolling: CalendarParams.infiniteScrolling,
     end: DefaultDates.endDate,
     timelineWidth: CalendarParams.timelineWidth,
-    breakHeight: CalendarParams.breakHeighth,
-    cellHeight: CalendarParams.cellHeighth,
+    breakHeight: CalendarParams.tabBreakHeight,
+    cellHeight: CalendarParams.tabCellHeight,
   );
   TimetableController<Note> termController = TimetableController<Note>(
     start: DefaultDates.startDate,
     infiniteScrolling: CalendarParams.infiniteScrolling,
     end: DefaultDates.endDate,
     timelineWidth: CalendarParams.timelineWidth,
-    breakHeight: CalendarParams.breakHeighth,
-    cellHeight: CalendarParams.cellHeighth,
+    breakHeight: CalendarParams.tabBreakHeight,
+    cellHeight: CalendarParams.tabCellHeight,
   );
 
   /// Used to display the current month in the app bar.
@@ -166,6 +167,8 @@ class _CalendarViewState extends State<CalendarView> {
         timeTableController.addEvent(event.events, replace: true);
         dayController.addEvent(event.events, replace: true);
         final List<PlannerEvent> e = event.events;
+
+        logInfo(e.take(2).toList().toString());
         scheduleController.addEvent(
             e
                 .where((PlannerEvent element) => element.eventData!.isLesson)
@@ -218,11 +221,39 @@ class _CalendarViewState extends State<CalendarView> {
     super.dispose();
   }
 
-  bool showAppbar = true;
+  bool showAppbar = false;
   bool enableTapForExtraSlot = false;
 
   ///page storage bucket for the view
   final PageStorageBucket pageStorageBucket = PageStorageBucket();
+  final GlobalKey<State<StatefulWidget>> _key = GlobalKey();
+
+  void onResize() {
+    final RenderBox? box =
+        _key.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null) {
+      return;
+    }
+    if (box.hasSize) {
+      var size = box.size;
+
+      if (size.width < mobileThreshold) {
+        dayController.chageCellHeight(
+            CalendarParams.mobileCellHeight, CalendarParams.mobileBreakHeight);
+        timeTableController.chageCellHeight(
+            CalendarParams.mobileCellHeight, CalendarParams.mobileBreakHeight);
+        scheduleController.chageCellHeight(
+            CalendarParams.mobileCellHeight, CalendarParams.mobileBreakHeight);
+      } else {
+        dayController.chageCellHeight(
+            CalendarParams.tabCellHeight, CalendarParams.tabBreakHeight);
+        timeTableController.chageCellHeight(
+            CalendarParams.tabCellHeight, CalendarParams.tabBreakHeight);
+        scheduleController.chageCellHeight(
+            CalendarParams.tabCellHeight, CalendarParams.tabBreakHeight);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -246,41 +277,70 @@ class _CalendarViewState extends State<CalendarView> {
             });
           },
         ),
+        floatingActionButton: BlocBuilder<TimeTableCubit, TimeTableState>(
+          builder: (context, state) {
+            return BlocProvider.of<TimeTableCubit>(context).standAlone
+                ? FloatingActionButton(
+                    onPressed: (() {
+                      showDatePicker(
+                              context: context,
+                              firstDate: DefaultDates.startDate,
+                              lastDate: DefaultDates.endDate,
+                              initialDate: DateTime.now())
+                          .then((value) {
+                        if (value != null) {
+                          timeTableController.jumpTo(value);
+                          dayController.jumpTo(value);
+                          scheduleController.jumpTo(value);
+                          monthController.jumpTo(value);
+                          termController.jumpTo(value);
+                        }
+                      });
+                    }),
+                    child: const Icon(Icons.calendar_month),
+                  )
+                : SizedBox.shrink();
+          },
+        ),
         body: SafeArea(
           child: LayoutBuilder(
+              key: _key,
               builder: (BuildContext context, BoxConstraints value) {
-            isMobile = value.maxWidth < mobileThreshold;
+                onResize();
 
-            return Row(
-              children: <Widget>[
-                isMobile ? const SizedBox.shrink() : const LeftStrip(),
-                Expanded(
-                    child: Column(
+                isMobile = value.maxWidth < mobileThreshold;
+
+                return Row(
                   children: <Widget>[
-                    const LinearIndicator(),
+                    isMobile ? const SizedBox.shrink() : const LeftStrip(),
                     Expanded(
-                      child: ValueListenableBuilder<CalendarViewType>(
-                          valueListenable: viewTypeNotifer,
-                          builder: (BuildContext context,
-                                  CalendarViewType viewType, Widget? child) =>
-                              AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 500),
-                                transitionBuilder: (Widget child,
-                                        Animation<double> animation) =>
-                                    FadeTransition(
-                                        opacity: animation, child: child),
-                                child: PageStorage(
-                                  bucket: pageStorageBucket,
-                                  child: getViewList()[getIndex(viewType)],
-                                ),
-                              )),
-                    ),
+                        child: Column(
+                      children: <Widget>[
+                        const LinearIndicator(),
+                        Expanded(
+                          child: ValueListenableBuilder<CalendarViewType>(
+                              valueListenable: viewTypeNotifer,
+                              builder: (BuildContext context,
+                                      CalendarViewType viewType,
+                                      Widget? child) =>
+                                  AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 500),
+                                    transitionBuilder: (Widget child,
+                                            Animation<double> animation) =>
+                                        FadeTransition(
+                                            opacity: animation, child: child),
+                                    child: IndexedStack(
+                                      index: getIndex(viewType),
+                                      children: getViewList(),
+                                    ),
+                                  )),
+                        ),
+                      ],
+                    )),
+                    isMobile ? const SizedBox.shrink() : const RightStrip(),
                   ],
-                )),
-                isMobile ? const SizedBox.shrink() : const RightStrip(),
-              ],
-            );
-          }),
+                );
+              }),
         ),
       );
 

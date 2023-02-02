@@ -93,8 +93,16 @@ class _DayPlannerState extends State<DayPlanner> {
 
         return !periodModel.isCustomeSlot;
       },
+      onWillAcceptForEvent: (draggeed, existing, dateTime) {
+        if (existing.eventData!.isDuty) {
+          return false;
+        } else {
+          return true;
+        }
+      },
       nowIndicatorColor: timeIndicatorColor,
-      fullWeek: true,
+      fullWeek: false,
+      snapToDay: true,
       showNowIndicator: false,
       cornerBuilder: (DateTime current) => const SizedBox.shrink(),
       onTap: widget.onTap,

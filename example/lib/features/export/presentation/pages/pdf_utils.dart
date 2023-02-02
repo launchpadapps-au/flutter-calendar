@@ -30,7 +30,7 @@ class PdfUtils {
   ///
 
   Future<String> savePdf(List<Uint8List> items, List<String> titles,
-      PdfPageFormat pageFormat, String fileName, String? localPath) async {
+      PdfPageFormat pageFormat, String fileName, String localPath) async {
     final double width = pageFormat.availableWidth;
     final double height = pageFormat.availableHeight;
     log
@@ -49,6 +49,7 @@ class PdfUtils {
       (await rootBundle.load(AssetPath.smallLogo)).buffer.asUint8List(),
     );
     final int length = items.length;
+    logInfo('saving pdf');
     for (final Uint8List item in items) {
       final int index = items.indexOf(item);
       pdf.addPage(Page(
@@ -123,13 +124,10 @@ class PdfUtils {
               )));
 
       if ((index + 1) != length) {
- 
         streamController.sink.add(ExportProgress(
             status: ExportStatus.inProgress, progress: (index + 1) / length));
       }
     }
-
-    logInfo('saving pdf');
 
     final String? filePath = await FileUtils.saveTopdf(await pdf.save(),
         filename: fileName, localPath: localPath);

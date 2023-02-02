@@ -98,8 +98,8 @@ class ScreenshotController {
         MediaQuery(
             data: MediaQuery.of(context),
             child: Material(
-              child: child,
               color: Colors.transparent,
+              child: child,
             )),
       );
     }

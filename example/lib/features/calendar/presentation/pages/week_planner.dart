@@ -72,7 +72,8 @@ class _WeekPlannerState extends State<WeekPlanner<EventData>> {
   Widget build(BuildContext context) => SlWeekView<EventData>(
       backgroundColor: white,
       timelines: widget.customPeriods,
-      fullWeek: true,
+      fullWeek: false,
+      snapToDay: true,
       onEventDragged: (CalendarEvent<EventData> old,
           CalendarEvent<EventData> newEvent, Period? period) {
         widget.onEventDragged(old, newEvent, period);
@@ -87,6 +88,13 @@ class _WeekPlannerState extends State<WeekPlanner<EventData>> {
           Period? periodModel) {
         if (widget.onEventToEventDragged != null) {
           widget.onEventToEventDragged!(existing, old, newEvent, periodModel);
+        }
+      },
+      onWillAcceptForEvent: (draggeed, existing, dateTime) {
+        if (existing.eventData!.isDuty) {
+          return false;
+        } else {
+          return true;
         }
       },
       onWillAccept: (CalendarEvent<EventData>? event, Period period) {

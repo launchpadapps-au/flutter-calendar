@@ -46,7 +46,7 @@ class SlTermView<T> extends StatefulWidget {
   final Widget Function(int)? headerCellBuilder;
 
   /// Renders event card from `TimetableItem<T>` for each item
-  final Widget Function(List<CalendarEvent<T>>, Size size, DateTime)?
+  final Widget Function(List<CalendarEvent<T>>, Size size, CalendarDay day)?
       itemBuilder;
 
   /// Renders upper left corner of the timetable given the first visible date
@@ -81,7 +81,7 @@ class SlTermView<T> extends StatefulWidget {
   final double headerHeight;
 
   ///onTap callback
-  final Function(DateTime dateTime)? onTap;
+  final Function(CalendarDay dateTime)? onTap;
 
   // ///OnEventCellTap callback
   // final Function(DateTime dateTime, List<CalendarEvent<T>>)? onEventsTap;
@@ -166,15 +166,6 @@ class _SlTermViewState<T> extends State<SlTermView<T>> {
     controller.jumpTo(DateTime.now());
   }
 
-  ///return count of periods and break that are overlapping
-  List<int> getOverLappingTimeline(TimeOfDay start, TimeOfDay end) {
-    const int p = 0;
-    const int b = 0;
-
-    appLog('Event P:$p and B:$b');
-    return <int>[p, b];
-  }
-
   ///get cell height
   double getCellHeight(List<int> data) =>
       data[0] * controller.cellHeight + data[1] * controller.breakHeight;
@@ -248,32 +239,6 @@ class _SlTermViewState<T> extends State<SlTermView<T>> {
     if (mounted) {
       setState(() {});
     }
-  }
-
-  double getHeightOfTheEvent(CalendarEvent<dynamic> item) {
-    double h = 0;
-
-    final List<Period> periods = <Period>[];
-
-    for (final Period period in widget.timelines) {
-      if (period.startTime.hour >= item.startTime.hour) {
-        if (period.endTime.hour <= item.endTime.hour) {
-          if (period.startTime.minute >= item.startTime.minute) {
-            if (period.endTime.minute <= item.endTime.minute) {
-              periods.add(period);
-            }
-          }
-        }
-      }
-    }
-
-    for (final Period element in periods) {
-      h = h +
-          (element.isCustomeSlot
-              ? controller.breakHeight
-              : controller.cellHeight);
-    }
-    return h;
   }
 
   double maxColumn = 5;
@@ -352,7 +317,7 @@ class _SlTermViewState<T> extends State<SlTermView<T>> {
                                       DateUtils.isSameDay(
                                           dateTime, event.startTime))
                                   .toList();
-
+                              final CalendarDay day = dateRange[index];
                               return DayCell<T>(
                                   calendarDay: dateRange[index],
                                   columnWidth: columnWidth,
@@ -362,12 +327,12 @@ class _SlTermViewState<T> extends State<SlTermView<T>> {
                                   itemBuilder:
                                       (List<CalendarEvent<T>> dayEvents) =>
                                           widget.itemBuilder!(dayEvents,
-                                              Size(cw, columnHeight), dateTime),
+                                              Size(cw, columnHeight), day),
                                   events: events,
                                   breakHeight: controller.breakHeight,
                                   cellHeight: controller.cellHeight,
                                   dateTime: dateTime,
-                                  onTap: (DateTime date) {
+                                  onTap: (CalendarDay date) {
                                     if (widget.onTap != null) {
                                       widget.onTap!(date);
                                     }

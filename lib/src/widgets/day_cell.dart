@@ -45,7 +45,7 @@ class DayCell<T> extends StatelessWidget {
   final double cellHeight;
 
   ///onTap callback function
-  final Function(DateTime dateTime)? onTap;
+  final Function(CalendarDay dateTime)? onTap;
 
   /// Called when an acceptable piece of data was dropped over this drag target.
   ///
@@ -103,7 +103,7 @@ class DayCell<T> extends StatelessWidget {
         onTap: () {
           appLog('OnTap');
           if (onTap != null) {
-            onTap!(dateTime);
+            onTap!(calendarDay);
           }
         },
         child: isDraggable

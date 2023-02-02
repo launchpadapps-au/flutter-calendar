@@ -156,14 +156,14 @@ Map<String, dynamic>
     /// A map of string to dynamic.
     staticJsonForTheTerm = <String, dynamic>{
   'term': <String, dynamic>{
-    'id': 8,
-    'territory': 'South Australia',
-    'term1': '02-01|14-04',
-    'term2': '17-04|07-07',
+    'id': 2,
+    'territory': 'Victoria',
+    'term1': '02-01|23-01',
+    'term2': '26-01|07-07',
     'term3': '10-07|29-09',
     'term4': '02-10|29-12'
   },
-  'id': '3c975191-ff1e-4892-a302-b0c3459fbbf3'
+  'id': '3d2339f4-180b-4125-9177-67a9624f65fc'
 };
 
 ///static term that derived from [staticJsonForTheTerm]
@@ -173,11 +173,11 @@ TermModel termFromJson = TermModel.fromJson(staticJsonForTheTerm);
 class DefaultDates {
   ///start date of the calendar
 
-  static DateTime get startDate => DateTime.now();
+  static DateTime get startDate => DateTime(1970);
 
   ///stendart date of the calendar
 
-  static DateTime get endDate => DateTime.now().add(const Duration(days: 90));
+  static DateTime get endDate => DateTime(2050);
 }
 
 ///Default parameter for the calendar
@@ -192,5 +192,16 @@ class CalendarParams {
   static double get cellHeighth => 110;
 
   ///default infinite scrooling
-  static bool get infiniteScrolling => true;
+  static bool get infiniteScrolling => false;
+
+  ///brack height for mobile
+  static double mobileBreakHeight = 22;
+
+  ///breack hright for the tab
+  static double tabBreakHeight = 33;
+  //cell height for the mobile
+  static double mobileCellHeight = 83;
+
+  ///cell height fpr the tab
+  static double tabCellHeight = 100;
 }

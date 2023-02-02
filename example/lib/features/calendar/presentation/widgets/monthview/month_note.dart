@@ -17,6 +17,7 @@ class MonthNote extends StatelessWidget {
     required this.size,
     required this.isDraggable,
     required this.onTap,
+    required this.calendarDay,
     this.onMoreTap,
     super.key,
   });
@@ -25,7 +26,7 @@ class MonthNote extends StatelessWidget {
   final double cellHeight, breakHeight;
 
   ///provide calalback user tap on the cell
-  final Function(DateTime dateTime, List<CalendarEvent<Note>>) onTap;
+  final Function(CalendarDay dateTime, List<CalendarEvent<Note>>) onTap;
 
   ///list of event
   final List<CalendarEvent<Note>> item;
@@ -39,6 +40,9 @@ class MonthNote extends StatelessWidget {
 
   /// pass true if is draggable
   final bool isDraggable;
+
+  ///Calendar Day of the event
+  final CalendarDay calendarDay;
 
   @override
   Widget build(BuildContext context) => item.isEmpty
@@ -71,7 +75,7 @@ class MonthNote extends StatelessWidget {
                               height: showFullSize
                                   ? size.height - heightFraction
                                   : 28,
-                              width: size.width - 8,
+                              width: size.width,
                               child: showMore &&
                                       showitem.indexOf(e) == (maxchild - 1)
                                   ? Row(
@@ -79,12 +83,13 @@ class MonthNote extends StatelessWidget {
                                         Builder(
                                             builder: (BuildContext context) {
                                           final double width =
-                                              size.width - heightFraction;
+                                              size.width - heightFraction - 50;
                                           final int index = showitem.indexOf(e);
                                           return width.isNegative
                                               ? const SizedBox.shrink()
                                               : SmallEventTile(
                                                   event: e,
+                                                  calendarDay: calendarDay,
                                                   crossAxisAlignment:
                                                       showFullSize
                                                           ? CrossAxisAlignment
@@ -101,19 +106,15 @@ class MonthNote extends StatelessWidget {
                                             showAlignedDialog<dynamic>(
                                                 context: context,
                                                 avoidOverflow: true,
-                                                builder:
-                                                    (BuildContext context) =>
-                                                        NoteDialog(
-                                                          dateTime: item
-                                                              .first.startTime,
-                                                          notes: item
-                                                              .skip(
-                                                                  item.length -
-                                                                      moreCount)
-                                                              .take(moreCount)
-                                                              .toList(),
-                                                          onTap: onTap,
-                                                        ),
+                                                builder: (BuildContext
+                                                        context) =>
+                                                    NoteDialog(
+                                                      calendarDay: calendarDay,
+                                                      dateTime:
+                                                          item.first.startTime,
+                                                      notes: item ,
+                                                      onTap: onTap,
+                                                    ),
                                                 barrierColor:
                                                     Colors.transparent);
                                           },
@@ -132,6 +133,7 @@ class MonthNote extends StatelessWidget {
                                     )
                                   : SmallEventTile(
                                       onTap: onTap,
+                                      calendarDay: calendarDay,
                                       crossAxisAlignment: showFullSize
                                           ? CrossAxisAlignment.start
                                           : CrossAxisAlignment.center,
@@ -157,6 +159,7 @@ class SmallEventTile extends StatelessWidget {
       required this.width,
       required this.onTap,
       required this.index,
+      required this.calendarDay,
       this.tileHeight = 24,
       Key? key,
       this.crossAxisAlignment = CrossAxisAlignment.center,
@@ -173,7 +176,7 @@ class SmallEventTile extends StatelessWidget {
   final CalendarEvent<Note> event;
 
   ///provide calalback user tap on the cell
-  final Function(DateTime dateTime, List<CalendarEvent<Note>>) onTap;
+  final Function(CalendarDay calendarDay, List<CalendarEvent<Note>>) onTap;
 
   ///bool isDraggable
   final bool isDraggable;
@@ -185,19 +188,21 @@ class SmallEventTile extends StatelessWidget {
 
   final int index;
 
+  ///Calendar Day of the event
+  final CalendarDay calendarDay;
   @override
   Widget build(BuildContext context) => Draggable<CalendarEvent<Note>>(
-        feedback: Card(child: buildTile(context)),
+        feedback: Card(child: buildTile(context, calendarDay)),
         maxSimultaneousDrags: isDraggable ? 1 : 0,
         data: event,
         childWhenDragging: const SizedBox.shrink(),
-        child: buildTile(context),
+        child: buildTile(context, calendarDay),
       );
 
   ///render the tile
-  Widget buildTile(BuildContext context) => GestureDetector(
-        onTap: () =>
-            onTap(event.eventData!.startDate, <CalendarEvent<Note>>[event]),
+  Widget buildTile(BuildContext context, CalendarDay calendarDay) =>
+      GestureDetector(
+        onTap: () => onTap(calendarDay, <CalendarEvent<Note>>[event]),
         child: AnimatedOpacity(
           opacity: 1,
           duration: Duration(milliseconds: index * 100),

@@ -104,7 +104,7 @@ class _TimeTableEventState<T> extends State<TimeTableEvent<T>> {
               itemBuilder: widget.itemBuilder),
         ),
         onAcceptWithDetails: widget.onAcceptWithDetails,
-        onWillAccept: (CalendarEvent<T>? data) => true,
+        onWillAccept: (CalendarEvent<T>? data) => widget.onWillAccept(data),
         onAccept: (CalendarEvent<T> data) {
           appLog(data.toMap.toString());
         },

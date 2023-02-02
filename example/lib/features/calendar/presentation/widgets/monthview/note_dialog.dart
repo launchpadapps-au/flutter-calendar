@@ -13,6 +13,7 @@ class NoteDialog extends StatelessWidget {
       {required this.dateTime,
       required this.notes,
       required this.onTap,
+      required this.calendarDay,
       super.key});
 
   ///date time date
@@ -22,8 +23,10 @@ class NoteDialog extends StatelessWidget {
   final List<CalendarEvent<Note>> notes;
 
   ///provide calalback user tap on the cell
-  final Function(DateTime dateTime, List<CalendarEvent<Note>>) onTap;
+  final Function(CalendarDay dateTime, List<CalendarEvent<Note>>) onTap;
 
+  ///Calendar Day of the event
+  final CalendarDay calendarDay;
   @override
   Widget build(BuildContext context) => Container(
         width: 233,
@@ -68,8 +71,8 @@ class NoteDialog extends StatelessWidget {
               child: ListView.separated(
                 padding: EdgeInsets.zero,
                 itemCount: notes.length,
-                itemBuilder: (BuildContext context, int index) =>
-                    buildTile(notes[index].eventData!, notes[index]),
+                itemBuilder: (BuildContext context, int index) => buildTile(
+                    notes[index].eventData!, calendarDay, notes[index]),
                 separatorBuilder: (BuildContext context, int index) =>
                     const SizedBox(
                   height: 6,
@@ -81,8 +84,10 @@ class NoteDialog extends StatelessWidget {
       );
 
   ///build note tile
-  Widget buildTile(Note note, CalendarEvent<Note> event) => GestureDetector(
-        onTap: () => onTap(note.startDate, <CalendarEvent<Note>>[event]),
+  Widget buildTile(
+          Note note, CalendarDay calendarDay, CalendarEvent<Note> event) =>
+      GestureDetector(
+        onTap: () => onTap(calendarDay, <CalendarEvent<Note>>[event]),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           height: 49,

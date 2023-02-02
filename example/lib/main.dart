@@ -45,9 +45,7 @@ class MyApp extends StatelessWidget {
               PointerDeviceKind.trackpad
             },
           ),
-          routes: <String, WidgetBuilder>{
-            '/': (BuildContext context) => const CalendarView(),
-          },
+          home: const CalendarView(),
         ),
       );
 }

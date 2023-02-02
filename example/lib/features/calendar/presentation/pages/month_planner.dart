@@ -91,16 +91,26 @@ class _MonthPlannerState extends State<MonthPlanner> {
         deadCellBuilder: (DateTime current, Size cellSize) => const Expanded(
           child: DeadCell(),
         ),
-        onTap: (DateTime date) {
-          widget.onTap(date, <CalendarEvent<Note>>[]);
+        onTap: (CalendarDay date) {
+          if (!date.deadCell) {
+            widget.onTap(date.dateTime, <CalendarEvent<Note>>[]);
+          }
         },
-        itemBuilder: (List<CalendarEvent<Note>> item, Size size) => MonthNote(
-            item: item,
-            cellHeight: widget.timetableController.cellHeight,
-            breakHeight: widget.timetableController.breakHeight,
-            size: size,
-            isDraggable: isDraggable,
-            onTap: widget.onTap),
+        itemBuilder:
+            (List<CalendarEvent<Note>> item, Size size, CalendarDay day) =>
+                MonthNote(
+          item: item,
+          calendarDay: day,
+          cellHeight: widget.timetableController.cellHeight,
+          breakHeight: widget.timetableController.breakHeight,
+          size: size,
+          isDraggable: isDraggable,
+          onTap: (date, p1) {
+            if (!date.deadCell) {
+              widget.onTap(date.dateTime, <CalendarEvent<Note>>[]);
+            }
+          },
+        ),
         cellBuilder: (Period period) => MonthCell(
             periodModel: period as PeriodModel,
             breakHeight: widget.timetableController.breakHeight,
