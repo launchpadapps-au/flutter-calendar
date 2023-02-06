@@ -1,6 +1,6 @@
 // ignore_for_file: prefer_adjacent_string_concatenation
 
-import 'dart:async'; 
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
@@ -145,7 +145,7 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
   }
 
   ///get initial list of dates
-  void initDate() { 
+  void initDate() {
     final int diff = controller.end.difference(controller.start).inDays;
     dateRange.clear();
     for (int i = 0; i < diff; i++) {
@@ -213,7 +213,6 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
           }
         }
         eventNotifier.sink.add(items);
-       
       }
     }
     if (event is UpdateEventInCalendar<T>) {
@@ -339,10 +338,8 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
                                               dateTime, Size(cw, columnHeight)),
                                       itemBuilder:
                                           (List<CalendarEvent<T>> dayEvents) =>
-                                              widget.itemBuilder!(
-                                                dayEvents,
-                                                Size(cw, columnHeight),day
-                                              ),
+                                              widget.itemBuilder!(dayEvents,
+                                                  Size(cw, columnHeight), day),
                                       events: events,
                                       breakHeight: controller.breakHeight,
                                       cellHeight: controller.cellHeight,
@@ -406,7 +403,7 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
       await pageController.animateToPage(monthRange.indexOf(month),
           duration: _animationDuration, curve: _animationCurve);
       return true;
-    } on Exception catch (e) {
+    } on StateError catch (e) {
       debugPrint(e.toString());
       return false;
     }

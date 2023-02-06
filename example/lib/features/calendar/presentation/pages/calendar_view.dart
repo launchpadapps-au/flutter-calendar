@@ -221,7 +221,7 @@ class _CalendarViewState extends State<CalendarView> {
     super.dispose();
   }
 
-  bool showAppbar = false;
+  bool showAppbar = true;
   bool enableTapForExtraSlot = false;
 
   ///page storage bucket for the view

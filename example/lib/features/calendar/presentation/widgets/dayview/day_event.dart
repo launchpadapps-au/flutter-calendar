@@ -1,4 +1,5 @@
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
+import 'package:edgar_planner_calendar_flutter/core/themes/assets_path.dart';
 import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/url.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
@@ -15,6 +16,7 @@ class DayEvent extends StatefulWidget {
       required this.width,
       required this.periods,
       required this.isMobile,
+      this.freeTimeBg=false,
       super.key,
       this.onTap});
 
@@ -35,6 +37,10 @@ class DayEvent extends StatefulWidget {
 
   ///pass true if current device is mobile
   final bool isMobile;
+
+
+  ///true if want to show bg in freetime bg
+  final bool freeTimeBg;
 
   @override
   State<DayEvent> createState() => _DayEventState();
@@ -87,6 +93,9 @@ class _DayEventState extends State<DayEvent> {
           padding: EdgeInsets.all(padding),
           decoration: BoxDecoration(
               color: bgColor,
+              image: widget.item.eventData!.freeTime && widget.freeTimeBg
+                  ? DecorationImage(image: AssetImage(AssetPath.freeTime))
+                  : null,
               border: widget.item.eventData!.isDutyTime
                   ? Border(
                       left: BorderSide(color: borderColor, width: borderWidth))

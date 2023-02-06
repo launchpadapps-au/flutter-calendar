@@ -1,4 +1,5 @@
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
+import 'package:edgar_planner_calendar_flutter/core/themes/assets_path.dart';
 import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/url.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
@@ -14,6 +15,7 @@ class WeekEvent extends StatelessWidget {
       required this.breakHeight,
       required this.width,
       required this.periods,
+      this.freeTimeBg = false,
       super.key,
       this.onTap});
 
@@ -31,6 +33,9 @@ class WeekEvent extends StatelessWidget {
 
   ///widht of event
   final double width;
+
+  ///true if want to show bg in freetime bg
+  final bool freeTimeBg;
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +79,9 @@ class WeekEvent extends StatelessWidget {
           padding: EdgeInsets.all(padding),
           decoration: BoxDecoration(
               color: bgColor,
+              image: item.eventData!.freeTime && freeTimeBg
+                  ? DecorationImage(image: AssetImage(AssetPath.freeTime))
+                  : null,
               border: item.eventData!.isDutyTime
                   ? Border(
                       left: BorderSide(color: borderColor, width: borderWidth))

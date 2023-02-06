@@ -388,7 +388,7 @@ class _SlTermViewState<T> extends State<SlTermView<T>> {
 
         await scrollController.animateTo(rm * columnHeightForScrolling,
             duration: _animationDuration, curve: _animationCurve);
-      } on Exception catch (e) {
+      } on StateError catch (e) {
         debugPrint(e.toString());
       }
     }

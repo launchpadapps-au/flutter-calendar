@@ -24,6 +24,9 @@ class AssetPath {
   /// path of the logo
   static String logo = 'assets/logo.png';
 
+  /// path of the freeTime
+  static String freeTime = 'assets/freetime.png';
+
   ///path of the small logo
   static String smallLogo = 'assets/small_logo.png';
 }
