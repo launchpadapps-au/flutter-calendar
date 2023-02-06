@@ -50,7 +50,9 @@ class TimeTableCubit extends Cubit<TimeTableState> {
 
   ///If code will be running in module then it will be false
   ///if code is running as stand alone app then it will be true
-  bool standAlone = const bool.fromEnvironment('standalone',defaultValue: false);
+  static const bool _standAlone = bool.fromEnvironment('standalone');
+
+  bool get standAlone => _standAlone;
 
   ///current date timex
   static DateTime now = DateTime.now();
@@ -91,7 +93,8 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   static const MethodChannel platform = MethodChannel('com.example.demo/data');
 
   ///object of the native callback class
-  NativeCallBack nativeCallBack = NativeCallBack();
+  NativeCallBack nativeCallBack =
+      NativeCallBack(mockMethod: _standAlone ? mockObject : null);
 
   ///code related to native callback and data listener
 
@@ -170,7 +173,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   ];
 
   ///mock method object
-  MockMethod mockObject = MockMethod();
+  static MockMethod mockObject = MockMethod();
 
   ///object for the export preview
   late ExportView exportView = ExportView(nativeCallBack);
@@ -622,8 +625,9 @@ class TimeTableCubit extends Cubit<TimeTableState> {
       index = listOfTerm.indexOf(term);
       currentTerm = term;
     }
-    nativeCallBack.sendVisibleDateChnged(monthStart);
-    nativeCallBack.sendFetchDataDatesToNativeApp(monthStart, monthEnd);
+    nativeCallBack
+      ..sendVisibleDateChnged(monthStart)
+      ..sendFetchDataDatesToNativeApp(monthStart, monthEnd);
     emit(MonthUpdated(
         periods, events, viewType, termModel, monthStart, monthEnd));
   }

@@ -7,17 +7,21 @@ import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/dat
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_notes.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/term_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/method_name.dart'; 
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/method_name.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/mock_method.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 
 ///this class contains all method related to callBack
 class NativeCallBack {
   ///initialized the class
-  NativeCallBack();
+  NativeCallBack({this.mockMethod});
 
   /// set method handler to receive data from flutter
   late MethodChannel platform;
+
+  ///provide mock object if wanted to mock
+  MockMethod? mockMethod;
 
   ///initialize the channel
   void initializeChannel(String channelName) {
@@ -260,16 +264,19 @@ class NativeCallBack {
   }
 
   ///send data to native app
-  Future<bool> sendToNativeApp(String methodName, dynamic data ) {
-   
-    platform
-        .invokeMethod<dynamic>(
-      methodName,
-      data,
-    )
-        .then((dynamic value) {
-      logInfo('MethodName: $methodName');
-    });
+  Future<bool> sendToNativeApp(String methodName, dynamic data) {
+    if (mockMethod != null) {
+      mockMethod!.invokeMethod(methodName, data);
+    } else {
+      platform
+          .invokeMethod<dynamic>(
+        methodName,
+        data,
+      )
+          .then((dynamic value) {
+        logInfo('MethodName: $methodName');
+      });
+    }
 
     return Future<bool>.value(true);
   }

@@ -45,19 +45,18 @@ class CalendarAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               onPressed: () {
                 final CalendarViewType view = viewTypeNotifer.value;
-                final TimeTableCubit cubit =
-                    BlocProvider.of<TimeTableCubit>(context);
+
                 if (view == CalendarViewType.dayView) {
-                  cubit.mockObject
+                  TimeTableCubit.mockObject
                       .invokeMethod(ReceiveMethods.previousDay, null);
                 } else if (view == CalendarViewType.weekView) {
-                  cubit.mockObject
+                  TimeTableCubit.mockObject
                       .invokeMethod(ReceiveMethods.previousWeek, null);
                 } else if (view == CalendarViewType.monthView) {
-                  cubit.mockObject
+                  TimeTableCubit.mockObject
                       .invokeMethod(ReceiveMethods.previousMonth, null);
                 } else if (view == CalendarViewType.termView) {
-                  cubit.mockObject
+                  TimeTableCubit.mockObject
                       .invokeMethod(ReceiveMethods.previousTerm, null);
                 }
               },
@@ -83,16 +82,19 @@ class CalendarAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               onPressed: () {
                 final CalendarViewType view = viewTypeNotifer.value;
-                final TimeTableCubit cubit =
-                    BlocProvider.of<TimeTableCubit>(context);
+
                 if (view == CalendarViewType.dayView) {
-                  cubit.mockObject.invokeMethod(ReceiveMethods.nextDay, null);
+                  TimeTableCubit.mockObject
+                      .invokeMethod(ReceiveMethods.nextDay, null);
                 } else if (view == CalendarViewType.weekView) {
-                  cubit.mockObject.invokeMethod(ReceiveMethods.nextWeek, null);
+                  TimeTableCubit.mockObject
+                      .invokeMethod(ReceiveMethods.nextWeek, null);
                 } else if (view == CalendarViewType.monthView) {
-                  cubit.mockObject.invokeMethod(ReceiveMethods.nextMonth, null);
+                  TimeTableCubit.mockObject
+                      .invokeMethod(ReceiveMethods.nextMonth, null);
                 } else if (view == CalendarViewType.termView) {
-                  cubit.mockObject.invokeMethod(ReceiveMethods.nextTerm, null);
+                  TimeTableCubit.mockObject
+                      .invokeMethod(ReceiveMethods.nextTerm, null);
                 }
               },
             ),
@@ -114,8 +116,7 @@ class CalendarAppBar extends StatelessWidget implements PreferredSizeWidget {
                 color: Colors.black,
               ),
               onPressed: () {
-                BlocProvider.of<TimeTableCubit>(context)
-                    .mockObject
+                TimeTableCubit.mockObject
                     .invokeMethod(ReceiveMethods.resetEvent, null);
               }),
           IconButton(
@@ -124,8 +125,7 @@ class CalendarAppBar extends StatelessWidget implements PreferredSizeWidget {
                 color: Colors.black,
               ),
               onPressed: () {
-                BlocProvider.of<TimeTableCubit>(context)
-                    .mockObject
+                TimeTableCubit.mockObject
                     .invokeMethod(ReceiveMethods.jumpToCurrentDate, null);
               }),
           IconButton(

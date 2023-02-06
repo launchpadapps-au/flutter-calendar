@@ -61,7 +61,8 @@ class WeekEvent extends StatelessWidget {
     }
     hideIcon = item.eventData!.extraCurricular == null || tileWidth < 34;
 
-    hideCircle = tileWidth < 10;
+    hideCircle = tileWidth < 35;
+
     return InkWell(
         onTap: () {
           onTap!(item.startTime, null, item);
@@ -118,7 +119,7 @@ class WeekEvent extends StatelessWidget {
                                 Flexible(
                                   child: Text(
                                     item.eventData!.title,
-                                    maxLines: 2,
+                                    maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: context.eventTitle,
                                   ),

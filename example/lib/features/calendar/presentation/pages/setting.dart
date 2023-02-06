@@ -74,20 +74,16 @@ class _SettingDrawerState extends State<SettingDrawer> {
                               onPressed: () {
                                 BlocProvider.of<TimeTableCubit>(context)
                                     .changeViewType(CalendarViewType.dayView);
-                                BlocProvider.of<TimeTableCubit>(context)
-                                    .mockObject
-                                    .invokeMethod(
-                                        ReceiveMethods.jumpToCurrentDate, null);
+                                TimeTableCubit.mockObject.invokeMethod(
+                                    ReceiveMethods.jumpToCurrentDate, null);
                               }),
                           ElevatedButton(
                             child: const Text('Week view'),
                             onPressed: () {
                               BlocProvider.of<TimeTableCubit>(context)
                                   .changeViewType(CalendarViewType.weekView);
-                              BlocProvider.of<TimeTableCubit>(context)
-                                  .mockObject
-                                  .invokeMethod(
-                                      ReceiveMethods.jumpToCurrentDate, null);
+                              TimeTableCubit.mockObject.invokeMethod(
+                                  ReceiveMethods.jumpToCurrentDate, null);
                             },
                           ),
                           ElevatedButton(
@@ -96,10 +92,8 @@ class _SettingDrawerState extends State<SettingDrawer> {
                                 BlocProvider.of<TimeTableCubit>(context)
                                     .changeViewType(
                                         CalendarViewType.scheduleView);
-                                BlocProvider.of<TimeTableCubit>(context)
-                                    .mockObject
-                                    .invokeMethod(
-                                        ReceiveMethods.jumpToCurrentDate, null);
+                                TimeTableCubit.mockObject.invokeMethod(
+                                    ReceiveMethods.jumpToCurrentDate, null);
                               }),
                           isMobile
                               ? const SizedBox.shrink()

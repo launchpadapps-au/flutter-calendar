@@ -155,15 +155,15 @@ Map<String, dynamic>
 
     /// A map of string to dynamic.
     staticJsonForTheTerm = <String, dynamic>{
-  'term': <String, dynamic>{
-    'id': 2,
-    'territory': 'Victoria',
+  'term': <String, dynamic> {
+    'id': 6,
+    'territory': 'New South Wales',
     'term1': '02-01|23-01',
     'term2': '26-01|07-07',
     'term3': '10-07|29-09',
     'term4': '02-10|29-12'
   },
-  'id': '3d2339f4-180b-4125-9177-67a9624f65fc'
+  'id': '681ab18e-0ddd-4dda-94e8-0026f1d4c46f'
 };
 
 ///static term that derived from [staticJsonForTheTerm]
@@ -199,7 +199,7 @@ class CalendarParams {
 
   ///breack hright for the tab
   static double tabBreakHeight = 33;
-  //cell height for the mobile
+  ///cell height for the mobile
   static double mobileCellHeight = 83;
 
   ///cell height fpr the tab

@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
@@ -384,7 +383,7 @@ List<Month> getMonthRange(DateTime first, DateTime second) {
         year: date1.year));
     date1 = DateTime(date1.year, date1.month + 1);
   }
-  log(tempList.toString());
+  appLog(tempList.toString());
 
   return tempList;
 }
@@ -484,11 +483,11 @@ List<CalendarDay> addPaddingDate(List<CalendarDay> myDateRange,
   final List<CalendarDay> dateRange = myDateRange;
   final DateTime firstDay = dateRange.first.dateTime;
   if (firstDay.weekday == 1) {
-    log('first day is monday');
+    appLog('first day is monday');
   } else {
-    log('First day is${firstDay.weekday}');
+    appLog('First day is${firstDay.weekday}');
     final int diff = 7 - firstDay.weekday;
-    log('Negative diff is $diff');
+    appLog('Negative diff is $diff');
 
     for (int i = 1; i < firstDay.weekday; i++) {
       dateRange.insert(
@@ -499,7 +498,7 @@ List<CalendarDay> addPaddingDate(List<CalendarDay> myDateRange,
   }
   final DateTime lastDay = dateRange.last.dateTime;
   if (lastDay.weekday == 7) {
-    log('lazy day is sunday');
+    appLog('lazy day is sunday');
   } else {
     final int diff = 7 - lastDay.weekday;
 
@@ -534,11 +533,11 @@ List<CalendarDay> getMonthDates(int month) {
   }
   final DateTime firstDay = dates.first.dateTime;
   if (firstDay.weekday == 1) {
-    log('first day is monday');
+    appLog('first day is monday');
   } else {
-    log('First day is${firstDay.weekday}');
+    appLog('First day is${firstDay.weekday}');
     final int diff = 7 - firstDay.weekday;
-    log('Negative diff is $diff');
+    appLog('Negative diff is $diff');
 
     for (int i = 1; i < firstDay.weekday; i++) {
       dates.insert(
@@ -550,7 +549,7 @@ List<CalendarDay> getMonthDates(int month) {
 
   final DateTime lastDay = dates.last.dateTime;
   if (lastDay.weekday == 7) {
-    log('lazy day is sunday');
+    appLog('lazy day is sunday');
   } else {
     final int diff = 7 - lastDay.weekday;
 

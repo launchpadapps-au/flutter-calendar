@@ -1,5 +1,4 @@
-import 'dart:async';
-import 'dart:developer';
+import 'dart:async'; 
 
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
@@ -260,7 +259,7 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
       appLog('date changed');
       appLog('date changed');
       final int index = dateTime.difference(controller.start).inDays;
-      log('Initial Scroll index $index');
+      appLog('Initial Scroll index $index');
       indexdController = IndexedScrollController(
           initialIndex: controller.start.difference(dateTime).inDays);
       setState(() {});
@@ -277,7 +276,7 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
       items = myevents;
       emptyIndex = null;
       eventNotifier.sink.add(items);
-      log('adding events  ${items.length}');
+      appLog('adding events  ${items.length}');
     }
 
     if (event is RemoveEventFromCalendar<T>) {
@@ -289,11 +288,11 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
         }
         emptyIndex = null;
         eventNotifier.sink.add(items);
-        log('total events  ${items.length}');
+        appLog('total events  ${items.length}');
       }
     }
     if (event is UpdateEventInCalendar<T>) {
-      log('updating calendar');
+      appLog('updating calendar');
 
       if (items.contains(event.oldEvent)) {
         final int index = items.indexOf(event.oldEvent);
@@ -301,17 +300,17 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
           ..removeAt(index)
           ..insert(index, event.newEvent);
       } else {
-        log('old event is not present in the list');
+        appLog('old event is not present in the list');
       }
       emptyIndex = null;
       eventNotifier.sink.add(items);
-      log('total events  ${items.length}');
+      appLog('total events  ${items.length}');
     }
     if (event is TimeTableSave) {
       ///impliment timetable sabe
     }
     if (event is TimetableJumpToRequested) {
-      log('jumping to ${event.date}');
+      appLog('jumping to ${event.date}');
       await _jumpTo(event.date);
     }
     if (event is TimetableCellSizeChanged) {
@@ -525,7 +524,7 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
                               },
                               builder: (BuildContext content, List<Object?> obj,
                                   List<dynamic> data) {
-                                log('');
+                                appLog('');
                                 return Draggable<CalendarEvent<T>>(
                                     ignoringFeedbackSemantics: false,
                                     data: e,
@@ -575,7 +574,7 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
           isScrolling = false;
         });
       } on Exception {
-        log('');
+        appLog('');
       }
     }
   }

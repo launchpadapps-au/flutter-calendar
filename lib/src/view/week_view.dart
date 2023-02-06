@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
@@ -164,6 +163,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
   int? _listenerId;
 
   List<DateTime> dateRange = <DateTime>[];
+  final DateTime now = DateTime.now();
 
   /// Timetable items to display in the timetable
   List<CalendarEvent<T>> items = <CalendarEvent<T>>[];
@@ -182,35 +182,18 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
     indexdHeaderController = IndexedScrollController(
         initialIndex: controller.start.difference(dateTime).inDays);
     setState(() {});
-    if (controller.infiniteScrolling) {
-      indexdController.addListener(() {
-        if (dateTime.year == dateForHeader.year &&
-            dateTime.month == dateForHeader.month &&
-            dateTime.day == dateForHeader.day) {
-        } else {
-          dateTime = dateForHeader;
-          if (!isScrolling) {
-            widget.onDateChanged!(dateTime);
-          }
+
+    dayScrolController.addListener(() {
+      if (dateTime.year == dateForHeader.year &&
+          dateTime.month == dateForHeader.month &&
+          dateTime.day == dateForHeader.day) {
+      } else {
+        dateTime = dateForHeader;
+        if (!isScrolling) {
+          widget.onDateChanged!(dateTime);
         }
-        if (indexdHeaderController.hasClients) {
-          indexdHeaderController
-              .jumpToWithSameOriginIndex(indexdController.offset);
-        }
-      });
-    } else {
-      dayScrolController.addListener(() {
-        if (dateTime.year == dateForHeader.year &&
-            dateTime.month == dateForHeader.month &&
-            dateTime.day == dateForHeader.day) {
-        } else {
-          dateTime = dateForHeader;
-          if (!isScrolling) {
-            widget.onDateChanged!(dateTime);
-          }
-        }
-      });
-    }
+      }
+    });
 
     _listenerId = controller.addListener(_eventHandler);
     if (controller.events.isNotEmpty) {
@@ -238,8 +221,29 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
     dateForHeader = dateRange[0];
 
     if (widget.autoScrollToday) {
-      initialPage = dateRange.indexOf(DateUtils.dateOnly(DateTime.now()));
-      currentPage = initialPage;
+      if (controller.start.isBefore(now) && controller.end.isAfter(now)) {
+        if (widget.fullWeek) {
+          initialPage = dateRange.indexOf(DateUtils.dateOnly(now));
+          currentPage = initialPage;
+          dateForHeader = dateRange[initialPage];
+        } else if (now.weekday < DateTime.saturday) {
+          initialPage = dateRange.indexOf(DateUtils.dateOnly(now));
+          currentPage = initialPage;
+          dateForHeader = dateRange[initialPage];
+        } else if (now.weekday == DateTime.saturday) {
+          initialPage = dateRange.indexOf(
+              DateUtils.dateOnly(now.subtract(const Duration(days: 1))));
+          currentPage = initialPage;
+          dateForHeader = dateRange[initialPage];
+        } else if (now.weekday == DateTime.sunday) {
+          initialPage = dateRange.indexOf(
+              DateUtils.dateOnly(now.subtract(const Duration(days: 2))));
+          currentPage = initialPage;
+          dateForHeader = dateRange[initialPage];
+        }
+        onDateChange(dateForHeader);
+        setState(() {});
+      }
     }
 
     if (widget.size != null) {
@@ -248,11 +252,11 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
     final double viewport = getViewPortSize(controller.maxColumn,
         isMobile: isMobile, fullWeek: widget.fullWeek);
 
-    log('Viewport: $viewport');
-    log('size ${widget.size}');
-    log('column width $columnWidth');
-    log('initial Page $initialPage');
-    log('max Page ${dateRange.length}');
+    appLog('Viewport: $viewport');
+    appLog('size ${widget.size}');
+    appLog('column width $columnWidth');
+    appLog('initial Page $initialPage');
+    appLog('max Page ${dateRange.length}');
     dayScrolController =
         PageController(initialPage: initialPage, viewportFraction: viewport);
     headerController =
@@ -279,7 +283,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
   }
 
   Future<void> _eventHandler(TimetableControllerEvent event) async {
-    log('No of events${widget.controller!.events.length}');
+    appLog('No of events${widget.controller!.events.length}');
     if (event is TimetableJumpToRequested) {
       appLog('jumping to ${event.date}');
       await _jumpTo(event.date);
@@ -297,7 +301,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
       appLog('date changed');
       appLog('date changed');
       final int index = dateTime.difference(controller.start).inDays;
-      log('Initial Scroll index $index');
+      appLog('Initial Scroll index $index');
       indexdController = IndexedScrollController(
           initialIndex: controller.start.difference(dateTime).inDays);
       setState(() {});
@@ -315,7 +319,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
       }
       items = myevents;
       eventNotifier.sink.add(items);
-      log('adding events  ${items.length}');
+      appLog('adding events  ${items.length}');
     } else if (event is RemoveEventFromCalendar<T>) {
       if (items.isNotEmpty) {
         for (final CalendarEvent<T> element in event.events) {
@@ -324,10 +328,10 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
           }
         }
         eventNotifier.sink.add(items);
-        log('total events  ${items.length}');
+        appLog('total events  ${items.length}');
       }
     } else if (event is UpdateEventInCalendar<T>) {
-      log('updating calendar');
+      appLog('updating calendar');
 
       if (items.contains(event.oldEvent)) {
         final int index = items.indexOf(event.oldEvent);
@@ -335,11 +339,11 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
           ..removeAt(index)
           ..insert(index, event.newEvent);
       } else {
-        log('old event is not present in the list');
+        appLog('old event is not present in the list');
       }
 
       eventNotifier.sink.add(items);
-      log('total events  ${items.length}');
+      appLog('total events  ${items.length}');
     } else if (event is TimetableCellSizeChanged) {
       setState(() {});
     } else if (event is TimeTableSave) {}
@@ -370,10 +374,10 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
         final double viewport = getViewPortSize(controller.maxColumn,
             isMobile: isMobile, fullWeek: widget.fullWeek);
 
-        log('Viewport 1: $viewport');
-        log('size ${widget.size}');
-        log('column width $columnWidth');
-        log('initial Page $initialPage');
+        appLog('Viewport 1: $viewport');
+        appLog('size ${widget.size}');
+        appLog('column width $columnWidth');
+        appLog('initial Page $initialPage');
 
         dayScrolController = PageController(
             initialPage: initialPage, viewportFraction: viewport);
@@ -390,26 +394,6 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
 
   bool isDragEnable(CalendarEvent<T> event) =>
       widget.isCellDraggable == null || widget.isCellDraggable!(event);
-  bool headerIsScrolling = false;
-  bool tabIsScrolling = false;
-
-  bool syncWithTab(ScrollNotification notification) {
-    if (headerIsScrolling || isScrolling) {
-    } else if (notification is ScrollStartNotification) {
-      tabIsScrolling = true;
-    } else if (notification is ScrollEndNotification) {
-      tabIsScrolling = false;
-      log('scroll end');
-      _snapToCloset();
-      return true;
-    } else if (notification is ScrollUpdateNotification) {
-      tabIsScrolling = true;
-      if (controller.infiniteScrolling) {
-        indexdHeaderController.jumpTo(notification.metrics.pixels);
-      }
-    }
-    return true;
-  }
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
@@ -437,55 +421,41 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                     SizedBox(
                       width: size.width - controller.timelineWidth,
                       height: widget.headerHeight,
-                      child: controller.infiniteScrolling
-                          ? IndexedListView.builder(
+                      child: widget.columnWidth != null
+                          ? ListView.builder(
                               scrollDirection: Axis.horizontal,
-                              controller: indexdHeaderController,
+                              itemExtent: columnWidth,
+                              controller: headerController,
+                              itemCount: dateRange.length,
                               physics: const NeverScrollableScrollPhysics(),
-                              padding: EdgeInsets.zero,
-                              cacheExtent: 0,
-                              emptyItemBuilder:
-                                  (BuildContext context, int index) =>
-                                      const SizedBox.shrink(),
-                              itemBuilder: (BuildContext context, int index) {
-                                final DateTime date =
-                                    controller.start.add(Duration(days: index));
-                                return !widget.fullWeek && date.weekday > 5
-                                    ? null
-                                    : HeaderCell(
-                                        dateTime: date,
-                                        columnWidth: columnWidth,
-                                        headerCellBuilder:
-                                            widget.headerCellBuilder,
-                                      );
-                              })
-                          : widget.columnWidth != null
-                              ? ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemExtent: columnWidth,
-                                  controller: headerController,
-                                  itemCount: dateRange.length,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemBuilder:
-                                      (BuildContext context, int index) =>
-                                          HeaderCell(
-                                            dateTime: dateRange[index],
-                                            columnWidth: columnWidth,
-                                            headerCellBuilder:
-                                                widget.headerCellBuilder,
-                                          ))
-                              : PageView.builder(
-                                  controller: headerController,
-                                  itemCount: dateRange.length,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemBuilder:
-                                      (BuildContext context, int index) =>
-                                          HeaderCell(
-                                            dateTime: dateRange[index],
-                                            columnWidth: columnWidth,
-                                            headerCellBuilder:
-                                                widget.headerCellBuilder,
-                                          )),
+                              itemBuilder: (BuildContext context, int index) =>
+                                  HeaderCell(
+                                    dateTime: dateRange[index],
+                                    columnWidth: columnWidth,
+                                    headerCellBuilder: widget.headerCellBuilder,
+                                  ))
+                          : PageView.builder(
+                              controller: headerController,
+                              itemCount: dateRange.length,
+                              pageSnapping: widget.snapToDay,
+                              onPageChanged: (int value) {
+                                if (widget.onDateChanged != null) {
+                                  final int dif = isMobile ? 1 : 2;
+                                  if (value > currentPage) {
+                                    dateForHeader = dateRange[value + dif];
+                                  } else {
+                                    dateForHeader = dateRange[value - dif];
+                                  }
+                                  currentPage = value;
+                                  onDateChange(dateForHeader);
+                                }
+                              },
+                              itemBuilder: (BuildContext context, int index) =>
+                                  HeaderCell(
+                                    dateTime: dateRange[index],
+                                    columnWidth: columnWidth,
+                                    headerCellBuilder: widget.headerCellBuilder,
+                                  )),
                     ),
                   ],
                 ),
@@ -527,110 +497,61 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                             child: NotificationListener<ScrollNotification>(
                               onNotification:
                                   (ScrollNotification notification) {
-                                if (controller.infiniteScrolling) {
-                                  syncWithTab(notification);
-                                } else {
-                                  headerController
-                                      .jumpTo(notification.metrics.pixels);
-                                }
+                                headerController
+                                    .jumpTo(notification.metrics.pixels);
 
                                 return false;
                               },
-                              child: controller.infiniteScrolling
-                                  ? IndexedListView.builder(
+                              child: widget.columnWidth != null
+                                  ? ListView.builder(
+                                      itemExtent: columnWidth,
                                       scrollDirection: Axis.horizontal,
-                                      // cacheExtent: 10000.0,
-
-                                      controller: indexdController,
-                                      cacheExtent: 0,
-                                      emptyItemBuilder:
-                                          (BuildContext context, int index) =>
-                                              const SizedBox.shrink(),
+                                      itemCount: dateRange.length,
+                                      controller: dayScrolController,
                                       itemBuilder:
                                           (BuildContext context, int index) {
-                                        final DateTime date = controller.start
-                                            .add(Duration(days: index));
-                                        dateForHeader = date;
-                                        // dateForHeader =
-                                        // date.subtract(Duration(
-                                        //     days:
-                                        // index.isNegative ? -7 : 7));
-
-                                        // if (date.isBefore(dateForHeader)) {
-                                        //   dateForHeader = date
-                                        //.subtract(const Duration(days: -2));
-                                        // } else {
-                                        //   dateForHeader = date
-                                        //.subtract(const Duration(days: 4));
-                                        // }
-                                        // dateForHeader = date;
+                                        final DateTime date = dateRange[index];
                                         final DateTime now = DateTime.now();
                                         final bool isToday =
                                             DateUtils.isSameDay(date, now);
                                         final bool showIndicator =
                                             widget.showNowIndicator && isToday;
 
-                                        return !widget.fullWeek &&
-                                                date.weekday > 5
-                                            ? null
-                                            : buildView(date,
-                                                showIndicator: showIndicator);
-                                      })
-                                  : widget.columnWidth != null
-                                      ? ListView.builder(
-                                          itemExtent: columnWidth,
-                                          scrollDirection: Axis.horizontal,
-                                          itemCount: dateRange.length,
-                                          controller: dayScrolController,
-                                          itemBuilder: (BuildContext context,
-                                              int index) {
-                                            final DateTime date =
-                                                dateRange[index];
-                                            final DateTime now = DateTime.now();
-                                            final bool isToday =
-                                                DateUtils.isSameDay(date, now);
-                                            final bool showIndicator =
-                                                widget.showNowIndicator &&
-                                                    isToday;
+                                        return buildView(date,
+                                            showIndicator: showIndicator);
+                                      },
+                                    )
+                                  : PageView.builder(
+                                      itemCount: dateRange.length,
+                                      controller: dayScrolController,
+                                      pageSnapping: widget.snapToDay,
+                                      onPageChanged: (int value) {
+                                        if (widget.onDateChanged != null) {
+                                          final int dif = isMobile ? 1 : 2;
+                                          if (value > currentPage) {
+                                            dateForHeader =
+                                                dateRange[value + dif];
+                                          } else {
+                                            dateForHeader =
+                                                dateRange[value - dif];
+                                          }
+                                          currentPage = value;
+                                          onDateChange(dateForHeader);
+                                        }
+                                      },
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        final DateTime date = dateRange[index];
+                                        final DateTime now = DateTime.now();
+                                        final bool isToday =
+                                            DateUtils.isSameDay(date, now);
+                                        final bool showIndicator =
+                                            widget.showNowIndicator && isToday;
 
-                                            return buildView(date,
-                                                showIndicator: showIndicator);
-                                          },
-                                        )
-                                      : PageView.builder(
-                                          itemCount: dateRange.length,
-                                          controller: dayScrolController,
-                                          pageSnapping: widget.snapToDay,
-                                          onPageChanged: (int value) {
-                                            if (widget.onDateChanged != null) {
-                                              final int dif = isMobile ? 1 : 2;
-                                              if (value > currentPage) {
-                                                dateForHeader =
-                                                    dateRange[value + dif];
-                                              } else {
-                                                dateForHeader =
-                                                    dateRange[value - dif];
-                                              }
-                                              currentPage = value;
-                                              widget.onDateChanged!(
-                                                  dateForHeader);
-                                            }
-                                          },
-                                          itemBuilder: (BuildContext context,
-                                              int index) {
-                                            final DateTime date =
-                                                dateRange[index];
-                                            final DateTime now = DateTime.now();
-                                            final bool isToday =
-                                                DateUtils.isSameDay(date, now);
-                                            final bool showIndicator =
-                                                widget.showNowIndicator &&
-                                                    isToday;
-
-                                            return buildView(date,
-                                                showIndicator: showIndicator);
-                                          },
-                                        ),
+                                        return buildView(date,
+                                            showIndicator: showIndicator);
+                                      },
+                                    ),
                             ),
                           ),
                         ],
@@ -761,7 +682,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                             },
                             onWillAccept: (CalendarEvent<T>? data) {
                               if (widget.onWillAcceptForEvent != null) {
-                                log('Event to event drag in day');
+                                appLog('Event to event drag in day');
                                 return widget.onWillAcceptForEvent!(
                                     data!, event, date);
                               } else {
@@ -794,67 +715,20 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
             );
           });
 
-  final Curve _animationCurve = Curves.linear;
-
-  bool _isSnapping = false;
-
-  Future<void> _snapToCloset() async {
-    if (_isSnapping || !widget.snapToDay) {
-      return;
-    }
-
-    if (controller.infiniteScrolling) {
-      _isSnapping = true;
-      await Future<void>.microtask(() => null);
-      final double snapPosition =
-          ((indexdController.offset) / columnWidth).round() * columnWidth;
-      unawaited(indexdController.animateTo(
-        snapPosition,
-        duration: const Duration(milliseconds: 200),
-        curve: _animationCurve,
-      ));
-
-      _isSnapping = false;
-    }
-  }
-
   ///jump to given date
   Future<dynamic> _jumpTo(DateTime date) async {
-    isScrolling = true;
-    DateTime dateTime = date;
-    final double hourPosition = getTimeIndicatorFromTop(
-        widget.timelines, controller.cellHeight, controller.breakHeight);
-    final double height = getTimelineHeight(
-        widget.timelines, controller.cellHeight, controller.breakHeight);
+    if (dayScrolController.hasClients) {
+      isScrolling = true;
+      final double hourPosition = getTimeIndicatorFromTop(
+          widget.timelines, controller.cellHeight, controller.breakHeight);
+      final double height = getTimelineHeight(
+          widget.timelines, controller.cellHeight, controller.breakHeight);
 
-    final double maxScroll = timeScrollController.position.maxScrollExtent;
-    final double scrollTo = hourPosition * maxScroll / height;
-    log('height $height hour $hourPosition '
-        'max $maxScroll scrollTo $scrollTo');
+      final double maxScroll = timeScrollController.position.maxScrollExtent;
+      final double scrollTo = hourPosition * maxScroll / height;
+      appLog('height $height hour $hourPosition '
+          'max $maxScroll scrollTo $scrollTo');
 
-    if (controller.infiniteScrolling) {
-      if (!widget.fullWeek) {
-        dateTime = dateTime.subtract(Duration(days: dateTime.weekday - 1));
-      }
-      final int index = dateTime.difference(controller.start).inDays;
-      unawaited(
-          indexdHeaderController.animateToIndex(index, curve: animationCurve));
-      await indexdController
-          .animateToIndex(index, curve: animationCurve)
-          .then((void value) async {
-        /// Scrolling to the current time.
-        await Future<void>.delayed(const Duration(milliseconds: 150))
-            .then((void value) => timeScrollController
-                    .animateTo(
-                  scrollTo,
-                  duration: animationDuration,
-                  curve: animationCurve,
-                )
-                    .then((dynamic value) {
-                  isScrolling = false;
-                }));
-      });
-    } else {
       try {
         if (date.isAfter(controller.start) && date.isBefore(controller.end)) {
           final DateTime dateOnly = DateUtils.dateOnly(date);
@@ -869,8 +743,15 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
           }
         }
       } on Exception catch (e) {
-        log(e.toString());
+        appLog(e.toString());
       }
+    }
+  }
+
+  /// proivde callback when date changed
+  void onDateChange(DateTime dateTime) {
+    if (widget.onDateChanged != null) {
+      widget.onDateChanged!(dateTime);
     }
   }
 }

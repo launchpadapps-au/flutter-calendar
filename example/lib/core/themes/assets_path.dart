@@ -15,7 +15,13 @@ class AssetPath {
   ///path of the sofia pro font
   static String sofiaProFont = 'assets/fonts/sofiapro-Regular.ttf';
 
-  /// path of the logo 
+  ///path of the sofia probold  font
+  static String sofiaProFontBold = 'assets/fonts/sofiapro-bold.ttf';
+
+  ///path of the sofia probold  font
+  static String sofiaProFontMedium = 'assets/fonts/sofiapro-medium.ttf';
+
+  /// path of the logo
   static String logo = 'assets/logo.png';
 
   ///path of the small logo

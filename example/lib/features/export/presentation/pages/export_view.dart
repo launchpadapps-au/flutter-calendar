@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:edgar_planner_calendar_flutter/core/logger.dart';
 import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/themes/constants.dart';
@@ -14,7 +12,6 @@ import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/wi
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/dead_cell.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/month_cell.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/month_hour_lable.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/month_note.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/weekview/week_event.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/data/models/export_progress.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/data/models/export_settings.dart';
@@ -25,7 +22,9 @@ import 'package:edgar_planner_calendar_flutter/features/export/presentation/widg
 import 'package:edgar_planner_calendar_flutter/features/export/presentation/widgets/export_header.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/presentation/widgets/export_hour_lable.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/presentation/widgets/export_month_header.dart';
+import 'package:edgar_planner_calendar_flutter/features/export/presentation/widgets/export_month_note.dart';
 import 'package:edgar_planner_calendar_flutter/features/screenshot/screenshot.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:intl/intl.dart';
@@ -152,7 +151,7 @@ class ExportView {
     logInfo('No of images: ${datalist.length}');
     await nativeCallBack.sendToNativeApp(SendMethods.downloadProgress,
         ExportProgress(status: ExportStatus.started, progress: 0).toJson());
-    final PdfUtils pdfUtils = PdfUtils();
+    final PdfUtils pdfUtils = PdfUtils()..init();
     pdfUtils.stream.listen((ExportProgress event) async {
       logInfo('stram is working');
       await nativeCallBack.sendToNativeApp(
@@ -161,7 +160,8 @@ class ExportView {
     final String filePath = await pdfUtils.savePdf(
         datalist, titles, pageFormat, pdfTitle, localPath);
 
-    for (var path in paths) {
+    for (final String path in paths) {
+      logInfo('');
       FileUtils.deleteFile(path);
     }
     await nativeCallBack.sendToNativeApp(
@@ -170,8 +170,16 @@ class ExportView {
             status: ExportStatus.done,
             progress: 1,
             path: <String>[filePath]).toJson());
-    pdfUtils.disposeStream();
+    pdfUtils.dispose();
   }
+
+  ///it will capture screenshot fromt the widget
+  Future<Uint8List> getScreenshot(ScreenshotData data) => ScreenshotController()
+      .captureFromWidget(data.widget, targetSize: data.targetSize);
+
+  ///it will capture screenshot using thread
+  Future<Uint8List> captureScreenshot(ScreenshotData data) =>
+      compute(getScreenshot, data);
 
   ///export week view
   Future<bool> exportWeekView(
@@ -244,8 +252,6 @@ class ExportView {
                   maxColumns: fullWeek ? 7 : 5,
                   cellHeight: cellHeight)
                 ..addEvent(filterdEvent);
-          final DateTime first = week.start;
-          final DateTime last = week.end;
           logInfo('startDate: ${week.start}and endDate:  ${week.start}');
           await ScreenshotController()
               .captureFromWidget(
@@ -259,15 +265,14 @@ class ExportView {
                               color: white, border: Border.all(width: 0)),
                           child: SlWeekView<EventData>(
                               fullWeek: fullWeek,
-                              snapToDay: true,
-                              onDateChanged: (dateTime) {},
+                              onDateChanged: (DateTime dateTime) {},
                               onEventToEventDragged:
-                                  (existing, old, newEvent, periodModel) {},
-                              onWillAcceptForEvent:
-                                  (draggeed, existing, dateTime) => false,
+                                  (CalendarEvent<EventData> e,
+                                      CalendarEvent<EventData> old,
+                                      CalendarEvent<EventData> newEvent,
+                                      Period? periodModel) {},
                               autoScrollToday: false,
                               headerDivideThickness: 0,
-                              
                               columnWidth: cellWidth,
                               showNowIndicator: false,
                               size: size,
@@ -277,12 +282,13 @@ class ExportView {
                                   Period? period) {},
                               onTap: (DateTime date, Period period,
                                   CalendarEvent<EventData>? event) {},
-                              onWillAccept: (CalendarEvent<EventData>? event, Period p) =>
+                              onWillAccept: (CalendarEvent<EventData>? event,
+                                      Period p) =>
                                   true,
                               showActiveDateIndicator: false,
                               nowIndicatorColor: timeIndicatorColor,
-                              cornerBuilder: (DateTime current) =>
-                                  const ExportCorner(),
+                              cornerBuilder:
+                                  (DateTime current) => const ExportCorner(),
                               headerHeight: headerHeight,
                               headerCellBuilder: (DateTime date) =>
                                   ExportHeader(
@@ -294,20 +300,22 @@ class ExportView {
                                   cellHeight: cellHeight,
                                   timelineWidth: timeLineWidth,
                                   isMobile: isMobile),
-                              isCellDraggable: (CalendarEvent<EventData> event) =>
-                                  isCelldraggable(event),
+                              isCellDraggable:
+                                  (CalendarEvent<EventData> event) =>
+                                      isCelldraggable(event),
                               controller: simpleController,
-                              itemBuilder: (CalendarEvent<EventData> item, double width) => WeekEvent(
-                                  item: item,
-                                  cellHeight: cellHeight,
-                                  breakHeight: breakHeight,
-                                  width: width,
-                                  periods: timelines),
-                              cellBuilder: (Period period, DateTime dateTime) =>
-                                  ExportCell(
-                                      periodModel: period as PeriodModel,
-                                      breakHeight: simpleController.breakHeight,
-                                      cellHeight: simpleController.cellHeight)),
+                              itemBuilder:
+                                  (CalendarEvent<EventData> i, double w) =>
+                                      WeekEvent(
+                                          item: i,
+                                          cellHeight: cellHeight,
+                                          breakHeight: breakHeight,
+                                          width: w,
+                                          periods: timelines),
+                              cellBuilder: (Period p, DateTime d) => ExportCell(
+                                  periodModel: p as PeriodModel,
+                                  breakHeight: simpleController.breakHeight,
+                                  cellHeight: simpleController.cellHeight)),
                         ),
                       )),
                   targetSize: size,
@@ -325,7 +333,7 @@ class ExportView {
               subtitle = subjectName;
             }
             titles.add(
-              'From ${DateFormat('d MMM').format(first)}To ${DateFormat('d MMMM y').format(last)}/ $subtitle$weekendsTitle',
+              'From ${DateFormat('d MMMM').format(startDate)} to ${DateFormat('d MMMM y').format(endDate)}/ $subtitle$weekendsTitle',
             );
           });
 
@@ -342,7 +350,8 @@ class ExportView {
         }
       }
       logInfo('All Week image generated');
-      pdfTitle = 'Week view${fullWeek ? '( Weekend included )' : ''}';
+      pdfTitle = PdfUtils.pdfName(CalendarViewType.weekView,
+          subjectName: subjectName, fullWeek: fullWeek, allSubject: allSubject);
       if (generatingPreview) {
         await nativeCallBack.sendToNativeApp(
             SendMethods.previewProgress,
@@ -457,7 +466,6 @@ class ExportView {
                                   true,
                               nowIndicatorColor: timeIndicatorColor,
                               fullWeek: fullWeek,
-                              snapToDay: true,
                               autoScrollToday: false,
                               cornerBuilder: (DateTime current) =>
                                   const SizedBox.shrink(),
@@ -518,7 +526,7 @@ class ExportView {
             }
             datalist.add(value);
             titles.add(
-              '${DateFormat('d MMMM y').format(date)}/ $subtitle$weekendsTitle',
+              'From ${DateFormat('d MMMM').format(startDate)} to ${DateFormat('d MMMM y').format(endDate)}/ $subtitle$weekendsTitle',
             );
           });
           await nativeCallBack.sendToNativeApp(
@@ -528,8 +536,9 @@ class ExportView {
           i++;
         }
       }
-      logInfo('All Week image generated');
-      pdfTitle = 'Day view${fullWeek ? '( Weekend included )' : ''}';
+      logInfo('All Day image generated');
+      pdfTitle = PdfUtils.pdfName(CalendarViewType.dayView,
+          subjectName: subjectName, fullWeek: fullWeek, allSubject: allSubject);
       if (generatingPreview) {
         await nativeCallBack.sendToNativeApp(
             SendMethods.previewProgress,
@@ -582,47 +591,51 @@ class ExportView {
                   MaterialApp(
                     debugShowCheckedModeBanner: false,
                     home: Material(
-                        child: SlMonthView<Note>(
-                            timelines: timelines,
-                            size: size,
-                            onMonthChanged: (Month month) {},
-                            onEventDragged: (CalendarEvent<Note> old,
-                                CalendarEvent<Note> newEvent) {},
-                            onWillAccept: (CalendarEvent<Note>? event,
-                                    DateTime dateTime, Period period) =>
-                                true,
-                            nowIndicatorColor: Colors.red,
-                            fullWeek: true,
-                            deadCellBuilder:
-                                (DateTime current, Size cellSize) =>
-                                    const Expanded(
-                                      child: DeadCell(),
-                                    ),
-                            onTap: (CalendarDay date) {},
-                            headerHeight: 40,
-                            headerCellBuilder: (int index) => ExportMonthHeader(
-                                  height: timetableController.headerHeight,
-                                  index: index,
-                                ),
-                            hourLabelBuilder: (Period period) => MonthHourLable(
-                                periodModel: period as PeriodModel),
-                            controller: timetableController,
-                            itemBuilder: (List<CalendarEvent<Note>> item,
-                                    Size size, CalendarDay calendarDay) =>
-                                MonthNote(
-                                  item: item,
-                                  calendarDay: calendarDay,
-                                  cellHeight: cellHeight,
-                                  breakHeight: breakHeight,
-                                  size: size,
-                                  isDraggable: false,
-                                  onTap: (CalendarDay dateTime,
-                                      List<CalendarEvent<Note>> p1) {},
-                                ),
-                            cellBuilder: (Period period) => MonthCell(
-                                periodModel: period as PeriodModel,
-                                breakHeight: timetableController.breakHeight,
-                                cellHeight: timetableController.cellHeight))),
+                        child: Container(
+                      width: size.width,
+                      height: size.height,
+                      color: white,
+                      child: SlMonthView<Note>(
+                          timelines: timelines,
+                          size: size,
+                          onMonthChanged: (Month month) {},
+                          onEventDragged: (CalendarEvent<Note> old,
+                              CalendarEvent<Note> newEvent) {},
+                          onWillAccept: (CalendarEvent<Note>? event,
+                                  DateTime dateTime, Period period) =>
+                              true,
+                          nowIndicatorColor: Colors.red,
+                          fullWeek: true,
+                          deadCellBuilder: (DateTime current, Size cellSize) =>
+                              const Expanded(
+                                child: DeadCell(),
+                              ),
+                          onTap: (CalendarDay date) {},
+                          headerHeight: 40,
+                          headerCellBuilder: (int index) => ExportMonthHeader(
+                                height: timetableController.headerHeight,
+                                index: index,
+                              ),
+                          hourLabelBuilder: (Period period) => MonthHourLable(
+                              periodModel: period as PeriodModel),
+                          controller: timetableController,
+                          itemBuilder: (List<CalendarEvent<Note>> item,
+                                  Size size, CalendarDay calendarDay) =>
+                              ExportMonthNote(
+                                item: item,
+                                calendarDay: calendarDay,
+                                cellHeight: cellHeight,
+                                breakHeight: breakHeight,
+                                size: size,
+                                isDraggable: false,
+                                onTap: (CalendarDay dateTime,
+                                    List<CalendarEvent<Note>> p1) {},
+                              ),
+                          cellBuilder: (Period period) => MonthCell(
+                              periodModel: period as PeriodModel,
+                              breakHeight: timetableController.breakHeight,
+                              cellHeight: timetableController.cellHeight)),
+                    )),
                   ),
                   targetSize: size)
               .then((Uint8List value) async {
@@ -638,7 +651,7 @@ class ExportView {
             paths.add(imagePath);
             datalist.add(value);
             titles.add(
-              '${DateFormat('MMMM y').format(first)}/ $subtitle',
+              'From ${DateFormat('d MMMM').format(startDate)} to ${DateFormat('d MMMM y').format(endDate)}/ $subtitle',
             );
           });
           final int index = months.indexOf(month);
@@ -652,7 +665,8 @@ class ExportView {
           }
         }
       }
-      pdfTitle = 'Month view(All Notes)';
+      pdfTitle = PdfUtils.pdfName(CalendarViewType.monthView,
+          fullWeek: true, allSubject: true);
       if (generatingPreview) {
         await nativeCallBack.sendToNativeApp(
             SendMethods.previewProgress,
@@ -664,4 +678,16 @@ class ExportView {
       return false;
     }
   }
+}
+
+/// This will use to pass screenshot data to thread
+class ScreenshotData {
+  ///initialize the data
+  ScreenshotData(this.widget, this.targetSize);
+
+  ///Widget that require to take screenshot
+  Widget widget;
+
+  ///size  of the widget
+  Size targetSize;
 }

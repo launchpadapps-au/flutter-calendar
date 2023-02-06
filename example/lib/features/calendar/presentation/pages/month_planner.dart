@@ -105,9 +105,9 @@ class _MonthPlannerState extends State<MonthPlanner> {
           breakHeight: widget.timetableController.breakHeight,
           size: size,
           isDraggable: isDraggable,
-          onTap: (date, p1) {
+          onTap: (CalendarDay date, List<CalendarEvent<Note>> p1) {
             if (!date.deadCell) {
-              widget.onTap(date.dateTime, <CalendarEvent<Note>>[]);
+              widget.onTap(date.dateTime, p1);
             }
           },
         ),

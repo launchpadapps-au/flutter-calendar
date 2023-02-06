@@ -38,7 +38,6 @@ class FileUtils {
       final File file = await File('$storagePath/exported').namePlus(
         '$filename.pdf',
         format: '(d)',
-        space: true,
       );
 
       file.createSync(recursive: true);
@@ -48,7 +47,7 @@ class FileUtils {
     } on Exception catch (e) {
       return e.toString();
     }
-  }
+  }///it will return path based on the paltform
 
   static Future<Directory?> getPath() async {
     final Directory? path = Platform.isAndroid
@@ -58,8 +57,8 @@ class FileUtils {
             : await getDownloadsDirectory();
     return path;
   }
-
-  static bool deleteFile(var path) {
+///it will delete file
+  static bool deleteFile(String path) {
     try {
       final File file = File(path);
       if (file.existsSync()) {

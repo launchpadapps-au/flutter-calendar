@@ -235,7 +235,7 @@ class _CalendarViewState extends State<CalendarView> {
       return;
     }
     if (box.hasSize) {
-      var size = box.size;
+      final Size size = box.size;
 
       if (size.width < mobileThreshold) {
         dayController.chageCellHeight(
@@ -257,6 +257,7 @@ class _CalendarViewState extends State<CalendarView> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+        resizeToAvoidBottomInset: false,
         key: scaffoldKey,
         backgroundColor: white,
         appBar: showAppbar
@@ -278,29 +279,28 @@ class _CalendarViewState extends State<CalendarView> {
           },
         ),
         floatingActionButton: BlocBuilder<TimeTableCubit, TimeTableState>(
-          builder: (context, state) {
-            return BlocProvider.of<TimeTableCubit>(context).standAlone
-                ? FloatingActionButton(
-                    onPressed: (() {
-                      showDatePicker(
-                              context: context,
-                              firstDate: DefaultDates.startDate,
-                              lastDate: DefaultDates.endDate,
-                              initialDate: DateTime.now())
-                          .then((value) {
-                        if (value != null) {
-                          timeTableController.jumpTo(value);
-                          dayController.jumpTo(value);
-                          scheduleController.jumpTo(value);
-                          monthController.jumpTo(value);
-                          termController.jumpTo(value);
-                        }
-                      });
-                    }),
-                    child: const Icon(Icons.calendar_month),
-                  )
-                : SizedBox.shrink();
-          },
+          builder: (BuildContext context, TimeTableState state) =>
+              BlocProvider.of<TimeTableCubit>(context).standAlone
+                  ? FloatingActionButton(
+                      onPressed: () {
+                        showDatePicker(
+                                context: context,
+                                firstDate: DefaultDates.startDate,
+                                lastDate: DefaultDates.endDate,
+                                initialDate: DateTime.now())
+                            .then((DateTime? value) {
+                          if (value != null) {
+                            timeTableController.jumpTo(value);
+                            dayController.jumpTo(value);
+                            scheduleController.jumpTo(value);
+                            monthController.jumpTo(value);
+                            termController.jumpTo(value);
+                          }
+                        });
+                      },
+                      child: const Icon(Icons.calendar_month),
+                    )
+                  : const SizedBox.shrink(),
         ),
         body: SafeArea(
           child: LayoutBuilder(

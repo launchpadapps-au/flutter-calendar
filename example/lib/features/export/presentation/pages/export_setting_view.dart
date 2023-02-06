@@ -1,16 +1,21 @@
 // ignore_for_file: invalid_use_of_protected_member
 
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:edgar_planner_calendar_flutter/core/logger.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/calendar_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/method_name.dart';
+import 'package:edgar_planner_calendar_flutter/features/export/data/models/export_progress.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/presentation/pages/fileutils.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/presentation/pages/pdf_utils.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/presentation/widgets/dummy_subject.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 // ignore: implementation_imports
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:pdf/pdf.dart';
 
@@ -36,11 +41,131 @@ class _ExportSettingViewState extends State<ExportSettingView> {
   bool saveImg = false;
   bool fullWeek = true;
   dynamic selectedSubject;
+  late ExportProgress exportProgres;
 
-  void sendData(var data, BuildContext context) {
-    BlocProvider.of<TimeTableCubit>(context)
-        .mockObject
+  StreamController<ExportProgress> streamController =
+      StreamController<ExportProgress>.broadcast();
+  void sendData(dynamic data, BuildContext context) {
+    TimeTableCubit.mockObject
         .invokeMethod(ReceiveMethods.generatePreview, jsonEncode(data));
+  }
+
+  void listenMockStream(BuildContext context) {
+    TimeTableCubit.mockObject.stream.listen((MethodCall event) {
+      switch (event.method) {
+        case SendMethods.previewProgress:
+          exportProgres = ExportProgress.fromJson(event.arguments);
+          streamController.sink.add(exportProgres);
+          logInfo(exportProgres.toJson().toString());
+          switch (exportProgres.status) {
+            case ExportStatus.started:
+              _showAlertDialog(context);
+
+              break;
+            case ExportStatus.inProgress:
+              break;
+            case ExportStatus.done:
+              break;
+          }
+
+          break;
+        case SendMethods.downloadProgress:
+          exportProgres = ExportProgress.fromJson(event.arguments);
+          streamController.sink.add(exportProgres);
+          logInfo(exportProgres.toJson().toString());
+          switch (exportProgres.status) {
+            case ExportStatus.started:
+              _showAlertDialog(context, isDownloading: true);
+
+              break;
+            case ExportStatus.inProgress:
+              break;
+            case ExportStatus.done:
+              break;
+          }
+      }
+    });
+  }
+
+// This shows a CupertinoModalPopup which hosts a CupertinoAlertDialog.
+  void _showAlertDialog(BuildContext context, {bool isDownloading = false}) {
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (BuildContext context) => StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) =>
+              StreamBuilder<ExportProgress>(
+                  stream: streamController.stream,
+                  builder: (BuildContext context,
+                          AsyncSnapshot<ExportProgress> snapshot) =>
+                      CupertinoAlertDialog(
+                        title: Text(isDownloading
+                            ? 'Downloadind PDF'
+                            : 'Genetating Preview'),
+                        content: exportProgres.status == ExportStatus.done
+                            ? Column(
+                                children: <Widget>[
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  const Icon(
+                                    Icons.download_done_rounded,
+                                    color: Colors.green,
+                                    size: 40,
+                                  ),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  Text(!isDownloading
+                                      ? 'Pdf preview generated.'
+                                      : 'Pdf downloade.'),
+                                ],
+                              )
+                            : Column(
+                                children: <Widget>[
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Text(getTitle(
+                                      isDownloading: isDownloading,
+                                      exportProgres: exportProgres)),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  LinearProgressIndicator(
+                                    value: exportProgres.progress,
+                                  ),
+                                ],
+                              ),
+                        actions: <CupertinoDialogAction>[
+                          CupertinoDialogAction(
+                            isDefaultAction: true,
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Ok'),
+                          ),
+                          CupertinoDialogAction(
+                            isDestructiveAction: true,
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Cancle'),
+                          ),
+                        ],
+                      ))),
+    );
+  }
+
+  @override
+  void initState() {
+    listenMockStream(context);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    streamController.close();
+    super.dispose();
   }
 
   @override
@@ -137,7 +262,7 @@ class _ExportSettingViewState extends State<ExportSettingView> {
                             Subject.fromJson(selectedSubject)
                                 .subjectName
                                 .toString();
-                        FileUtils.getPath().then((path) {
+                        FileUtils.getPath().then((Directory? path) {
                           final Map<String, dynamic> data = <String, dynamic>{
                             'startDate': start.toIso8601String(),
                             'endDate': end.toIso8601String(),
@@ -155,8 +280,7 @@ class _ExportSettingViewState extends State<ExportSettingView> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        BlocProvider.of<TimeTableCubit>(context)
-                            .mockObject
+                        TimeTableCubit.mockObject
                             .invokeMethod(ReceiveMethods.downloadPdf, null);
                       },
                       child: const Text('Download'),
@@ -164,8 +288,7 @@ class _ExportSettingViewState extends State<ExportSettingView> {
                     ElevatedButton(
                       onPressed: () async {
                         final Map<String, dynamic> data = <String, dynamic>{};
-                        BlocProvider.of<TimeTableCubit>(context)
-                            .mockObject
+                        TimeTableCubit.mockObject
                             .invokeMethod(ReceiveMethods.canclePreview, data);
                       },
                       child: const Text('Cancle'),
@@ -178,5 +301,21 @@ class _ExportSettingViewState extends State<ExportSettingView> {
         ),
       ]),
     );
+  }
+
+  ///return tile for dialog
+  String getTitle(
+      {required bool isDownloading, required ExportProgress exportProgres}) {
+    final String progress = (exportProgres.progress * 100).toStringAsFixed(3);
+    switch (isDownloading) {
+      case true:
+        return 'Pdf download progress: $progress}';
+
+      case false:
+        return 'Preview generation: progress: $progress}';
+
+      default:
+        return '';
+    }
   }
 }

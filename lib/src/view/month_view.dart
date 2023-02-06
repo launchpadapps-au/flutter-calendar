@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_adjacent_string_concatenation
 
-import 'dart:async';
-import 'dart:developer';
+import 'dart:async'; 
 
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
@@ -146,8 +145,7 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
   }
 
   ///get initial list of dates
-  void initDate() {
-    log('Setting dates in month view');
+  void initDate() { 
     final int diff = controller.end.difference(controller.start).inDays;
     dateRange.clear();
     for (int i = 0; i < diff; i++) {
@@ -204,7 +202,7 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
       }
       items = myevents;
       eventNotifier.sink.add(items);
-      log('adding events  ${items.length}');
+      appLog('adding events in monthview:  ${items.length}');
     }
 
     if (event is RemoveEventFromCalendar<T>) {
@@ -215,11 +213,11 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
           }
         }
         eventNotifier.sink.add(items);
-        log('total events  ${items.length}');
+       
       }
     }
     if (event is UpdateEventInCalendar<T>) {
-      log('updating calendar');
+      appLog('updating calendar');
 
       if (items.contains(event.oldEvent)) {
         final int index = items.indexOf(event.oldEvent);
@@ -227,11 +225,11 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
           ..removeAt(index)
           ..insert(index, event.newEvent);
       } else {
-        log('old event is not present in the list');
+        appLog('old event is not present in the list');
       }
 
       eventNotifier.sink.add(items);
-      log('total events  ${items.length}');
+      appLog('total events  ${items.length}');
     }
     if (mounted) {
       setState(() {});

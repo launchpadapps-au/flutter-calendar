@@ -199,7 +199,7 @@ class _IndexedListViewState extends State<IndexedListView> {
       viewportBuilder: (BuildContext context, ViewportOffset offset) =>
           Builder(builder: (BuildContext context) {
         // Build negative [ScrollPosition] for the negative scrolling [Viewport]
-        final ScrollableState state = Scrollable.of(context)!;
+        final ScrollableState state = Scrollable.of(context);
         final _IndexedScrollPosition negativeOffset = _IndexedScrollPosition(
           physics: scrollPhysics,
           context: state,

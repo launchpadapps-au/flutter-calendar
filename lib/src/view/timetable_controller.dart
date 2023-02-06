@@ -40,7 +40,7 @@ class TimetableController<T> {
     ///List of the events
     List<CalendarEvent<T>>? events,
 
-    ///pass false if you want strinct calendar between two dates
+    ///pass false if you want fix start and end date of the schedule view
     bool? infiniteScrolling,
 
     /// Controller event listener.

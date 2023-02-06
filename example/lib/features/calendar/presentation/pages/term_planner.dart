@@ -134,7 +134,7 @@ class _TermPlannerState extends State<TermPlanner> {
           breakHeight: widget.timetableController.breakHeight,
           size: size,
           isDraggable: false,
-          onTap: (dateTime, p1) {
+          onTap: (CalendarDay dateTime, List<CalendarEvent<Note>> p1) {
             widget.onTap(dateTime.dateTime, p1);
           },
         ),

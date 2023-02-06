@@ -66,7 +66,7 @@ class _DayEventState extends State<DayEvent> {
     tileWidth = widget.width - 2 * margin - 2 * padding;
     hideIcon = widget.item.eventData!.extraCurricular == null || tileWidth < 34;
 
-    hideCircle = tileWidth < 20;
+    hideCircle = tileWidth < 35;
     if (widget.item.eventData!.isDutyTime) {
       bgColor = grey;
     } else if (widget.item.eventData!.isFreeTime) {
@@ -132,7 +132,7 @@ class _DayEventState extends State<DayEvent> {
                                 Flexible(
                                   child: Text(
                                     widget.item.eventData!.title,
-                                    maxLines: 2,
+                                    maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: context.eventTitle,
                                   ),

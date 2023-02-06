@@ -7,6 +7,7 @@ import 'package:edgar_planner_calendar_flutter/features/export/data/models/expor
 import 'package:edgar_planner_calendar_flutter/features/export/presentation/pages/fileutils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
@@ -14,16 +15,20 @@ import 'package:pdf/widgets.dart';
 ///Pdf functionality for the app
 class PdfUtils {
   ///strea contriller for export progress
-  StreamController<ExportProgress> streamController =
-      StreamController<ExportProgress>.broadcast();
+  late StreamController<ExportProgress> _streamController;
+
+  ///it will init the stream
+  void init() {
+    _streamController = StreamController<ExportProgress>.broadcast();
+  }
 
   ///it will dispose the stram
-  void disposeStream() {
-    streamController.sink.close();
+  void dispose() {
+    _streamController.close();
   }
 
   ///atream of progress
-  Stream<ExportProgress> get stream => streamController.stream;
+  Stream<ExportProgress> get stream => _streamController.stream;
 
   ///it will sabe pdf in the local storage
   ///
@@ -37,9 +42,11 @@ class PdfUtils {
       ..info('page format $pageFormat')
       ..info('Pdf size width:$width height:$height');
     final Uint8List fontData =
-        (await rootBundle.load(AssetPath.sofiaProFont)).buffer.asUint8List();
+        (await rootBundle.load(AssetPath.sofiaProFontBold))
+            .buffer
+            .asUint8List();
     final Font ttf = Font.ttf(fontData.buffer.asByteData());
-    final Document pdf = Document(
+    Document pdf = Document(
       pageMode: PdfPageMode.fullscreen,
     );
     final MemoryImage titleLogo = MemoryImage(
@@ -50,87 +57,110 @@ class PdfUtils {
     );
     final int length = items.length;
     logInfo('saving pdf');
+
+    Document getPage(AddPage data) {
+      final Document pdf = data.document
+        ..addPage(Page(
+            pageFormat: pageFormat,
+            margin: const EdgeInsets.only(left: 10, bottom: 10),
+            orientation: PageOrientation.landscape,
+            build: (Context context) => Container(
+                  width: width,
+                  height: height,
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Container(
+                            height: 35,
+                            width: width,
+                            child: Row(
+                              children: <Widget>[
+                                SizedBox(
+                                  width: 30,
+                                ),
+                                Image(
+                                  titleLogo,
+                                  width: 56,
+                                  height: 10,
+                                ),
+                                SizedBox(
+                                  width: 8,
+                                ),
+                                Padding(
+                                    padding: const EdgeInsets.only(bottom: 2),
+                                    child: Text(
+                                      titles[data.index],
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          font: ttf,
+                                          fontSize: 10),
+                                    )),
+                                Spacer(),
+                                Image(
+                                  smallLogo,
+                                  width: 9,
+                                  height: 11,
+                                ),
+                                SizedBox(
+                                  width: 1,
+                                ),
+                                Text(
+                                  ' /${data.index + 1}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.normal,
+                                      font: ttf,
+                                      fontSize: 10),
+                                ),
+                                SizedBox(
+                                  width: 35,
+                                ),
+                              ],
+                            )),
+                        Row(children: <Widget>[
+                          Container(
+                              width: width,
+                              height: height - 35,
+                              decoration: const BoxDecoration(),
+                              // margin: EdgeInsets.only(left: 10, bottom: 10),
+                              child: Image(
+                                MemoryImage(
+                                  data.item,
+                                  dpi: 500,
+                                  orientation: PdfImageOrientation.topRight,
+                                ),
+                                width: width,
+                                height: height - 35,
+                              ))
+                        ])
+                      ]),
+                )));
+
+      return pdf;
+    }
+
+    Future<Document> addPAge(AddPage data) => compute(getPage, data);
+
     for (final Uint8List item in items) {
       final int index = items.indexOf(item);
-      pdf.addPage(Page(
-          pageFormat: pageFormat,
-          margin: const EdgeInsets.only(left: 10, bottom: 10),
-          orientation: PageOrientation.landscape,
-          build: (Context context) => Container(
-                width: width,
-                height: height,
-                child: Column(children: <Widget>[
-                  Container(
-                      height: 35,
-                      width: width,
-                      child: Row(
-                        children: <Widget>[
-                          SizedBox(
-                            width: 30,
-                          ),
-                          Image(
-                            titleLogo,
-                            width: 56,
-                            height: 10,
-                          ),
-                          SizedBox(
-                            width: 8,
-                          ),
-                          Text(
-                            titles[index],
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                font: ttf,
-                                fontSize: 10),
-                          ),
-                          Spacer(),
-                          Image(
-                            smallLogo,
-                            width: 9,
-                            height: 11,
-                          ),
-                          SizedBox(
-                            width: 1,
-                          ),
-                          Text(
-                            ' /${index + 1}',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                font: ttf,
-                                fontSize: 10),
-                          ),
-                          SizedBox(
-                            width: 35,
-                          ),
-                        ],
-                      )),
-                  Row(children: <Widget>[
-                    Container(
-                        width: width,
-                        height: height - 35,
-                        decoration: const BoxDecoration(),
-                        // margin: EdgeInsets.only(left: 10, bottom: 10),
-                        child: Image(
-                          MemoryImage(
-                            item,
-                            dpi: 500,
-                            orientation: PdfImageOrientation.topRight,
-                          ),
-                          width: width,
-                          height: height - 35,
-                        ))
-                  ])
-                ]),
-              )));
-
+      pdf = await addPAge(AddPage(pdf, titles[index], item, index));
       if ((index + 1) != length) {
-        streamController.sink.add(ExportProgress(
+        _streamController.sink.add(ExportProgress(
             status: ExportStatus.inProgress, progress: (index + 1) / length));
       }
     }
 
-    final String? filePath = await FileUtils.saveTopdf(await pdf.save(),
-        filename: fileName, localPath: localPath);
+    Future<Uint8List> getByteData(Document pdf) async => pdf.save();
+
+    Future<Uint8List> savePage(Document pdf) => compute(getByteData, pdf);
+    Future<String?> savePdfComputeFunction(FileDataForThred fileData) async =>
+        FileUtils.saveTopdf(fileData.data,
+            filename: fileData.filename, localPath: fileData.localPath);
+
+    Future<String?> savePdfUsingThred(FileDataForThred fileData) =>
+        compute(savePdfComputeFunction, fileData);
+    final Uint8List biteData = await savePage(pdf);
+    final String? filePath = await savePdfUsingThred(
+        FileDataForThred(biteData, fileName, localPath));
     logInfo('file saved');
     return filePath!;
   }
@@ -191,4 +221,72 @@ class PdfUtils {
     await file.writeAsBytes(await pdf.save());
     logInfo('file saved');
   }
+
+  ///return pdf name based on view type and other prameter
+  static String pdfName(
+    CalendarViewType viewType, {
+    required bool fullWeek,
+    required bool allSubject,
+    String? subjectName,
+  }) {
+    {
+      switch (viewType) {
+        case CalendarViewType.weekView:
+          const String title = 'Week view';
+          final String? subject = allSubject ? 'All Subjects' : subjectName;
+          const String weekend = 'Weekends included';
+          final String? subTitle = fullWeek ? '$weekend - $subject' : subject;
+          return '$title ( $subTitle )';
+        case CalendarViewType.dayView:
+          const String title = 'Day view';
+          final String? subject = allSubject ? 'All Subjects' : subjectName;
+          const String weekend = 'Weekends included';
+          final String? subTitle = fullWeek ? '$weekend - $subject' : subject;
+          return '$title ( $subTitle )';
+        case CalendarViewType.monthView:
+          return 'Month view ( All Notes)';
+        case CalendarViewType.scheduleView:
+          break;
+
+        case CalendarViewType.termView:
+          break;
+        case CalendarViewType.glScheduleView:
+          break;
+      }
+    }
+    return '';
+  }
+}
+
+/// This will use to supply page data to thread
+class AddPage {
+  ///initialize the page data
+  AddPage(this.document, this.title, this.item, this.index);
+
+  ///pdf document object
+  Document document;
+
+  ///title of the page
+  String title;
+
+  ///byte data of the page
+  Uint8List item;
+
+  ///index of the page
+  int index;
+}
+
+/// This will use to supply page data to thread
+class FileDataForThred {
+  ///initialze the file data
+  FileDataForThred(this.data, this.filename, this.localPath);
+
+  ///byte data of the file
+  Uint8List data;
+
+  ///name of the file
+  String filename;
+
+  ///path of the file
+  String localPath;
 }

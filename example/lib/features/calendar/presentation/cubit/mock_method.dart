@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 class MockMethod {
   ///stream controller for method call
   StreamController<MethodCall> streamController =
-      StreamController<MethodCall>();
+      StreamController<MethodCall>.broadcast();
 
   ///return the stream of method call
   Stream<MethodCall> get stream => streamController.stream;
@@ -21,3 +21,6 @@ class MockMethod {
     streamController.sink.add(MethodCall(methodName, data));
   }
 }
+
+
+ 
