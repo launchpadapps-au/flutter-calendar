@@ -126,7 +126,7 @@ class WeekEvent extends StatelessWidget {
                                       ),
                                 Flexible(
                                   child: Text(
-                                    item.eventData!.title,
+                                 item.eventData!.title,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: context.eventTitle,

@@ -2,12 +2,10 @@ import 'package:edgar_planner_calendar_flutter/core/logger.dart';
 import 'package:edgar_planner_calendar_flutter/core/static.dart';
 import 'package:edgar_planner_calendar_flutter/core/themes/constants.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_notes.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/calendar_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/day_name.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/dead_cell.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/month_cell.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/month_hour_lable.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/month_note.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -111,17 +109,12 @@ class _MonthPlannerState extends State<MonthPlanner> {
             }
           },
         ),
-        cellBuilder: (Period period) => MonthCell(
-            periodModel: period as PeriodModel,
-            breakHeight: widget.timetableController.breakHeight,
-            cellHeight: widget.timetableController.cellHeight),
+        cellBuilder: (size, calendarDay) => MonthCell(size: size),
         headerHeight: headerHeight - 10,
         headerCellBuilder: (int index) => SizedBox(
           height: widget.timetableController.headerHeight,
           child: DayName(index: index),
         ),
-        hourLabelBuilder: (Period period) =>
-            MonthHourLable(periodModel: period as PeriodModel),
         controller: widget.timetableController,
       );
 }

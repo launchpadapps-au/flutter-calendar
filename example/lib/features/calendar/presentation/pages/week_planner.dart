@@ -10,6 +10,8 @@ import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/wi
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 
+import 'package:edgar_planner_calendar_flutter/core/utils/utils.dart' as utils;
+
 ///planner
 class WeekPlanner<T> extends StatefulWidget {
   /// initialize week planner
@@ -79,6 +81,9 @@ class _WeekPlannerState extends State<WeekPlanner<EventData>> {
       onTap: (DateTime date, Period period, CalendarEvent<EventData>? event) {
         widget.onTap!(date, period, event);
       },
+      autoScrollDate: utils
+          .getMonday(DateTime.now())
+          .add(Duration(days: widget.isMobile ? 1 : 2)),
       onDateChanged: widget.onDateChanged,
       onEventToEventDragged: (CalendarEvent<EventData> existing,
           CalendarEvent<EventData> old,
@@ -118,6 +123,7 @@ class _WeekPlannerState extends State<WeekPlanner<EventData>> {
       controller: widget.timetableController,
       itemBuilder: (CalendarEvent<EventData> item, double width) => WeekEvent(
           item: item,
+          freeTimeBg: true,
           periods: widget.customPeriods,
           cellHeight: widget.timetableController.cellHeight,
           breakHeight: widget.timetableController.breakHeight,

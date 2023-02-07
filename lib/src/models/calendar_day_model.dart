@@ -26,4 +26,8 @@ class Month {
   @override
   String toString() => 'Month Name $monthName Month $month StartDay $startDay'
       ' EndDay $endDay $year';
+///return date time of the first day
+  DateTime get firstDay => DateTime(year, month, startDay);
+  ///return date time of the last day
+  DateTime get lastDay => DateTime(year, month, endDay);
 }

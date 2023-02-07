@@ -1,3 +1,4 @@
+import 'package:edgar_planner_calendar_flutter/core/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 
@@ -89,4 +90,11 @@ List<DateTimeRange> getListOfWeek(DateTime startDate, DateTime endDate,
     range.add(DateTimeRange(start: s, end: start));
   }
   return range;
+}
+
+///return monday date based on date
+DateTime getMonday(DateTime dateTime) {
+  var date = dateTime.subtract(Duration(days: (dateTime.weekday - 1)));
+  log.info("monday $date");
+  return date;
 }

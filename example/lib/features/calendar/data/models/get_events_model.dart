@@ -208,7 +208,7 @@ class EventData {
       this.eventLinks,
       this.extraCurricular}) {
     if (type == 'freetime') {
-      title = 'Free Time';
+      title = "Non-Teaching Time";
       freeTime = true;
       isDutyTime = false;
       color = const Color(0xFFCBCE42).withOpacity(0.58);

@@ -162,6 +162,7 @@ class _DayPlannerState extends State<DayPlanner> {
       itemBuilder: (CalendarEvent<EventData> item, int index, int length,
               double width) =>
           DayEvent(
+            freeTimeBg: true,
             item: item,
             cellHeight: widget.timetableController.cellHeight,
             breakHeight: widget.timetableController.breakHeight,

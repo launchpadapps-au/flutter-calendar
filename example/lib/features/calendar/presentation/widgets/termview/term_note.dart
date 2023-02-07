@@ -84,6 +84,7 @@ class TermNote extends StatelessWidget {
                   width: showFullSize ? size.width - 8 : (size.width - 12) / 2,
                   child: GestureDetector(
                     onTapDown: (TapDownDetails details) {
+     
                       showAlignedDialog<dynamic>(
                           context: context,
                           avoidOverflow: true,
@@ -97,7 +98,7 @@ class TermNote extends StatelessWidget {
                     },
                     child: Center(
                         child: Text(
-                      ' +$moreCount',
+                      ' +${moreCount + 1}',
                       style: context.moreCount,
                     )),
                   )));

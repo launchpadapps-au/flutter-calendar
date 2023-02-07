@@ -16,10 +16,10 @@ class SlMonthView<T> extends StatefulWidget {
       {required this.timelines,
       required this.onWillAccept,
       required this.onMonthChanged,
+      required this.cellBuilder,
       Key? key,
       this.onEventDragged,
       this.controller,
-      this.cellBuilder,
       this.headerCellBuilder,
       this.itemBuilder,
       this.fullWeek = false,
@@ -31,6 +31,7 @@ class SlMonthView<T> extends StatefulWidget {
       this.showNowIndicator = true,
       this.deadCellBuilder,
       this.snapToDay = true,
+      this.backgroundColor = Colors.transparent,
       this.onTap,
       this.size})
       : super(key: key);
@@ -40,7 +41,7 @@ class SlMonthView<T> extends StatefulWidget {
 
   /// Renders for the cells the represent each hour that provides
   /// that [DateTime] for that hour
-  final Widget Function(Period)? cellBuilder;
+  final Widget Function(Size size, CalendarDay calendarDay) cellBuilder;
 
   /// Renders for the header that provides the [DateTime] for the day
   final Widget Function(int)? headerCellBuilder;
@@ -67,6 +68,9 @@ class SlMonthView<T> extends StatefulWidget {
 
   ///show now indicator,default is true
   final bool showNowIndicator;
+
+  ///background color
+  final Color backgroundColor;
 
   /// Color of indicator line that shows the current time.
 
@@ -120,7 +124,6 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
       widget.nowIndicatorColor ?? Theme.of(context).indicatorColor;
   int? _listenerId;
 
-  List<CalendarDay> dateRange = <CalendarDay>[];
   List<Month> monthRange = <Month>[];
   PageController pageController = PageController();
 
@@ -139,28 +142,15 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
           a.startTime.compareTo(b.startTime));
       eventNotifier.sink.add(items);
     }
-    WidgetsBinding.instance.addPostFrameCallback((_) => adjustColumnWidth());
+
     initDate();
     super.initState();
   }
 
   ///get initial list of dates
   void initDate() {
-    final int diff = controller.end.difference(controller.start).inDays;
-    dateRange.clear();
-    for (int i = 0; i < diff; i++) {
-      final DateTime date = controller.start.add(Duration(days: i));
-      if (widget.fullWeek) {
-        dateRange.add(CalendarDay(dateTime: date));
-      } else {
-        if (date.weekday > 5) {
-        } else {
-          dateRange.add(CalendarDay(dateTime: date));
-        }
-      }
-    }
     monthRange = getMonthRange(controller.start, controller.end);
-    dateForHeader = dateRange[0].dateTime;
+    dateForHeader = monthRange.first.firstDay;
     setState(() {});
     controller.jumpTo(controller.start);
   }
@@ -181,7 +171,7 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
 
     if (event is TimetableVisibleDateChanged) {
       appLog('visible data changed');
-      await adjustColumnWidth();
+
       return;
     }
     if (event is TimetableDateChanged) {
@@ -190,7 +180,6 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
     }
     if (event is TimetableMaxColumnsChanged) {
       appLog('max column changed');
-      await adjustColumnWidth();
     }
     if (event is AddEventToTable<T>) {
       List<CalendarEvent<T>> myevents = items;
@@ -235,29 +224,6 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
     }
   }
 
-  double maxColumn = 5;
-
-  Future<dynamic> adjustColumnWidth() async {
-    final RenderBox? box =
-        _key.currentContext?.findRenderObject() as RenderBox?;
-    if (box == null) {
-      return;
-    }
-    if (box.hasSize) {
-      final Size size = box.size;
-      final double layoutWidth = size.width;
-      final double width = layoutWidth < 550
-          ? ((layoutWidth - controller.timelineWidth) / controller.columns)
-          : (layoutWidth - controller.timelineWidth) / controller.maxColumn;
-      if (width != columnWidth) {
-        columnWidth = width;
-
-        await Future<dynamic>.microtask(() => null);
-        setState(() {});
-      }
-    }
-  }
-
   DateTime dateForHeader = DateTime.now();
 
   @override
@@ -269,9 +235,8 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
         final double columnHeight = (size.height - controller.headerHeight) / 6;
         final double aspectRatio = cw / columnHeight;
 
-        return SizedBox(
-          height: getTimelineHeight(
-              widget.timelines, controller.cellHeight, controller.breakHeight),
+        return Container(
+          decoration: BoxDecoration(color: widget.backgroundColor),
           child: Column(
             children: <Widget>[
               SizedBox(
@@ -286,7 +251,7 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
                           children: <Widget>[widget.headerCellBuilder!(index)],
                         )),
               ),
-              SizedBox(
+              Container(
                 height: size.height - controller.headerHeight,
                 child: PageView.builder(
                     controller: pageController,
@@ -295,8 +260,6 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
                         ? const AlwaysScrollableScrollPhysics()
                         : const NeverScrollableScrollPhysics(),
                     onPageChanged: (int value) {
-                      dateForHeader = dateRange[value].dateTime;
-                      setState(() {});
                       widget.onMonthChanged(monthRange[value]);
                     },
                     itemCount: monthRange.length,
@@ -305,15 +268,12 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
                       final List<CalendarDay> dates =
                           getMonthDates(month.month);
 
-                      //     getDatesForMonth(month, monthRange, dateRange);
-                      // dates = addPaddingDate(dates, length: 42);
                       return StreamBuilder<List<CalendarEvent<T>>>(
                           stream: eventNotifier.stream,
                           builder: (BuildContext context,
                                   AsyncSnapshot<List<CalendarEvent<T>>>
                                       snapshot) =>
                               GridView.builder(
-                                shrinkWrap: true,
                                 itemCount: dates.length,
                                 gridDelegate:
                                     SliverGridDelegateWithFixedCrossAxisCount(
@@ -328,9 +288,13 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
                                               dateTime, event.startTime))
                                       .toList();
                                   final CalendarDay day = dates[index];
+
                                   return DayCell<T>(
                                       calendarDay: dates[index],
                                       columnWidth: columnWidth,
+                                      cellBuilder: (DateTime dateTime) =>
+                                       widget.cellBuilder(
+                                          Size(cw, columnHeight), day),
                                       isDraggable: widget.isDraggable,
                                       deadCellBuilder: (DateTime current,
                                               Size cellSize) =>
@@ -350,12 +314,10 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
                                         }
                                       },
                                       onWillAccept:
-                                          (CalendarEvent<Object?> event,
-                                                  Period period) =>
+                                          (CalendarEvent<Object?> e, Period p) =>
                                               true,
                                       onAcceptWithDetails:
-                                          (DragTargetDetails<CalendarEvent<T>>
-                                              details) {
+                                          (DragTargetDetails<CalendarEvent<T>> details) {
                                         final CalendarEvent<T> event =
                                             details.data;
                                         final DateTime newStartTime = DateTime(

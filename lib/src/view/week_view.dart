@@ -16,34 +16,35 @@ import '../core/app_log.dart';
 /// that scrolls
 class SlWeekView<T> extends StatefulWidget {
   /// initialize weekView of the cALENDAR
-  const SlWeekView(
-      {required this.timelines,
-      required this.onWillAccept,
-      this.onWillAcceptForEvent,
-      this.onDateChanged,
-      this.columnWidth,
-      this.size,
-      this.backgroundColor = Colors.transparent,
-      Key? key,
-      this.onEventDragged,
-      this.onEventToEventDragged,
-      this.controller,
-      this.cellBuilder,
-      this.headerCellBuilder,
-      this.isCellDraggable,
-      this.itemBuilder,
-      this.fullWeek = false,
-      this.autoScrollToday = true,
-      this.headerHeight = 45,
-      this.hourLabelBuilder,
-      this.nowIndicatorColor,
-      this.showNowIndicator = true,
-      this.showActiveDateIndicator = true,
-      this.cornerBuilder,
-      this.snapToDay = true,
-      this.onTap,
-      this.headerDivideThickness = 2})
-      : super(key: key);
+  const SlWeekView({
+    required this.timelines,
+    required this.onWillAccept,
+    this.onWillAcceptForEvent,
+    this.onDateChanged,
+    this.columnWidth,
+    this.size,
+    this.backgroundColor = Colors.transparent,
+    Key? key,
+    this.onEventDragged,
+    this.onEventToEventDragged,
+    this.controller,
+    this.cellBuilder,
+    this.headerCellBuilder,
+    this.isCellDraggable,
+    this.itemBuilder,
+    this.fullWeek = false,
+    this.autoScrollDate,
+    this.autoScrollDay = DateTime.monday,
+    this.headerHeight = 45,
+    this.hourLabelBuilder,
+    this.nowIndicatorColor,
+    this.showNowIndicator = true,
+    this.showActiveDateIndicator = true,
+    this.cornerBuilder,
+    this.snapToDay = true,
+    this.onTap,
+    this.headerDivideThickness = 2,
+  }) : super(key: key);
 
   /// [TimetableController] is the controller that also initialize the timetable
   final TimetableController<T>? controller;
@@ -68,7 +69,11 @@ class SlWeekView<T> extends StatefulWidget {
   final bool snapToDay;
 
   ///auto scroll to today. default is true
-  final bool autoScrollToday;
+  final DateTime? autoScrollDate;
+
+  ///auto scroll to today. default is monday,if date is note preset in view then
+  ///it will scroll to nearest day
+  final int? autoScrollDay;
 
   ///show now indicator,default is true
   final bool showNowIndicator;
@@ -163,7 +168,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
   int? _listenerId;
 
   List<DateTime> dateRange = <DateTime>[];
-  final DateTime now = DateTime.now();
+  DateTime now = DateTime.now();
 
   /// Timetable items to display in the timetable
   List<CalendarEvent<T>> items = <CalendarEvent<T>>[];
@@ -220,7 +225,9 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
         fullWeek: widget.fullWeek);
     dateForHeader = dateRange[0];
 
-    if (widget.autoScrollToday) {
+    if (widget.autoScrollDate != null) {
+      now = widget.autoScrollDate!;
+
       if (controller.start.isBefore(now) && controller.end.isAfter(now)) {
         if (widget.fullWeek) {
           initialPage = dateRange.indexOf(DateUtils.dateOnly(now));
@@ -754,4 +761,20 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
       widget.onDateChanged!(dateTime);
     }
   }
+}
+
+///Scrolll config for the date
+class DateScrollConfig {
+  ///initialize the config
+  DateScrollConfig(this.dateTime, this.nearDay);
+
+  ///retur the now date with monday
+  factory DateScrollConfig.now() =>
+      DateScrollConfig(DateTime.now(), DateTime.monday);
+
+  ///on this date view will be auto sroll
+  DateTime dateTime;
+
+  ///if date is not present in the list then it will scroll to nearest day
+  int nearDay;
 }

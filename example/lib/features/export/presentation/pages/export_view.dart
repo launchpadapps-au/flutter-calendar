@@ -271,7 +271,6 @@ class ExportView {
                                       CalendarEvent<EventData> old,
                                       CalendarEvent<EventData> newEvent,
                                       Period? periodModel) {},
-                              autoScrollToday: false,
                               headerDivideThickness: 0,
                               columnWidth: cellWidth,
                               showNowIndicator: false,
@@ -598,45 +597,44 @@ class ExportView {
                       height: size.height,
                       color: white,
                       child: SlMonthView<Note>(
-                          timelines: timelines,
+                        timelines: timelines,
+                        size: size,
+                        onMonthChanged: (Month month) {},
+                        onEventDragged: (CalendarEvent<Note> old,
+                            CalendarEvent<Note> newEvent) {},
+                        onWillAccept: (CalendarEvent<Note>? event,
+                                DateTime dateTime, Period period) =>
+                            true,
+                        nowIndicatorColor: Colors.red,
+                        fullWeek: true,
+                        deadCellBuilder: (DateTime current, Size cellSize) =>
+                            const Expanded(
+                          child: DeadCell(),
+                        ),
+                        onTap: (CalendarDay date) {},
+                        headerHeight: 40,
+                        headerCellBuilder: (int index) => ExportMonthHeader(
+                          height: timetableController.headerHeight,
+                          index: index,
+                        ),
+                        hourLabelBuilder: (Period period) =>
+                            MonthHourLable(periodModel: period as PeriodModel),
+                        controller: timetableController,
+                        itemBuilder: (List<CalendarEvent<Note>> item, Size size,
+                                CalendarDay calendarDay) =>
+                            ExportMonthNote(
+                          item: item,
+                          calendarDay: calendarDay,
+                          cellHeight: cellHeight,
+                          breakHeight: breakHeight,
                           size: size,
-                          onMonthChanged: (Month month) {},
-                          onEventDragged: (CalendarEvent<Note> old,
-                              CalendarEvent<Note> newEvent) {},
-                          onWillAccept: (CalendarEvent<Note>? event,
-                                  DateTime dateTime, Period period) =>
-                              true,
-                          nowIndicatorColor: Colors.red,
-                          fullWeek: true,
-                          deadCellBuilder: (DateTime current, Size cellSize) =>
-                              const Expanded(
-                                child: DeadCell(),
-                              ),
-                          onTap: (CalendarDay date) {},
-                          headerHeight: 40,
-                          headerCellBuilder: (int index) => ExportMonthHeader(
-                                height: timetableController.headerHeight,
-                                index: index,
-                              ),
-                          hourLabelBuilder: (Period period) => MonthHourLable(
-                              periodModel: period as PeriodModel),
-                          controller: timetableController,
-                          itemBuilder: (List<CalendarEvent<Note>> item,
-                                  Size size, CalendarDay calendarDay) =>
-                              ExportMonthNote(
-                                item: item,
-                                calendarDay: calendarDay,
-                                cellHeight: cellHeight,
-                                breakHeight: breakHeight,
-                                size: size,
-                                isDraggable: false,
-                                onTap: (CalendarDay dateTime,
-                                    List<CalendarEvent<Note>> p1) {},
-                              ),
-                          cellBuilder: (Period period) => MonthCell(
-                              periodModel: period as PeriodModel,
-                              breakHeight: timetableController.breakHeight,
-                              cellHeight: timetableController.cellHeight)),
+                          isDraggable: false,
+                          onTap: (CalendarDay dateTime,
+                              List<CalendarEvent<Note>> p1) {},
+                        ),
+                        cellBuilder: (size, calendarDay) =>
+                            MonthCell(size: size),
+                      ),
                     )),
                   ),
                   targetSize: size)

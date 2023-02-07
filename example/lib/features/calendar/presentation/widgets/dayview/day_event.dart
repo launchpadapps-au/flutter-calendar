@@ -16,7 +16,7 @@ class DayEvent extends StatefulWidget {
       required this.width,
       required this.periods,
       required this.isMobile,
-      this.freeTimeBg=false,
+      this.freeTimeBg = false,
       super.key,
       this.onTap});
 
@@ -37,7 +37,6 @@ class DayEvent extends StatefulWidget {
 
   ///pass true if current device is mobile
   final bool isMobile;
-
 
   ///true if want to show bg in freetime bg
   final bool freeTimeBg;
