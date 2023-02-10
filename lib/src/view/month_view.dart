@@ -258,7 +258,7 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
                     itemBuilder: (BuildContext context, int index) {
                       final Month month = monthRange[index];
                       final List<CalendarDay> dates =
-                          getMonthDates(month.month);
+                          getMonthDates(month);
 
                       return StreamBuilder<List<CalendarEvent<T>>>(
                           stream: eventNotifier.stream,

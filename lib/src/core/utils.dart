@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:flutter_calendar/src/core/app_log.dart';
@@ -520,12 +519,10 @@ List<CalendarDay> addPaddingDate(List<CalendarDay> myDateRange,
 }
 
 ///return dates for the month
-List<CalendarDay> getMonthDates(int month) {
-  final List<CalendarDay> dates = <CalendarDay>[];
-  final DateTime now = DateTime.now();
-  final DateTime firstDate = DateTime(now.year, month);
-  final DateTime lastDate =
-      DateTime(now.year, month + 1).subtract(const Duration(days: 1));
+List<CalendarDay> getMonthDates(Month month) {
+  final List<CalendarDay> dates = <CalendarDay>[]; 
+  final DateTime firstDate = month.firstDay;
+  final DateTime lastDate = month.lastDay;
 
   final int dif = lastDate.difference(firstDate).inDays;
   for (int i = 0; i <= dif; i++) {
