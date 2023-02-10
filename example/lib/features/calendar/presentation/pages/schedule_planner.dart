@@ -177,7 +177,7 @@ class _SchedulePlannerState extends State<SchedulePlanner<EventData>> {
             style: context.headline1Fw500.copyWith(
                 color: textGrey, fontSize: 14, fontWeight: FontWeight.w700)),
         isCellDraggable: (CalendarEvent<EventData> event) =>
-            isCelldraggable(event),
+          CalendarUtils.   isCelldraggable(event),
         controller: widget.timetableController,
         itemBuilder: (CalendarEvent<EventData> item) => ScheduleViewEventTile(
           item: item,

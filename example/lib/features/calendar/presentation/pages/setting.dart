@@ -78,7 +78,8 @@ class _SettingDrawerState extends State<SettingDrawer> {
                                 TimeTableCubit.mockObject.invokeMethod(
                                     ReceiveMethods.setView,
                                     jsonEncode(ChangeView(
-                                        viewType: CalendarViewType.dayView).toJson()));
+                                            viewType: CalendarViewType.dayView)
+                                        .toJson()));
                                 TimeTableCubit.mockObject.invokeMethod(
                                     ReceiveMethods.jumpToCurrentDate, null);
                               }),
@@ -88,7 +89,8 @@ class _SettingDrawerState extends State<SettingDrawer> {
                               TimeTableCubit.mockObject.invokeMethod(
                                   ReceiveMethods.setView,
                                   jsonEncode(ChangeView(
-                                      viewType: CalendarViewType.weekView).toJson()));
+                                          viewType: CalendarViewType.weekView)
+                                      .toJson()));
                               TimeTableCubit.mockObject.invokeMethod(
                                   ReceiveMethods.jumpToCurrentDate, null);
                             },
@@ -99,8 +101,9 @@ class _SettingDrawerState extends State<SettingDrawer> {
                                 TimeTableCubit.mockObject.invokeMethod(
                                     ReceiveMethods.setView,
                                     jsonEncode(ChangeView(
-                                        viewType:
-                                            CalendarViewType.scheduleView).toJson()));
+                                            viewType:
+                                                CalendarViewType.scheduleView)
+                                        .toJson()));
                                 TimeTableCubit.mockObject.invokeMethod(
                                     ReceiveMethods.jumpToCurrentDate, null);
                               }),
@@ -112,8 +115,9 @@ class _SettingDrawerState extends State<SettingDrawer> {
                                     TimeTableCubit.mockObject.invokeMethod(
                                         ReceiveMethods.setView,
                                         jsonEncode(ChangeView(
-                                            viewType:
-                                                CalendarViewType.monthView).toJson()));
+                                                viewType:
+                                                    CalendarViewType.monthView)
+                                            .toJson()));
                                   },
                                 ),
                           isMobile
@@ -124,8 +128,9 @@ class _SettingDrawerState extends State<SettingDrawer> {
                                     TimeTableCubit.mockObject.invokeMethod(
                                         ReceiveMethods.setView,
                                         jsonEncode(ChangeView(
-                                            viewType:
-                                                CalendarViewType.termView).toJson()));
+                                                viewType:
+                                                    CalendarViewType.termView)
+                                            .toJson()));
                                   },
                                 ),
                           // ElevatedButton(

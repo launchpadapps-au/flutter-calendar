@@ -50,7 +50,8 @@ class TimeTableCubit extends Cubit<TimeTableState> {
 
   ///If code will be running in module then it will be false
   ///if code is running as stand alone app then it will be true
-  static const bool _standAlone = bool.fromEnvironment('standalone',defaultValue: true);
+  static const bool _standAlone =
+      bool.fromEnvironment('standalone', defaultValue: false);
 
   ///rrturn true if project run as stand alone
   bool get standAlone => _standAlone;
@@ -96,7 +97,8 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   );
 
   ///object of the native callback class
-  NativeCallBack nativeCallBack = NativeCallBack(mockMethod: mockObject);
+  NativeCallBack nativeCallBack =
+      NativeCallBack(mockMethod: _standAlone ? mockObject : null);
 
   ///code related to native callback and data listener
 
@@ -232,7 +234,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
           } else {}
 
           currentDate = DateTime.now();
-          
+
           setDateWhenJump(currentDate);
           emit(JumpToDateState(DateTime.now()));
 

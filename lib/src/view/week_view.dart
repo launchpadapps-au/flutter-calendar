@@ -242,13 +242,15 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
               DateUtils.dateOnly(now.subtract(const Duration(days: 1))));
           currentPage = initialPage;
           dateForHeader = dateRange[initialPage];
+          onDateChange(dateForHeader);
         } else if (now.weekday == DateTime.sunday) {
           initialPage = dateRange.indexOf(
               DateUtils.dateOnly(now.subtract(const Duration(days: 2))));
           currentPage = initialPage;
           dateForHeader = dateRange[initialPage];
+          onDateChange(dateForHeader);
         }
-        onDateChange(dateForHeader);
+
         setState(() {});
       }
     }

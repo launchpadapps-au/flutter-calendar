@@ -24,14 +24,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 
-class CalendarView extends StatefulWidget {
-  const CalendarView({super.key});
+class NewCalendarView extends StatefulWidget {
+  const NewCalendarView({super.key});
+  static bool isMobile = true;
+
+  static DateTime dateForHeader = DateTime.now();
 
   @override
-  State<CalendarView> createState() => _CalendarViewState();
+  State<NewCalendarView> createState() => _NewCalendarViewState();
 }
 
-class _CalendarViewState extends State<CalendarView>
+class _NewCalendarViewState extends State<NewCalendarView>
     with AutomaticKeepAliveClientMixin {
   final TimetableController<EventData> timeTableController =
       TimetableController<EventData>(
@@ -87,14 +90,15 @@ class _CalendarViewState extends State<CalendarView>
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   final ValueNotifier<DateTime> headerDateNotifier =
-      ValueNotifier<DateTime>(DateTime.now());
+      ValueNotifier<DateTime>(NewCalendarView.dateForHeader);
 
   PageController pageController = PageController(initialPage: 1);
 
   ValueNotifier<CalendarViewType> viewTypeNotifer =
       ValueNotifier<CalendarViewType>(CalendarViewType.weekView);
 
-  bool showAppbar = false;
+  int index = 0;
+  bool showAppbar = true;
   bool isMobile = true;
 
   bool enableTapForExtraSlot = false;
@@ -159,7 +163,7 @@ class _CalendarViewState extends State<CalendarView>
           : null,
       endDrawer: SettingDrawer(
         startDate: DefaultDates.startDate,
-        isMobile: isMobile,
+        isMobile: NewCalendarView.isMobile,
         endDate: DefaultDates.startDate,
         onDateChange: (DateTime start, DateTime end) {
           timeTableController.changeDate(start, end);

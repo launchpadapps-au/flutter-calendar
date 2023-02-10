@@ -301,7 +301,7 @@ class ExportView {
                                   isMobile: isMobile),
                               isCellDraggable:
                                   (CalendarEvent<EventData> event) =>
-                                      isCelldraggable(event),
+                                      CalendarUtils.isCelldraggable(event),
                               controller: simpleController,
                               itemBuilder:
                                   (CalendarEvent<EventData> i, double w) =>

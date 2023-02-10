@@ -167,21 +167,16 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
   Future<void> _eventHandler(TimetableControllerEvent event) async {
     if (event is TimetableJumpToRequested) {
       await _jumpTo(event.date);
-    }
-
-    if (event is TimetableVisibleDateChanged) {
+    } else if (event is TimetableVisibleDateChanged) {
       appLog('visible data changed');
 
       return;
-    }
-    if (event is TimetableDateChanged) {
+    } else if (event is TimetableDateChanged) {
       appLog('date changed');
       initDate();
-    }
-    if (event is TimetableMaxColumnsChanged) {
+    } else if (event is TimetableMaxColumnsChanged) {
       appLog('max column changed');
-    }
-    if (event is AddEventToTable<T>) {
+    } else if (event is AddEventToTable<T>) {
       List<CalendarEvent<T>> myevents = items;
       final List<CalendarEvent<T>> tempEvetnts = event.events;
       if (event.replace) {
@@ -192,9 +187,7 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
       items = myevents;
       eventNotifier.sink.add(items);
       appLog('adding events in monthview:  ${items.length}');
-    }
-
-    if (event is RemoveEventFromCalendar<T>) {
+    } else if (event is RemoveEventFromCalendar<T>) {
       if (items.isNotEmpty) {
         for (final CalendarEvent<T> element in event.events) {
           if (items.contains(element)) {
@@ -203,8 +196,7 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
         }
         eventNotifier.sink.add(items);
       }
-    }
-    if (event is UpdateEventInCalendar<T>) {
+    } else if (event is UpdateEventInCalendar<T>) {
       appLog('updating calendar');
 
       if (items.contains(event.oldEvent)) {
@@ -293,17 +285,16 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
                                       calendarDay: dates[index],
                                       columnWidth: columnWidth,
                                       cellBuilder: (DateTime dateTime) =>
-                                       widget.cellBuilder(
-                                          Size(cw, columnHeight), day),
+                                          widget.cellBuilder(
+                                              Size(cw, columnHeight), day),
                                       isDraggable: widget.isDraggable,
                                       deadCellBuilder: (DateTime current,
                                               Size cellSize) =>
                                           widget.deadCellBuilder!(
                                               dateTime, Size(cw, columnHeight)),
-                                      itemBuilder:
-                                          (List<CalendarEvent<T>> dayEvents) =>
-                                              widget.itemBuilder!(dayEvents,
-                                                  Size(cw, columnHeight), day),
+                                      itemBuilder: (List<CalendarEvent<T>> dayEvents) =>
+                                          widget.itemBuilder!(dayEvents,
+                                              Size(cw, columnHeight), day),
                                       events: events,
                                       breakHeight: controller.breakHeight,
                                       cellHeight: controller.cellHeight,

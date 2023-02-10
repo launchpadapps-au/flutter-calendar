@@ -59,13 +59,13 @@ class Note {
 
 ////create object from the json
   factory Note.fromJson(Map<String, dynamic> json) => Note(
-        id: json['id'],
+        id: json['id'].toString(),
         slots: json['slots'],
         startDate: DateTime.parse(json['start_date']),
         startTime: json['start_time'],
         endTime: json['end_time'],
         endDate: DateTime.parse(json['end_date']),
-        type: typeValues.map[json['type']]!,
+        type: typeValues.map[json['type']] ?? NoteType.month,
         title: json['title'],
         description: json['description'],
       );
@@ -74,7 +74,7 @@ class Note {
   factory Note.fromRawJson(String str) => Note.fromJson(json.decode(str));
 
   ///id of the note
-  final int? id;
+  final String id;
 
   ///slot of the note
   final dynamic slots;
@@ -102,7 +102,7 @@ class Note {
 
   ///create new object from existing
   Note copyWith({
-    int? id,
+    String? id,
     dynamic slots,
     DateTime? startDate,
     String? startTime,

@@ -1,6 +1,6 @@
 // ignore_for_file: prefer_adjacent_string_concatenation
 
-import 'dart:async'; 
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
@@ -143,7 +143,7 @@ class _SlTermViewState<T> extends State<SlTermView<T>> {
   }
 
   ///get initial list of dates
-  void initDate() { 
+  void initDate() {
     final int diff = controller.end.difference(controller.start).inDays + 1;
     dateRange.clear();
     for (int i = 0; i < diff; i++) {
@@ -180,22 +180,17 @@ class _SlTermViewState<T> extends State<SlTermView<T>> {
   Future<void> _eventHandler(TimetableControllerEvent event) async {
     if (event is TimetableJumpToRequested) {
       await _jumpTo(event.date);
-    }
-
-    if (event is TimetableVisibleDateChanged) {
+    } else if (event is TimetableVisibleDateChanged) {
       appLog('visible data changed');
       await adjustColumnWidth();
       return;
-    }
-    if (event is TimetableDateChanged) {
+    } else if (event is TimetableDateChanged) {
       appLog('date changed');
       initDate();
-    }
-    if (event is TimetableMaxColumnsChanged) {
+    } else if (event is TimetableMaxColumnsChanged) {
       appLog('max column changed');
       await adjustColumnWidth();
-    }
-    if (event is AddEventToTable<T>) {
+    } else if (event is AddEventToTable<T>) {
       List<CalendarEvent<T>> myevents = items;
       final List<CalendarEvent<T>> tempEvetnts = event.events;
       if (event.replace) {
@@ -206,9 +201,7 @@ class _SlTermViewState<T> extends State<SlTermView<T>> {
       items = myevents;
       eventNotifier.sink.add(items);
       appLog('adding events  ${items.length}');
-    }
-
-    if (event is RemoveEventFromCalendar<T>) {
+    } else if (event is RemoveEventFromCalendar<T>) {
       if (items.isNotEmpty) {
         for (final CalendarEvent<T> element in event.events) {
           if (items.contains(element)) {
@@ -218,8 +211,7 @@ class _SlTermViewState<T> extends State<SlTermView<T>> {
         eventNotifier.sink.add(items);
         appLog('total events  ${items.length}');
       }
-    }
-    if (event is UpdateEventInCalendar<T>) {
+    } else if (event is UpdateEventInCalendar<T>) {
       appLog('updating calendar');
 
       if (items.contains(event.oldEvent)) {

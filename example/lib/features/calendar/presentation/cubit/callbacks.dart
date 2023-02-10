@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:edgar_planner_calendar_flutter/core/logger.dart';
-import 'package:edgar_planner_calendar_flutter/core/utils/calendar_utils.dart';
+import 'package:edgar_planner_calendar_flutter/core/utils/calendar_utils.dart'; 
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/date_change_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_notes.dart';
@@ -125,7 +125,7 @@ class NativeCallBack {
   Future<bool> sendShowEventToNativeApp(DateTime dateTime,
       List<CalendarEvent<EventData>> events, CalendarViewType viewType) async {
     if (events.length == 1) {
-      if (isOnTapEnable(events.first)) {
+      if (CalendarUtils. isOnTapEnable(events.first)) {
         final int eventID = int.parse(events.first.eventData!.id.toString());
         final Map<String, dynamic> data = <String, dynamic>{
           'viewType': viewType.toString(),
@@ -158,7 +158,7 @@ class NativeCallBack {
   Future<bool> sendShowDutyToNativeApp(DateTime dateTime,
       List<CalendarEvent<EventData>> events, CalendarViewType viewType) async {
     if (events.length == 1) {
-      if (isOnTapEnable(events.first)) {
+      if (CalendarUtils. isOnTapEnable(events.first)) {
         final int eventID = int.parse(events.first.eventData!.id.toString());
         final Map<String, dynamic> data = <String, dynamic>{
           'viewType': viewType.toString(),

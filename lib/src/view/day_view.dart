@@ -222,13 +222,15 @@ class _NewSlDayViewState<T> extends State<NewSlDayView<T>> {
               DateUtils.dateOnly(now.subtract(const Duration(days: 1))));
           pageController = PageController(initialPage: initialPage);
           dateForHeader = dateRange[initialPage];
+          onDateChange(dateForHeader);
         } else if (now.weekday == DateTime.sunday) {
           initialPage = dateRange.indexOf(
               DateUtils.dateOnly(now.subtract(const Duration(days: 2))));
           pageController = PageController(initialPage: initialPage);
           dateForHeader = dateRange[initialPage];
+          onDateChange(dateForHeader);
         }
-        onDateChange(dateForHeader);
+
         setState(() {});
       }
     }

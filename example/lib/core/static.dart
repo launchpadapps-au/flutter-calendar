@@ -182,14 +182,14 @@ class DefaultDates {
   ///start date of the  month view in the calendar
 
   static DateTime get monthStartDate {
-    var now = DateTime.now();
+   final DateTime now = DateTime.now();
     return now.copyWith(year: now.year - 5);
   }
 
   ///start date of the  month view in the calendar
 
   static DateTime get monthEndate {
-    var now = DateTime.now();
+  final  DateTime now = DateTime.now();
     return now.copyWith(year: now.year + 5);
   }
 }

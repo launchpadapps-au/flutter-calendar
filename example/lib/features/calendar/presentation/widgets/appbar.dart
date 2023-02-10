@@ -11,14 +11,10 @@ import 'package:flutter_calendar/flutter_calendar.dart';
 class CalendarAppBar extends StatelessWidget implements PreferredSizeWidget {
   ///initialize the widset
   const CalendarAppBar({
-    required this.viewTypeNotifer,
     required this.headerDateNotifier,
     required this.scaffoldKey,
     super.key,
   });
-
-  ///notifer for the view
-  final ValueNotifier<CalendarViewType> viewTypeNotifer;
 
   ///scaffold keyy for opning drawer
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -44,7 +40,8 @@ class CalendarAppBar extends StatelessWidget implements PreferredSizeWidget {
                 color: Colors.black,
               ),
               onPressed: () {
-                final CalendarViewType view = viewTypeNotifer.value;
+                final CalendarViewType view =
+                    BlocProvider.of<TimeTableCubit>(context).viewType;
 
                 if (view == CalendarViewType.dayView) {
                   TimeTableCubit.mockObject
@@ -81,7 +78,8 @@ class CalendarAppBar extends StatelessWidget implements PreferredSizeWidget {
                 color: Colors.black,
               ),
               onPressed: () {
-                final CalendarViewType view = viewTypeNotifer.value;
+                final CalendarViewType view =
+                    BlocProvider.of<TimeTableCubit>(context).viewType;
 
                 if (view == CalendarViewType.dayView) {
                   TimeTableCubit.mockObject
