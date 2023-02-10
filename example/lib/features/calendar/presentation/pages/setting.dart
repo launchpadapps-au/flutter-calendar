@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:edgar_planner_calendar_flutter/core/themes/constants.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/change_view_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/calendar_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/calendar_event_state.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/method_name.dart';
@@ -72,16 +75,20 @@ class _SettingDrawerState extends State<SettingDrawer> {
                           ElevatedButton(
                               child: const Text('Day view'),
                               onPressed: () {
-                                BlocProvider.of<TimeTableCubit>(context)
-                                    .changeViewType(CalendarViewType.dayView);
+                                TimeTableCubit.mockObject.invokeMethod(
+                                    ReceiveMethods.setView,
+                                    jsonEncode(ChangeView(
+                                        viewType: CalendarViewType.dayView).toJson()));
                                 TimeTableCubit.mockObject.invokeMethod(
                                     ReceiveMethods.jumpToCurrentDate, null);
                               }),
                           ElevatedButton(
                             child: const Text('Week view'),
                             onPressed: () {
-                              BlocProvider.of<TimeTableCubit>(context)
-                                  .changeViewType(CalendarViewType.weekView);
+                              TimeTableCubit.mockObject.invokeMethod(
+                                  ReceiveMethods.setView,
+                                  jsonEncode(ChangeView(
+                                      viewType: CalendarViewType.weekView).toJson()));
                               TimeTableCubit.mockObject.invokeMethod(
                                   ReceiveMethods.jumpToCurrentDate, null);
                             },
@@ -89,9 +96,11 @@ class _SettingDrawerState extends State<SettingDrawer> {
                           ElevatedButton(
                               child: const Text('Schedule view'),
                               onPressed: () {
-                                BlocProvider.of<TimeTableCubit>(context)
-                                    .changeViewType(
-                                        CalendarViewType.scheduleView);
+                                TimeTableCubit.mockObject.invokeMethod(
+                                    ReceiveMethods.setView,
+                                    jsonEncode(ChangeView(
+                                        viewType:
+                                            CalendarViewType.scheduleView).toJson()));
                                 TimeTableCubit.mockObject.invokeMethod(
                                     ReceiveMethods.jumpToCurrentDate, null);
                               }),
@@ -100,9 +109,11 @@ class _SettingDrawerState extends State<SettingDrawer> {
                               : ElevatedButton(
                                   child: const Text('Month view'),
                                   onPressed: () {
-                                    BlocProvider.of<TimeTableCubit>(context)
-                                        .changeViewType(
-                                            CalendarViewType.monthView);
+                                    TimeTableCubit.mockObject.invokeMethod(
+                                        ReceiveMethods.setView,
+                                        jsonEncode(ChangeView(
+                                            viewType:
+                                                CalendarViewType.monthView).toJson()));
                                   },
                                 ),
                           isMobile
@@ -110,9 +121,11 @@ class _SettingDrawerState extends State<SettingDrawer> {
                               : ElevatedButton(
                                   child: const Text('Term view'),
                                   onPressed: () {
-                                    BlocProvider.of<TimeTableCubit>(context)
-                                        .changeViewType(
-                                            CalendarViewType.termView);
+                                    TimeTableCubit.mockObject.invokeMethod(
+                                        ReceiveMethods.setView,
+                                        jsonEncode(ChangeView(
+                                            viewType:
+                                                CalendarViewType.termView).toJson()));
                                   },
                                 ),
                           // ElevatedButton(

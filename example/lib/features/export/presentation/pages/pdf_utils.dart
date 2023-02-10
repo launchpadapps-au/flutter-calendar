@@ -68,7 +68,6 @@ class PdfUtils {
                   width: width,
                   height: height,
                   child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         Container(
                             height: 35,

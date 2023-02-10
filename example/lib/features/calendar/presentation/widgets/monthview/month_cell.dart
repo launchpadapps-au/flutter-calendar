@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 ///month cell for the month view
 class MonthCell extends StatelessWidget {
   ///initilize the week view
-  const MonthCell({super.key, required this.size});
+  const MonthCell({
+    required this.size,
+    super.key,
+  });
 
   ///cell and break height of the cell
   final Size size;

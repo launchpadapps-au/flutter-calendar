@@ -101,6 +101,7 @@ class _DayPlannerState extends State<DayPlanner> {
           return true;
         }
       },
+      fullWeek: true,
       nowIndicatorColor: timeIndicatorColor,
       showNowIndicator: false,
       cornerBuilder: (DateTime current) => const SizedBox.shrink(),

@@ -632,7 +632,7 @@ class ExportView {
                           onTap: (CalendarDay dateTime,
                               List<CalendarEvent<Note>> p1) {},
                         ),
-                        cellBuilder: (size, calendarDay) =>
+                        cellBuilder: (Size size, CalendarDay calendarDay) =>
                             MonthCell(size: size),
                       ),
                     )),

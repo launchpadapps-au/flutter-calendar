@@ -109,7 +109,8 @@ class _MonthPlannerState extends State<MonthPlanner> {
             }
           },
         ),
-        cellBuilder: (size, calendarDay) => MonthCell(size: size),
+        cellBuilder: (Size size, CalendarDay calendarDay) =>
+            MonthCell(size: size),
         headerHeight: headerHeight - 10,
         headerCellBuilder: (int index) => SizedBox(
           height: widget.timetableController.headerHeight,

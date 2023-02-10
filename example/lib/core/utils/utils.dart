@@ -93,8 +93,5 @@ List<DateTimeRange> getListOfWeek(DateTime startDate, DateTime endDate,
 }
 
 ///return monday date based on date
-DateTime getMonday(DateTime dateTime) {
-  var date = dateTime.subtract(Duration(days: (dateTime.weekday - 1)));
-  log.info("monday $date");
-  return date;
-}
+DateTime getMonday(DateTime dateTime) =>
+    dateTime.subtract(Duration(days: dateTime.weekday - 1));

@@ -35,3 +35,4 @@ CalendarViewType getCalendarViewString(String viewType) {
     return CalendarViewType.weekView;
   }
 }
+ 

@@ -31,6 +31,6 @@ class ChangeView {
 
   ///convert to json
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'viewType': viewType,
+        'viewType': viewType.name,
       };
 }

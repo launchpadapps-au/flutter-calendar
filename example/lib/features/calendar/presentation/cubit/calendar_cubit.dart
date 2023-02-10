@@ -50,8 +50,9 @@ class TimeTableCubit extends Cubit<TimeTableState> {
 
   ///If code will be running in module then it will be false
   ///if code is running as stand alone app then it will be true
-  static const bool _standAlone = bool.fromEnvironment('standalone');
+  static const bool _standAlone = bool.fromEnvironment('standalone',defaultValue: true);
 
+  ///rrturn true if project run as stand alone
   bool get standAlone => _standAlone;
 
   ///current date timex
@@ -90,11 +91,12 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   bool isLoading = false;
 
   /// set method handler to receive data from flutter
-  static const MethodChannel platform = MethodChannel('com.example.demo/data');
+  static const MethodChannel platform = MethodChannel(
+    'com.example.demo/data',
+  );
 
   ///object of the native callback class
-  NativeCallBack nativeCallBack =
-      NativeCallBack(mockMethod: _standAlone ? mockObject : null);
+  NativeCallBack nativeCallBack = NativeCallBack(mockMethod: mockObject);
 
   ///code related to native callback and data listener
 
@@ -230,6 +232,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
           } else {}
 
           currentDate = DateTime.now();
+          
           setDateWhenJump(currentDate);
           emit(JumpToDateState(DateTime.now()));
 

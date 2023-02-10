@@ -23,6 +23,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 
+import 'package:edgar_planner_calendar_flutter/core/utils/utils.dart' as utils;
+
 ///Calendar view for the app
 class CalendarView extends StatefulWidget {
   ///
@@ -35,7 +37,8 @@ class CalendarView extends StatefulWidget {
   State<CalendarView> createState() => _CalendarViewState();
 }
 
-class _CalendarViewState extends State<CalendarView> {
+class _CalendarViewState extends State<CalendarView>
+    with AutomaticKeepAliveClientMixin {
   TimetableController<EventData> timeTableController =
       TimetableController<EventData>(
     start: DefaultDates.startDate,
@@ -63,17 +66,17 @@ class _CalendarViewState extends State<CalendarView> {
     cellHeight: CalendarParams.mobileCellHeight,
   );
   TimetableController<Note> monthController = TimetableController<Note>(
-    start: DefaultDates.startDate,
+    start: DefaultDates.monthStartDate,
     infiniteScrolling: CalendarParams.infiniteScrolling,
-    end: DefaultDates.endDate,
+    end: DefaultDates.monthEndate,
     timelineWidth: CalendarParams.timelineWidth,
     breakHeight: CalendarParams.tabBreakHeight,
     cellHeight: CalendarParams.tabCellHeight,
   );
   TimetableController<Note> termController = TimetableController<Note>(
-    start: DefaultDates.startDate,
+    start: DefaultDates.monthStartDate,
     infiniteScrolling: CalendarParams.infiniteScrolling,
-    end: DefaultDates.endDate,
+    end: DefaultDates.monthEndate,
     timelineWidth: CalendarParams.timelineWidth,
     breakHeight: CalendarParams.tabBreakHeight,
     cellHeight: CalendarParams.tabCellHeight,
@@ -104,8 +107,6 @@ class _CalendarViewState extends State<CalendarView> {
         .then((dynamic value) {
       final DateTime date = DateTime.now();
 
-      timeTableController.jumpTo(date);
-      dayController.jumpTo(date);
       scheduleController.jumpTo(date);
       monthController.jumpTo(date);
       termController.jumpTo(date);
@@ -123,9 +124,10 @@ class _CalendarViewState extends State<CalendarView> {
         dateForHeader = event.currentDate;
         headerDateNotifier.value = dateForHeader;
       } else if (event is ViewUpdated) {
-        logInfo('view updated in calendar');
+        logPrety('view updated in calendar:${event.viewType}');
 
         final CalendarViewType requstedView = event.viewType;
+        pageController.jumpToPage(getIndex(requstedView));
 
         viewTypeNotifer.value = requstedView;
         timeTableController.jumpTo(cubit.date);
@@ -135,7 +137,18 @@ class _CalendarViewState extends State<CalendarView> {
         termController.jumpTo(cubit.date);
       } else if (event is JumpToDateState) {
         logInfo('jumping to date in calendar ${event.dateTime}');
-        timeTableController.jumpTo(event.dateTime);
+
+        if (cubit.viewType == CalendarViewType.weekView) {
+          if (DateUtils.isSameDay(event.dateTime, DateTime.now())) {
+            var date = utils
+                .getMonday(DateTime.now())
+                .add(Duration(days: isMobile ? 1 : 2));
+            timeTableController.jumpTo(date);
+          } else {
+            timeTableController.jumpTo(event.dateTime);
+          }
+        }
+
         dayController.jumpTo(event.dateTime);
         scheduleController.jumpTo(event.dateTime);
         dateForHeader = event.dateTime;
@@ -226,6 +239,8 @@ class _CalendarViewState extends State<CalendarView> {
 
   ///page storage bucket for the view
   final PageStorageBucket pageStorageBucket = PageStorageBucket();
+
+  final PageController pageController = PageController(initialPage: 1);
   final GlobalKey<State<StatefulWidget>> _key = GlobalKey();
 
   void onResize() {
@@ -256,93 +271,87 @@ class _CalendarViewState extends State<CalendarView> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        resizeToAvoidBottomInset: false,
-        key: scaffoldKey,
-        backgroundColor: white,
-        appBar: showAppbar
-            ? CalendarAppBar(
-                viewTypeNotifer: viewTypeNotifer,
-                headerDateNotifier: headerDateNotifier,
-                scaffoldKey: scaffoldKey)
-            : null,
-        endDrawer: SettingDrawer(
-          startDate: DefaultDates.startDate,
-          isMobile: isMobile,
-          endDate: DefaultDates.startDate,
-          onDateChange: (DateTime start, DateTime end) {
-            setState(() {
-              timeTableController.changeDate(start, end);
-              dayController.changeDate(start, end);
-              scheduleController.changeDate(start, end);
-            });
-          },
-        ),
-        floatingActionButton: BlocBuilder<TimeTableCubit, TimeTableState>(
-          builder: (BuildContext context, TimeTableState state) =>
-              BlocProvider.of<TimeTableCubit>(context).standAlone
-                  ? FloatingActionButton(
-                      onPressed: () {
-                        showDatePicker(
-                                context: context,
-                                firstDate: DefaultDates.startDate,
-                                lastDate: DefaultDates.endDate,
-                                initialDate: DateTime.now())
-                            .then((DateTime? value) {
-                          if (value != null) {
-                            timeTableController.jumpTo(value);
-                            dayController.jumpTo(value);
-                            scheduleController.jumpTo(value);
-                            monthController.jumpTo(value);
-                            termController.jumpTo(value);
-                          }
-                        });
-                      },
-                      child: const Icon(Icons.calendar_month),
-                    )
-                  : const SizedBox.shrink(),
-        ),
-        body: SafeArea(
-          child: LayoutBuilder(
-              key: _key,
-              builder: (BuildContext context, BoxConstraints value) {
-                onResize();
+  bool get wantKeepAlive => true;
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      key: scaffoldKey,
+      backgroundColor: white,
+      appBar: showAppbar
+          ? CalendarAppBar(
+              viewTypeNotifer: viewTypeNotifer,
+              headerDateNotifier: headerDateNotifier,
+              scaffoldKey: scaffoldKey)
+          : null,
+      endDrawer: SettingDrawer(
+        startDate: DefaultDates.startDate,
+        isMobile: isMobile,
+        endDate: DefaultDates.startDate,
+        onDateChange: (DateTime start, DateTime end) {
+          setState(() {
+            timeTableController.changeDate(start, end);
+            dayController.changeDate(start, end);
+            scheduleController.changeDate(start, end);
+          });
+        },
+      ),
+      floatingActionButton: BlocBuilder<TimeTableCubit, TimeTableState>(
+        builder: (BuildContext context, TimeTableState state) =>
+            BlocProvider.of<TimeTableCubit>(context).standAlone
+                ? FloatingActionButton(
+                    onPressed: () {
+                      showDatePicker(
+                              context: context,
+                              firstDate: DefaultDates.startDate,
+                              lastDate: DefaultDates.endDate,
+                              initialDate: DateTime.now())
+                          .then((DateTime? value) {
+                        if (value != null) {
+                          timeTableController.jumpTo(value);
+                          dayController.jumpTo(value);
+                          scheduleController.jumpTo(value);
+                          monthController.jumpTo(value);
+                          termController.jumpTo(value);
+                        }
+                      });
+                    },
+                    child: const Icon(Icons.calendar_month),
+                  )
+                : const SizedBox.shrink(),
+      ),
+      body: SafeArea(
+        child: LayoutBuilder(
+            key: _key,
+            builder: (BuildContext context, BoxConstraints value) {
+              onResize();
 
-                isMobile = value.maxWidth < mobileThreshold;
-
-                return Row(
-                  children: <Widget>[
-                    isMobile ? const SizedBox.shrink() : const LeftStrip(),
-                    Expanded(
-                        child: Column(
-                      children: <Widget>[
-                        const LinearIndicator(),
-                        Expanded(
-                          child: ValueListenableBuilder<CalendarViewType>(
-                              valueListenable: viewTypeNotifer,
-                              builder: (BuildContext context,
-                                      CalendarViewType viewType,
-                                      Widget? child) =>
-                                  AnimatedSwitcher(
-                                    duration: const Duration(milliseconds: 500),
-                                    transitionBuilder: (Widget child,
-                                            Animation<double> animation) =>
-                                        FadeTransition(
-                                            opacity: animation, child: child),
-                                    child: IndexedStack(
-                                      index: getIndex(viewType),
-                                      children: getViewList(),
-                                    ),
-                                  )),
+              isMobile = value.maxWidth < mobileThreshold;
+              logPrety("rebuildng ui");
+              return Row(
+                children: <Widget>[
+                  isMobile ? const SizedBox.shrink() : const LeftStrip(),
+                  Expanded(
+                      child: Column(
+                    children: <Widget>[
+                      const LinearIndicator(),
+                      Expanded(
+                        child: PageView(
+                          controller: pageController,
+                          physics: const NeverScrollableScrollPhysics(),
+                          children: getViewList(),
                         ),
-                      ],
-                    )),
-                    isMobile ? const SizedBox.shrink() : const RightStrip(),
-                  ],
-                );
-              }),
-        ),
-      );
+                      ),
+                    ],
+                  )),
+                  isMobile ? const SizedBox.shrink() : const RightStrip(),
+                ],
+              );
+            }),
+      ),
+    );
+  }
 
   List<Widget> getViewList() => <Widget>[
         DayPlanner(

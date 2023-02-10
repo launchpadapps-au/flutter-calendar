@@ -155,7 +155,7 @@ Map<String, dynamic>
 
     /// A map of string to dynamic.
     staticJsonForTheTerm = <String, dynamic>{
-  'term': <String, dynamic> {
+  'term': <String, dynamic>{
     'id': 6,
     'territory': 'New South Wales',
     'term1': '02-01|23-01',
@@ -178,6 +178,20 @@ class DefaultDates {
   ///stendart date of the calendar
 
   static DateTime get endDate => DateTime(2050);
+
+  ///start date of the  month view in the calendar
+
+  static DateTime get monthStartDate {
+    var now = DateTime.now();
+    return now.copyWith(year: now.year - 5);
+  }
+
+  ///start date of the  month view in the calendar
+
+  static DateTime get monthEndate {
+    var now = DateTime.now();
+    return now.copyWith(year: now.year + 5);
+  }
 }
 
 ///Default parameter for the calendar
@@ -199,6 +213,7 @@ class CalendarParams {
 
   ///breack hright for the tab
   static double tabBreakHeight = 33;
+
   ///cell height for the mobile
   static double mobileCellHeight = 83;
 
