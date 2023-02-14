@@ -6,6 +6,7 @@ import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/calendar_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/day_name.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/dead_cell.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/month_cell.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/termview/term_note.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -138,16 +139,7 @@ class _TermPlannerState extends State<TermPlanner> {
             widget.onTap(dateTime.dateTime, p1);
           },
         ),
-        cellBuilder: (Period period) => Container(
-          height: period.isCustomeSlot
-              ? widget.timetableController.breakHeight
-              : widget.timetableController.cellHeight,
-          decoration: BoxDecoration(
-              border:
-                  Border.all(color: Colors.grey.withOpacity(0.5), width: 0.5),
-              color: period.isCustomeSlot
-                  ? Colors.grey.withOpacity(0.2)
-                  : Colors.transparent),
-        ),
+        cellBuilder: (Size size, CalendarDay calendarDay) =>
+            MonthCell(size: size),
       );
 }

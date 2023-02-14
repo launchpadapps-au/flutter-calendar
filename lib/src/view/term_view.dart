@@ -16,10 +16,10 @@ class SlTermView<T> extends StatefulWidget {
     required this.timelines,
     required this.onWillAccept,
     required this.onMonthChanged,
+    required this.cellBuilder,
     Key? key,
     this.onEventDragged,
     this.controller,
-    this.cellBuilder,
     this.headerCellBuilder,
     this.dateBuilder,
     this.itemBuilder,
@@ -39,7 +39,7 @@ class SlTermView<T> extends StatefulWidget {
 
   /// Renders for the cells the represent each hour that provides
   /// that [DateTime] for that hour
-  final Widget Function(Period)? cellBuilder;
+  final Widget Function(Size size, CalendarDay calendarDay) cellBuilder;
 
   /// Renders for the header that provides the [DateTime] for the day
   final Widget Function(int)? headerCellBuilder;
@@ -311,6 +311,8 @@ class _SlTermViewState<T> extends State<SlTermView<T>> {
                               return DayCell<T>(
                                   calendarDay: dateRange[index],
                                   columnWidth: columnWidth,
+                                  cellBuilder: (p0) => widget.cellBuilder(
+                                      Size(cw, columnHeight), dateRange[index]),
                                   dateBuilder: widget.dateBuilder,
                                   isDraggable: widget.isDraggable,
                                   deadCellBuilder: widget.deadCellBuilder!,
