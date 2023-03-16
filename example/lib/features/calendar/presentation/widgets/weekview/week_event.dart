@@ -15,6 +15,7 @@ class WeekEvent extends StatelessWidget {
       required this.breakHeight,
       required this.width,
       required this.periods,
+      required this.isMobile,
       this.freeTimeBg = false,
       super.key,
       this.onTap});
@@ -36,6 +37,9 @@ class WeekEvent extends StatelessWidget {
 
   ///true if want to show bg in freetime bg
   final bool freeTimeBg;
+
+  ///pass true if mobile
+  final bool isMobile;
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +83,9 @@ class WeekEvent extends StatelessWidget {
           padding: EdgeInsets.all(padding),
           decoration: BoxDecoration(
               color: bgColor,
-              image: item.eventData!.freeTime && freeTimeBg
+              image: item.eventData!.freeTime &&
+                      freeTimeBg &&
+                      (item.eventData!.description == null)
                   ? DecorationImage(image: AssetImage(AssetPath.freeTime))
                   : null,
               border: item.eventData!.isDutyTime
@@ -93,10 +99,8 @@ class WeekEvent extends StatelessWidget {
               ? SizedBox(
                   height: breakHeight,
                   child: Center(
-                      child: Text(
-                    item.eventData!.title,
-                    style: context.subtitle,
-                  )),
+                      child: Text(item.eventData!.title,
+                          style: isMobile?context.subtitle: context.subtitle1)),
                 )
               : Column(
                   children: <Widget>[
@@ -107,7 +111,6 @@ class WeekEvent extends StatelessWidget {
                             child: Column(
                           children: <Widget>[
                             Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 hideCircle
                                     ? const SizedBox.shrink()
@@ -126,16 +129,33 @@ class WeekEvent extends StatelessWidget {
                                       ),
                                 Flexible(
                                   child: Text(
-                                 item.eventData!.title,
+                                    item.eventData!.title,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: context.eventTitle,
+                                    style: isMobile
+                                        ? context.eventTitleMobile
+                                        : context.eventTitleTablet,
                                   ),
                                 ),
                               ],
                             ),
                             item.eventData!.freeTime
-                                ? const SizedBox.shrink()
+                                ? Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Flexible(
+                                        child: Text(
+                                          item.eventData!.description ?? '',
+                                          maxLines: 3,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: isMobile
+                                              ? context.eventDescriptionMobile
+                                              : context.eventDescriptionMobile,
+                                        ),
+                                      ),
+                                    ],
+                                  )
                                 : Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -145,7 +165,9 @@ class WeekEvent extends StatelessWidget {
                                           item.eventData!.location ?? '',
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
-                                          style: context.eventTitle,
+                                          style: isMobile
+                                              ? context.eventDescriptionMobile
+                                              : context.eventDescriptionTablet,
                                         ),
                                       ),
                                     ],
@@ -185,7 +207,9 @@ class WeekEvent extends StatelessWidget {
                                   child: Text(
                                     '${item.eventData!.eventLinks}',
                                     overflow: TextOverflow.ellipsis,
-                                    style: context.subtitle,
+                                    style: isMobile
+                                        ? context.eventLinkMobile
+                                        : context.eventDescriptionTablet,
                                   ),
                                 )),
                           )

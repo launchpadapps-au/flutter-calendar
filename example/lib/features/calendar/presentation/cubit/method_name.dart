@@ -99,6 +99,9 @@ class SendMethods {
 
   static const String showDuty = 'showDuty';
 
+///it will be  
+  static const String showNonTeachingTime = 'showNonTeachingTime';
+
   /// showEvent method called when user tan on cell which have events
 
   static const String visibleDateChanged = 'visibleDateChanged';

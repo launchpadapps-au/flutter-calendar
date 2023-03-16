@@ -124,6 +124,7 @@ class _WeekPlannerState extends State<WeekPlanner<EventData>> {
       itemBuilder: (CalendarEvent<EventData> item, double width) => WeekEvent(
           item: item,
           freeTimeBg: true,
+          isMobile: widget.isMobile,
           periods: widget.customPeriods,
           cellHeight: widget.timetableController.cellHeight,
           breakHeight: widget.timetableController.breakHeight,

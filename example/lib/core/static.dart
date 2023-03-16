@@ -215,8 +215,8 @@ class CalendarParams {
   static double tabBreakHeight = 33;
 
   ///cell height for the mobile
-  static double mobileCellHeight = 83;
+  static double mobileCellHeight = 86;
 
   ///cell height fpr the tab
-  static double tabCellHeight = 100;
+  static double tabCellHeight = 105;
 }

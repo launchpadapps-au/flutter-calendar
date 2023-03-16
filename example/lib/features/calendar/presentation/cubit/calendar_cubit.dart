@@ -50,8 +50,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
 
   ///If code will be running in module then it will be false
   ///if code is running as stand alone app then it will be true
-  static const bool _standAlone =
-      bool.fromEnvironment('standalone', defaultValue: false);
+  static const bool _standAlone = bool.fromEnvironment('standalone');
 
   ///rrturn true if project run as stand alone
   bool get standAlone => _standAlone;
@@ -185,7 +184,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   ///set listner for
   void setListener({bool mock = false}) {
     if (mock) {
-      logInfo('============= Mocking Platform Channel ============');
+      logPrety('Mocking Platform Channel');
     }
 
     (mock ? mockObject.stream : nativeCallBack.onDataReceived.stream)
@@ -196,7 +195,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
               loadingModelFromJson(jsonEncode(call.arguments));
 
           isLoading = loadingModel.isLoading;
-          logInfo('setLoading received from native app: $isLoading');
+          logPrety('setLoading received from native app: $isLoading');
           emit(LoadingUpdated(periods, _events, viewType, termModel,
               isLoading: isLoading));
           break;
@@ -204,7 +203,6 @@ class TimeTableCubit extends Cubit<TimeTableState> {
         ///receive data change command from ios
         ///handle data change
         case ReceiveMethods.setDates:
-          logInfo('date receive from flutter');
           final DateChange dateChange =
               DateChange.fromJson(jsonDecode(call.arguments));
           startDate = dateChange.startTime;
@@ -215,10 +213,9 @@ class TimeTableCubit extends Cubit<TimeTableState> {
 
         ///handle view change
         case ReceiveMethods.setView:
-          logInfo('set view received from native app');
           final ChangeView changeView =
               ChangeView.fromJson(jsonDecode(call.arguments));
-
+          logPrety('Set view recived from native app${changeView.viewType}');
           changeViewType(changeView.viewType);
           break;
 
@@ -242,7 +239,6 @@ class TimeTableCubit extends Cubit<TimeTableState> {
 
         ///handle set periods method
         case ReceiveMethods.setPeriods:
-          logInfo('Periods: ${call.arguments}');
           logInfo('set periods received from native app');
 
           final List<PeriodModel> newPeriods =
@@ -264,7 +260,6 @@ class TimeTableCubit extends Cubit<TimeTableState> {
           termModel = termModelFromJson(jsonEncode(call.arguments));
 
           setThreeYearTerm(termModel);
-          logInfo(termModel.toJson().toString());
           emit(TermsUpdated(periods, _events, viewType, termModel));
           break;
 

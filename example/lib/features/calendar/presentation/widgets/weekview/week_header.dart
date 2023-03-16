@@ -25,7 +25,7 @@ class WeekHeader extends StatelessWidget {
             children: <Widget>[
               Text(
                 DateFormat('E').format(date).toUpperCase(),
-                style: context.hourLabelMobile.copyWith(
+                style: context.headerDayTitlekMobile.copyWith(
                   color: isSameDate(date) ? primaryPink : textBlack,
                 ),
               ),
@@ -39,8 +39,7 @@ class WeekHeader extends StatelessWidget {
                   child: Center(
                     child: Text(
                       date.day.toString(),
-                      style: context.headline2Fw500.copyWith(
-                          fontSize: isMobile ? 16 : 24,
+                      style: context.headerDateTitlekMobile.copyWith(
                           color: isSameDate(date) ? Colors.white : null),
                     ),
                   )),

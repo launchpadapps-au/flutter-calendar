@@ -21,6 +21,61 @@ extension TextThemes on BuildContext {
         fontWeight: FontWeight.w600,
       );
 
+  ///textStyle for day label in mobile
+  TextStyle get headerDayTitlekMobile => const TextStyle(
+      fontSize: 10, fontWeight: FontWeight.w500, color: textGrey);
+
+  ///textStyle for day label in tablet
+  TextStyle get headerDayTitleTablet => const TextStyle(
+        fontSize: 14,
+        color: textGrey,
+        fontWeight: FontWeight.w600,
+      );
+
+  ///textStyle for date label in mobile
+  TextStyle get headerDateTitlekMobile => const TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+      fontFamily: Fonts.notoSans,
+      color: textBlack);
+
+  ///textStyle for date label in tablet
+  TextStyle get headerDateTitleTablet => const TextStyle(
+        fontSize: 14,
+        color: textGrey,
+        fontWeight: FontWeight.w600,
+      );
+
+  ///caption
+  TextStyle get eventTitleMobile => const TextStyle(
+      fontSize: 10, fontWeight: FontWeight.w500, color: textBlack, height: 1.2);
+
+  ///caption
+  TextStyle get eventTitleTablet => const TextStyle(
+      fontSize: 14, fontWeight: FontWeight.w700, color: textBlack);
+
+  ///event link mobile
+  TextStyle get eventLinkMobile => const TextStyle(
+      fontSize: 10, fontWeight: FontWeight.w500, color: textBlack);
+
+  ///event link tablet
+  TextStyle get eventLinkTablet => const TextStyle(
+      fontSize: 12, fontWeight: FontWeight.w500, color: textBlack);
+
+  ///textStyle for hour label in mobile
+  TextStyle get eventDescriptionMobile => const TextStyle(
+      fontFamily: Fonts.sofiaPro,
+      fontSize: 10,
+      fontWeight: FontWeight.w500,
+      color: textBlack);
+
+  ///textStyle for hour label in mobile
+  TextStyle get eventDescriptionTablet => const TextStyle(
+      fontFamily: Fonts.sofiaPro,
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      color: textBlack);
+
   ///subtitle1
   TextStyle get headline1 => const TextStyle(
         fontSize: 16,
@@ -64,10 +119,6 @@ extension TextThemes on BuildContext {
         fontSize: 12,
         fontWeight: FontWeight.w400,
       );
-
-  ///caption
-  TextStyle get eventTitle => const TextStyle(
-      fontSize: 10, fontWeight: FontWeight.w500, color: textBlack);
 
   ///texTheme for the term planner
 

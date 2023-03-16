@@ -2,10 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:edgar_planner_calendar_flutter/core/logger.dart';
-import 'package:edgar_planner_calendar_flutter/core/utils/calendar_utils.dart'; 
+import 'package:edgar_planner_calendar_flutter/core/utils/calendar_utils.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/date_change_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_notes.dart';
+import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/term_model.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/method_name.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/mock_method.dart';
@@ -125,7 +126,7 @@ class NativeCallBack {
   Future<bool> sendShowEventToNativeApp(DateTime dateTime,
       List<CalendarEvent<EventData>> events, CalendarViewType viewType) async {
     if (events.length == 1) {
-      if (CalendarUtils. isOnTapEnable(events.first)) {
+      if (CalendarUtils.isOnTapEnable(events.first)) {
         final int eventID = int.parse(events.first.eventData!.id.toString());
         final Map<String, dynamic> data = <String, dynamic>{
           'viewType': viewType.toString(),
@@ -155,18 +156,24 @@ class NativeCallBack {
   }
 
   ///send showDuty callback to native app
-  Future<bool> sendShowDutyToNativeApp(DateTime dateTime,
-      List<CalendarEvent<EventData>> events, CalendarViewType viewType) async {
+  Future<bool> sendShowDutyToNativeApp(
+      DateTime dateTime,
+      List<CalendarEvent<EventData>> events,
+      CalendarViewType viewType,
+      PeriodModel periodModel) async {
     if (events.length == 1) {
-      if (CalendarUtils. isOnTapEnable(events.first)) {
+      if (CalendarUtils.isOnTapEnable(events.first)) {
         final int eventID = int.parse(events.first.eventData!.id.toString());
+        final CalendarEvent<EventData> event = events.first;
         final Map<String, dynamic> data = <String, dynamic>{
           'viewType': viewType.toString(),
           'date': dateTime.toString().substring(0, 10),
           'events': events.toString(),
           'eventId': eventID,
-          'eventIds': List<String>.from(events.map<String>(
-              (CalendarEvent<EventData> e) => e.eventData!.id.toString()))
+          'location': events.first.eventData!.location,
+          'startTime': event.eventData!.startTime,
+          'endTime': event.eventData!.endTime,
+          'breakTitle': periodModel.title
         };
         logInfo(data.toString());
         await sendToNativeApp(SendMethods.showDuty, data);
@@ -178,12 +185,31 @@ class NativeCallBack {
         'events': events.toString(),
         'eventId': events.first.eventData!.id.toString(),
         'eventIds': List<String>.from(events.map<String>(
-            (CalendarEvent<EventData> e) => e.eventData!.id.toString()))
+            (CalendarEvent<EventData> e) => e.eventData!.id.toString())),
       };
       logInfo(data.toString());
       await sendToNativeApp(SendMethods.showDuty, data);
     }
 
+    return true;
+  }
+
+  ///it will send showNonTrachingTime to native app using platform channerl
+  Future<bool> senShowdNonTeachingTimeToNativeAoo(
+      CalendarEvent<EventData> event,
+      DateTime dateTime,
+      CalendarViewType viewType) async {
+    final Map<String, dynamic> data = <String, dynamic>{
+      'viewType': viewType.toString(),
+      'date': dateTime.toString().substring(0, 10),
+      'eventId': event.eventData!.id.toString(),
+      'startTime': event.eventData!.startTime,
+      'endTime': event.eventData!.endTime,
+      'slotName': event.eventData!.calendarSlot.getTitle,
+      'description': event.eventData!.description,
+    };
+    logInfo(data);
+    await sendToNativeApp(SendMethods.showNonTeachingTime, data);
     return true;
   }
 

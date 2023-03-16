@@ -18,6 +18,7 @@ class MonthPlanner extends StatefulWidget {
     required this.timetableController,
     required this.onMonthChanged,
     required this.onTap,
+    this.showAddNotePupup = false,
     Key? key,
     this.id,
   }) : super(key: key);
@@ -33,6 +34,10 @@ class MonthPlanner extends StatefulWidget {
 
   ///return current month when user swipe and month changed
   final Function(Month) onMonthChanged;
+
+  ///pass true if you wanan show pink popup for the add note
+  ///default will be false
+  final bool showAddNotePupup;
 
   @override
   State<MonthPlanner> createState() => _MonthPlannerState();
@@ -109,8 +114,16 @@ class _MonthPlannerState extends State<MonthPlanner> {
             }
           },
         ),
-        cellBuilder: (Size size, CalendarDay calendarDay) =>
-            MonthCell(size: size),
+        cellBuilder: (Size size, CalendarDay calendarDay) => MonthCell(
+          showAddNotePupup: widget.showAddNotePupup,
+          size: size,
+          calendarDay: calendarDay,
+          onTap: (CalendarDay dateTime, List<CalendarEvent<Note>> p1) {
+            if (!dateTime.deadCell) {
+              widget.onTap(dateTime.dateTime, <CalendarEvent<Note>>[]);
+            }
+          },
+        ),
         headerHeight: headerHeight - 10,
         headerCellBuilder: (int index) => SizedBox(
           height: widget.timetableController.headerHeight,

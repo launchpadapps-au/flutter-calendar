@@ -5,6 +5,7 @@
 import 'dart:convert';
 
 import 'package:edgar_planner_calendar_flutter/core/extension/date_extension.dart';
+import 'package:edgar_planner_calendar_flutter/core/extension/string_extension.dart';
 import 'package:edgar_planner_calendar_flutter/core/logger.dart';
 import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
@@ -181,32 +182,35 @@ class EventData {
   //       eventLinks: json['event_links'],
   //     );
   ///initialize the event
-  EventData(
-      {required this.id,
-      required this.title,
-      required this.location,
-      required this.startDate,
-      required this.endDate,
-      required this.startTime,
-      required this.endTime,
-      required this.reminderEnabled,
-      required this.slots,
-      required this.type,
-      required this.updatedAt,
-      required this.lessonPlans,
-      required this.googleDriveFiles,
-      this.event,
-      // required this.period,
-      this.subject,
-      this.color = darkestGrey,
-      this.freeTime = false,
-      this.isDutyTime = false,
-      this.remindBefore,
-      this.recurrenceUntil,
-      this.recurringEventId,
-      this.recurrenceFreq,
-      this.eventLinks,
-      this.extraCurricular}) {
+  EventData({
+    required this.id,
+    required this.title,
+    required this.location,
+    required this.startDate,
+    required this.endDate,
+    required this.startTime,
+    required this.endTime,
+    required this.reminderEnabled,
+    required this.slots,
+    required this.type,
+    required this.updatedAt,
+    required this.lessonPlans,
+    required this.googleDriveFiles,
+    required this.calendarSlot,
+    this.event,
+    // required this.period,
+    this.subject,
+    this.color = darkestGrey,
+    this.freeTime = false,
+    this.isDutyTime = false,
+    this.remindBefore,
+    this.recurrenceUntil,
+    this.recurringEventId,
+    this.recurrenceFreq,
+    this.eventLinks,
+    this.extraCurricular,
+    this.description,
+  }) {
     if (type == 'freetime') {
       title = 'Non-Teaching Time';
       freeTime = true;
@@ -216,6 +220,7 @@ class EventData {
       color = const Color(0xFFE0E0E0);
       isDutyTime = true;
       freeTime = false;
+      title = 'Duty - $location';
     } else if (type == 'lesson') {
       if (subject != null) {
         color = subject!.colorCode;
@@ -276,7 +281,9 @@ class EventData {
                 .decode(jsonData['google_drive_files'])
                 .map((dynamic x) => GoogleDriveFile.fromJson(x))),
         eventLinks: jsonData['event_links'],
-        extraCurricular: jsonData['extra_curricular']);
+        extraCurricular: jsonData['extra_curricular'],
+        description: jsonData['description'],
+        calendarSlot: CalendarSlot.fromJson(jsonData['calendar_slot']));
   }
 
   ///if type is lesson then return true
@@ -365,6 +372,12 @@ class EventData {
 
   ///icon of the extra curriculer extivity
   String? extraCurricular;
+
+  ///description for the the freetime
+  String? description;
+
+  ///Calendar slot for the event
+  CalendarSlot calendarSlot;
 
   ///convert json object from the model
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -523,5 +536,68 @@ class EdgarEvent {
         'is_recurring_event': isRecurringEvent,
         'recurrence_until': recurrenceUntil,
         'recurrence_freq': recurrenceFreq,
+      };
+}
+
+///This will store all data regarding slot
+
+class CalendarSlot {
+  ///initialize the slot06
+  CalendarSlot({
+    required this.id,
+    required this.slotName,
+    required this.type,
+  });
+
+  ///create object from the json encoded string
+  factory CalendarSlot.fromRawJson(String str) =>
+      CalendarSlot.fromJson(json.decode(str));
+
+  ///create object from json
+  factory CalendarSlot.fromJson(Map<String, dynamic> json) => CalendarSlot(
+        id: json['id'].toString(),
+        slotName: json['slot_name'],
+        type: json['type'],
+      );
+
+  ///return title based on event typr
+
+  String get getTitle {
+    switch (type) {
+      case 'before_school':
+        return 'Before School';
+
+      case 'after_school':
+        return 'After School';
+      case 'break_1':
+        return 'Recess';
+
+      case 'break_2':
+        return 'Lunch';
+
+      default:
+        final List<String> t = slotName.split('_');
+
+        return t.join(' ').capitalize;
+    }
+  }
+
+  ///id of the slot
+  final String id;
+
+  ///name of the slot
+  final String slotName;
+
+  ///type of the slot
+  final String type;
+
+  ///creaye json encoded string from the map
+  String toRawJson() => json.encode(toJson());
+
+  ///crate json from the data
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'id': id,
+        'slot_name': slotName,
+        'type': type,
       };
 }

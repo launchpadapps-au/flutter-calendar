@@ -33,16 +33,27 @@ class PeriodModel implements Period {
       required this.isCustomeSlot}) {
     title = slotName;
     isCustomeSlot = type != 'period';
-    if (title == 'break_1') {
-      title = 'Recess';
-    } else if (title == 'break_2') {
-      title = 'Lunch';
-    } else {
-      final List<String> t = title!.split('_');
 
-      if (t.length == 2) {
-        title = 'Break ${t[1]}';
-      }
+    switch (type) {
+      case 'before_school':
+        title = 'Before School';
+        break;
+      case 'after_school':
+        title = 'After School';
+        break;
+      case 'break_1':
+        title = 'Recess';
+        break;
+      case 'break_2':
+        title = 'Lunch';
+        break;
+
+      default:
+        final List<String> t = title!.split('_');
+
+        if (t.length == 2) {
+          title = '${t[0]} ${t[1]}';
+        }
     }
   }
 

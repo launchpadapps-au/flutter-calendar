@@ -92,7 +92,9 @@ class _DayEventState extends State<DayEvent> {
           padding: EdgeInsets.all(padding),
           decoration: BoxDecoration(
               color: bgColor,
-              image: widget.item.eventData!.freeTime && widget.freeTimeBg
+              image: widget.item.eventData!.freeTime &&
+                      widget.freeTimeBg &&
+                      (widget.item.eventData!.description == null)
                   ? DecorationImage(image: AssetImage(AssetPath.freeTime))
                   : null,
               border: widget.item.eventData!.isDutyTime
@@ -108,7 +110,8 @@ class _DayEventState extends State<DayEvent> {
                   child: Center(
                       child: Text(
                     widget.item.eventData!.title,
-                    style: context.subtitle,
+                    style:
+                        widget.isMobile ? context.subtitle : context.subtitle1,
                   )),
                 )
               : Column(
@@ -120,7 +123,6 @@ class _DayEventState extends State<DayEvent> {
                             child: Column(
                           children: <Widget>[
                             Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 hideCircle
                                     ? const SizedBox.shrink()
@@ -142,13 +144,31 @@ class _DayEventState extends State<DayEvent> {
                                     widget.item.eventData!.title,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: context.eventTitle,
+                                    style: widget.isMobile
+                                        ? context.eventTitleMobile
+                                        : context.eventTitleTablet,
                                   ),
                                 ),
                               ],
                             ),
                             widget.item.eventData!.freeTime
-                                ? const SizedBox.shrink()
+                                ? Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Flexible(
+                                        child: Text(
+                                          widget.item.eventData!.description ??
+                                              '',
+                                          maxLines: 3,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: widget.isMobile
+                                              ? context.eventDescriptionMobile
+                                              : context.eventDescriptionTablet,
+                                        ),
+                                      ),
+                                    ],
+                                  )
                                 : Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -158,7 +178,9 @@ class _DayEventState extends State<DayEvent> {
                                           widget.item.eventData!.location ?? '',
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
-                                          style: context.eventTitle,
+                                          style: widget.isMobile
+                                              ? context.eventDescriptionMobile
+                                              : context.eventDescriptionTablet,
                                         ),
                                       ),
                                     ],
@@ -200,7 +222,9 @@ class _DayEventState extends State<DayEvent> {
                                   child: Text(
                                     '${widget.item.eventData!.eventLinks}',
                                     overflow: TextOverflow.ellipsis,
-                                    style: context.subtitle,
+                                    style: widget.isMobile
+                                        ? context.eventLinkMobile
+                                        : context.eventDescriptionTablet,
                                   ),
                                 )),
                           )

@@ -1,101 +1,110 @@
 [
     {
-        "id": 404,
-        "calendar_id": 66,
-        "user_id": "681ab18e-0ddd-4dda-94e8-0026f1d4c46f",
+        "id": 382,
+        "calendar_id": 64,
+        "user_id": "3d2339f4-180b-4125-9177-67a9624f65fc",
         "slot_name": "before_school",
         "type": "before_school",
-        "start_time": "08:00:00",
+        "start_time": "08:15:00",
         "end_time": "09:00:00"
     },
     {
-        "id": 403,
-        "calendar_id": 66,
-        "user_id": "681ab18e-0ddd-4dda-94e8-0026f1d4c46f",
+        "id": 385,
+        "calendar_id": 64,
+        "user_id": "3d2339f4-180b-4125-9177-67a9624f65fc",
         "slot_name": "period_1",
         "type": "period",
         "start_time": "09:00:00",
-        "end_time": "10:00:00"
+        "end_time": "09:45:00"
     },
     {
-        "id": 413,
-        "calendar_id": 66,
-        "user_id": "681ab18e-0ddd-4dda-94e8-0026f1d4c46f",
+        "id": 386,
+        "calendar_id": 64,
+        "user_id": "3d2339f4-180b-4125-9177-67a9624f65fc",
         "slot_name": "period_2",
         "type": "period",
-        "start_time": "10:00:00",
+        "start_time": "09:45:00",
+        "end_time": "10:30:00"
+    },
+    {
+        "id": 390,
+        "calendar_id": 64,
+        "user_id": "3d2339f4-180b-4125-9177-67a9624f65fc",
+        "slot_name": "Recess",
+        "type": "break",
+        "start_time": "10:30:00",
         "end_time": "11:00:00"
     },
     {
-        "id": 409,
-        "calendar_id": 66,
-        "user_id": "681ab18e-0ddd-4dda-94e8-0026f1d4c46f",
-        "slot_name": "Recess",
-        "type": "break",
-        "start_time": "11:00:00",
-        "end_time": "11:30:00"
-    },
-    {
-        "id": 411,
-        "calendar_id": 66,
-        "user_id": "681ab18e-0ddd-4dda-94e8-0026f1d4c46f",
+        "id": 391,
+        "calendar_id": 64,
+        "user_id": "3d2339f4-180b-4125-9177-67a9624f65fc",
         "slot_name": "period_3",
         "type": "period",
-        "start_time": "11:30:00",
+        "start_time": "11:00:00",
+        "end_time": "11:45:00"
+    },
+    {
+        "id": 389,
+        "calendar_id": 64,
+        "user_id": "3d2339f4-180b-4125-9177-67a9624f65fc",
+        "slot_name": "period_4",
+        "type": "period",
+        "start_time": "11:45:00",
         "end_time": "12:30:00"
     },
     {
-        "id": 406,
-        "calendar_id": 66,
-        "user_id": "681ab18e-0ddd-4dda-94e8-0026f1d4c46f",
-        "slot_name": "period_4",
-        "type": "period",
-        "start_time": "12:30:00",
-        "end_time": "13:30:00"
-    },
-    {
-        "id": 408,
-        "calendar_id": 66,
-        "user_id": "681ab18e-0ddd-4dda-94e8-0026f1d4c46f",
+        "id": 392,
+        "calendar_id": 64,
+        "user_id": "3d2339f4-180b-4125-9177-67a9624f65fc",
         "slot_name": "period_5",
         "type": "period",
-        "start_time": "13:30:00",
-        "end_time": "14:30:00"
+        "start_time": "12:30:00",
+        "end_time": "13:15:00"
     },
     {
-        "id": 410,
-        "calendar_id": 66,
-        "user_id": "681ab18e-0ddd-4dda-94e8-0026f1d4c46f",
+        "id": 387,
+        "calendar_id": 64,
+        "user_id": "3d2339f4-180b-4125-9177-67a9624f65fc",
+        "slot_name": "Lunch",
+        "type": "break",
+        "start_time": "13:15:00",
+        "end_time": "14:00:00"
+    },
+    {
+        "id": 388,
+        "calendar_id": 64,
+        "user_id": "3d2339f4-180b-4125-9177-67a9624f65fc",
         "slot_name": "period_6",
         "type": "period",
-        "start_time": "14:30:00",
+        "start_time": "14:00:00",
+        "end_time": "14:45:00"
+    },
+    {
+        "id": 393,
+        "calendar_id": 64,
+        "user_id": "3d2339f4-180b-4125-9177-67a9624f65fc",
+        "slot_name": "period_7",
+        "type": "period",
+        "start_time": "14:45:00",
         "end_time": "15:30:00"
     },
     {
-        "id": 407,
-        "calendar_id": 66,
-        "user_id": "681ab18e-0ddd-4dda-94e8-0026f1d4c46f",
-        "slot_name": "period_7",
-        "type": "period",
-        "start_time": "15:30:00",
-        "end_time": "16:30:00"
-    },
-    {
-        "id": 412,
-        "calendar_id": 66,
-        "user_id": "681ab18e-0ddd-4dda-94e8-0026f1d4c46f",
+        "id": 383,
+        "calendar_id": 64,
+        "user_id": "3d2339f4-180b-4125-9177-67a9624f65fc",
         "slot_name": "period_8",
         "type": "period",
-        "start_time": "16:30:00",
-        "end_time": "17:30:00"
+        "start_time": "15:30:00",
+        "end_time": "16:15:00"
     },
     {
-        "id": 405,
-        "calendar_id": 66,
-        "user_id": "681ab18e-0ddd-4dda-94e8-0026f1d4c46f",
+        "id": 384,
+        "calendar_id": 64,
+        "user_id": "3d2339f4-180b-4125-9177-67a9624f65fc",
         "slot_name": "after_school",
         "type": "after_school",
-        "start_time": "17:30:00",
-        "end_time": "18:30:00"
+        "start_time": "16:15:00",
+        "end_time": "17:00:00"
     }
 ]

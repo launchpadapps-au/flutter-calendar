@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 /// color with the hex code of 0xFFfd05a9.
 const Color hotPink = Color(0xFFfd05a9);
 
+///light pink color for the app
+const Color lightPink = Color(0xFFFFE6F7);
+
 /// Defining a constant variable called darkGrey and assigning it a value of
 /// Color(0xFF272d3b).
 
@@ -44,9 +47,6 @@ const Color textBlack = Color(0xFF333333);
 /// of the color with the hex
 /// code of 0xFFFF00AD.
 const Color primaryPink = Color(0xFFFF00AD);
-
-///light pink color
-const Color lightPink = Color(0xFFFFDAF1);
 
 ///pink border color
 const Color lightPinkBorder = Color(0xFFFFC8EA);

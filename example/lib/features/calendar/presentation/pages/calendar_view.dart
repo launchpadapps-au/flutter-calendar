@@ -24,15 +24,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 
+///calendar view for the module
 class CalendarView extends StatefulWidget {
+  ///
   const CalendarView({super.key});
 
   @override
   State<CalendarView> createState() => _CalendarViewState();
 }
 
-class _CalendarViewState extends State<CalendarView>
-    with AutomaticKeepAliveClientMixin {
+class _CalendarViewState extends State<CalendarView> {
   final TimetableController<EventData> timeTableController =
       TimetableController<EventData>(
     start: DefaultDates.startDate,
@@ -89,20 +90,24 @@ class _CalendarViewState extends State<CalendarView>
   final ValueNotifier<DateTime> headerDateNotifier =
       ValueNotifier<DateTime>(DateTime.now());
 
-  PageController pageController = PageController(initialPage: 1);
-
   ValueNotifier<CalendarViewType> viewTypeNotifer =
       ValueNotifier<CalendarViewType>(CalendarViewType.weekView);
 
-  bool showAppbar = false;
+  bool showAppbar = true;
   bool isMobile = true;
+
+  ///make this variable true if you want to show pink popup for the
+  ///month and term viee. if true then it will show popup and it dispach onTap
+  ///event after tapping on that
+
+  bool showAddNotePupup = true;
 
   bool enableTapForExtraSlot = false;
   bool sendJsonEcnoded = false;
   List<Period> periods = customStaticPeriods;
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
       listenCubit(context);
     });
     super.initState();
@@ -139,85 +144,86 @@ class _CalendarViewState extends State<CalendarView>
 
   @override
   void dispose() {
-    pageController.dispose();
-
     super.dispose();
   }
 
   @override
-  bool get wantKeepAlive => true;
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      key: scaffoldKey,
-      backgroundColor: white,
-      appBar: showAppbar
-          ? CalendarAppBar(
-              headerDateNotifier: headerDateNotifier, scaffoldKey: scaffoldKey)
-          : null,
-      endDrawer: SettingDrawer(
-        startDate: DefaultDates.startDate,
-        isMobile: isMobile,
-        endDate: DefaultDates.startDate,
-        onDateChange: (DateTime start, DateTime end) {
-          timeTableController.changeDate(start, end);
-          dayController.changeDate(start, end);
-          scheduleController.changeDate(start, end);
-        },
-      ),
-      floatingActionButton: BlocBuilder<TimeTableCubit, TimeTableState>(
-        builder: (BuildContext context, TimeTableState state) =>
-            BlocProvider.of<TimeTableCubit>(context).standAlone
-                ? FloatingActionButton(
-                    onPressed: () {
-                      showDatePicker(
-                              context: context,
-                              firstDate: DefaultDates.startDate,
-                              lastDate: DefaultDates.endDate,
-                              initialDate: DateTime.now())
-                          .then((DateTime? value) {
-                        if (value != null) {
-                          timeTableController.jumpTo(value);
-                          dayController.jumpTo(value);
-                          scheduleController.jumpTo(value);
-                          monthController.jumpTo(value);
-                          termController.jumpTo(value);
-                        }
-                      });
-                    },
-                    child: const Icon(Icons.calendar_month),
-                  )
-                : const SizedBox.shrink(),
-      ),
-      body: LayoutBuilder(
-          key: _key,
-          builder: (context, constrains) {
-            isMobile = constrains.maxWidth < mobileThreshold;
-            logPrety('Building Flutter Calendar UI');
-            return Row(
-              children: <Widget>[
-                isMobile ? const SizedBox.shrink() : const LeftStrip(),
-                Expanded(
-                    child: Column(
+  Widget build(BuildContext context) => Scaffold(
+        resizeToAvoidBottomInset: false,
+        key: scaffoldKey,
+        backgroundColor: white,
+        appBar: showAppbar
+            ? CalendarAppBar(
+                headerDateNotifier: headerDateNotifier,
+                scaffoldKey: scaffoldKey)
+            : null,
+        endDrawer: SettingDrawer(
+          startDate: DefaultDates.startDate,
+          isMobile: isMobile,
+          endDate: DefaultDates.startDate,
+          onDateChange: (DateTime start, DateTime end) {
+            timeTableController.changeDate(start, end);
+            dayController.changeDate(start, end);
+            scheduleController.changeDate(start, end);
+          },
+        ),
+        floatingActionButton: BlocBuilder<TimeTableCubit, TimeTableState>(
+          builder: (BuildContext context, TimeTableState state) =>
+              BlocProvider.of<TimeTableCubit>(context).standAlone
+                  ? FloatingActionButton(
+                      onPressed: () {
+                        showDatePicker(
+                                context: context,
+                                firstDate: DefaultDates.startDate,
+                                lastDate: DefaultDates.endDate,
+                                initialDate: DateTime.now())
+                            .then((DateTime? value) {
+                          if (value != null) {
+                            timeTableController.jumpTo(value);
+                            dayController.jumpTo(value);
+                            scheduleController.jumpTo(value);
+                            monthController.jumpTo(value);
+                            termController.jumpTo(value);
+                          }
+                        });
+                      },
+                      child: const Icon(Icons.calendar_month),
+                    )
+                  : const SizedBox.shrink(),
+        ),
+        body: SafeArea(
+          child: LayoutBuilder(
+              key: _key,
+              builder: (BuildContext context, BoxConstraints constrains) {
+                onResize();
+                isMobile = constrains.maxWidth < mobileThreshold;
+                logPrety('Building Flutter Calendar UI');
+                return Row(
                   children: <Widget>[
-                    const LinearIndicator(),
+                    isMobile ? const SizedBox.shrink() : const LeftStrip(),
                     Expanded(
-                      child: PageView(
-                        controller: pageController,
-                        physics: const NeverScrollableScrollPhysics(),
-                        children: getViewList(),
-                      ),
-                    ),
+                        child: Column(
+                      children: <Widget>[
+                        const LinearIndicator(),
+                        Expanded(
+                          child: ValueListenableBuilder<CalendarViewType>(
+                              valueListenable: viewTypeNotifer,
+                              builder: (BuildContext context,
+                                      CalendarViewType viewType,
+                                      Widget? child) =>
+                                  IndexedStack(
+                                    index: CalendarUtils.getIndex(viewType),
+                                    children: getViewList(),
+                                  )),
+                        ),
+                      ],
+                    )),
+                    isMobile ? const SizedBox.shrink() : const RightStrip(),
                   ],
-                )),
-                isMobile ? const SizedBox.shrink() : const RightStrip(),
-              ],
-            );
-          }),
-    );
-  }
+                );
+              }),
+        ),
+      );
 
   void listenCubit(BuildContext context) {
     final TimeTableCubit cubit = BlocProvider.of<TimeTableCubit>(context);
@@ -232,7 +238,6 @@ class _CalendarViewState extends State<CalendarView>
         logPrety('view updated in calendar:${event.viewType}');
 
         final CalendarViewType requstedView = event.viewType;
-        pageController.jumpToPage(CalendarUtils.getIndex(requstedView));
 
         viewTypeNotifer.value = requstedView;
         timeTableController.jumpTo(cubit.date);
@@ -382,13 +387,20 @@ class _CalendarViewState extends State<CalendarView>
                 periodModel = null;
               }
 
-              if (periodModel != null &&
-                  (periodModel.isAfterSchool || periodModel.isBeforeSchool)) {
-                cubit.nativeCallBack.sendShowDutyToNativeApp(dateTime,
-                    <CalendarEvent<EventData>>[event], cubit.viewType);
+              if (periodModel != null && periodModel.isCustomeSlot) {
+                cubit.nativeCallBack.sendShowDutyToNativeApp(
+                    dateTime,
+                    <CalendarEvent<EventData>>[event],
+                    cubit.viewType,
+                    periodModel);
               } else {
-                cubit.nativeCallBack.sendShowEventToNativeApp(dateTime,
-                    <CalendarEvent<EventData>>[event], cubit.viewType);
+                if (event.eventData!.isFreeTime) {
+                  cubit.nativeCallBack.senShowdNonTeachingTimeToNativeAoo(
+                      event, dateTime, cubit.viewType);
+                } else {
+                  cubit.nativeCallBack.sendShowEventToNativeApp(dateTime,
+                      <CalendarEvent<EventData>>[event], cubit.viewType);
+                }
               }
             }
           },
@@ -429,13 +441,20 @@ class _CalendarViewState extends State<CalendarView>
                 periodModel = null;
               }
 
-              if (periodModel != null &&
-                  (periodModel.isAfterSchool || periodModel.isBeforeSchool)) {
-                cubit.nativeCallBack.sendShowDutyToNativeApp(dateTime,
-                    <CalendarEvent<EventData>>[event], cubit.viewType);
+              if (periodModel != null && (periodModel.isCustomeSlot)) {
+                cubit.nativeCallBack.sendShowDutyToNativeApp(
+                    dateTime,
+                    <CalendarEvent<EventData>>[event],
+                    cubit.viewType,
+                    periodModel);
               } else {
-                cubit.nativeCallBack.sendShowEventToNativeApp(dateTime,
-                    <CalendarEvent<EventData>>[event], cubit.viewType);
+                if (event.eventData!.isFreeTime) {
+                  cubit.nativeCallBack.senShowdNonTeachingTimeToNativeAoo(
+                      event, dateTime, cubit.viewType);
+                } else {
+                  cubit.nativeCallBack.sendShowEventToNativeApp(dateTime,
+                      <CalendarEvent<EventData>>[event], cubit.viewType);
+                }
               }
             }
           },
@@ -502,6 +521,7 @@ class _CalendarViewState extends State<CalendarView>
         ),
         MonthPlanner(
           timetableController: monthController,
+          showAddNotePupup: showAddNotePupup,
           onMonthChanged: (Month month) {
             setState(() {
               dateTime = DateTime(month.year, month.month, 15);
@@ -522,6 +542,7 @@ class _CalendarViewState extends State<CalendarView>
         ),
         TermPlanner(
           timetableController: termController,
+          showAddNotePupup: showAddNotePupup,
           onMonthChanged: (Month month) {
             setState(() {
               dateTime = DateTime(month.year, month.month, 15);

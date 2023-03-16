@@ -36,9 +36,9 @@ class RightStrip extends StatelessWidget {
                     child: RightSideButton(
                   title: S.of(context).todos,
                   onTap: () {
-                    if (viewType != CalendarViewType.dayView) {
+                   
                       cubit.nativeCallBack.sendShowTodos();
-                    }
+                    
                   },
                 )),
                 Expanded(

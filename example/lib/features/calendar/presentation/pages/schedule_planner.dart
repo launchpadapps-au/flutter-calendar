@@ -103,7 +103,7 @@ class _SchedulePlannerState extends State<SchedulePlanner<EventData>> {
             children: <Widget>[
               Text(
                 DateFormat('E').format(date).toUpperCase(),
-                style: context.subtitle
+                style: context.headerDayTitlekMobile
                     .copyWith(color: isSameDate(date) ? primaryPink : null),
               ),
               Container(
@@ -116,7 +116,7 @@ class _SchedulePlannerState extends State<SchedulePlanner<EventData>> {
                   child: Center(
                     child: Text(
                       date.day.toString(),
-                      style: context.subtitle.copyWith(
+                      style: context.headerDateTitlekMobile.copyWith(
                           color: isSameDate(date) ? Colors.white : textBlack),
                     ),
                   ))
@@ -139,12 +139,12 @@ class _SchedulePlannerState extends State<SchedulePlanner<EventData>> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Text(start.format(context).substring(0, 5),
-                          style: context.subtitle),
+                          style: context.headerDayTitlekMobile),
                       const SizedBox(
                         height: 8,
                       ),
                       Text(end.format(context).substring(0, 5),
-                          style: context.subtitle),
+                          style: context.headerDateTitlekMobile),
                     ],
                   ),
           );
@@ -177,7 +177,7 @@ class _SchedulePlannerState extends State<SchedulePlanner<EventData>> {
             style: context.headline1Fw500.copyWith(
                 color: textGrey, fontSize: 14, fontWeight: FontWeight.w700)),
         isCellDraggable: (CalendarEvent<EventData> event) =>
-          CalendarUtils.   isCelldraggable(event),
+            CalendarUtils.isCelldraggable(event),
         controller: widget.timetableController,
         itemBuilder: (CalendarEvent<EventData> item) => ScheduleViewEventTile(
           item: item,

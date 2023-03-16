@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         create: (BuildContext context) => TimeTableCubit(),
         lazy: false,
         child: MaterialApp(
-          showPerformanceOverlay: true,
+         
           theme: ThemeData(fontFamily: Fonts.sofiaPro),
           localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
             S.delegate,

@@ -306,6 +306,7 @@ class ExportView {
                               itemBuilder:
                                   (CalendarEvent<EventData> i, double w) =>
                                       WeekEvent(
+                                        isMobile: false,
                                           item: i,
                                           cellHeight: cellHeight,
                                           breakHeight: breakHeight,
@@ -633,7 +634,13 @@ class ExportView {
                               List<CalendarEvent<Note>> p1) {},
                         ),
                         cellBuilder: (Size size, CalendarDay calendarDay) =>
-                            MonthCell(size: size),
+                            MonthCell(
+                          showAddNotePupup: false,
+                          size: size,
+                          onTap: (CalendarDay dateTime,
+                              List<CalendarEvent<Note>> p1) {},
+                          calendarDay: calendarDay,
+                        ),
                       ),
                     )),
                   ),
