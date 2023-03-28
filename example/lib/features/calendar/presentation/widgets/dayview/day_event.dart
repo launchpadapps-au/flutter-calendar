@@ -145,7 +145,11 @@ class _DayEventState extends State<DayEvent> {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: widget.isMobile
-                                        ? context.eventTitleMobile
+                                        ? context.eventTitleMobile.copyWith(
+                                            fontSize: widget
+                                                    .item.eventData!.isFreeTime
+                                                ? 10
+                                                : null)
                                         : context.eventTitleTablet,
                                   ),
                                 ),
@@ -164,6 +168,13 @@ class _DayEventState extends State<DayEvent> {
                                           overflow: TextOverflow.ellipsis,
                                           style: widget.isMobile
                                               ? context.eventDescriptionMobile
+                                                  .copyWith(
+                                                      fontSize: widget
+                                                              .item
+                                                              .eventData!
+                                                              .isFreeTime
+                                                          ? 10
+                                                          : null)
                                               : context.eventDescriptionTablet,
                                         ),
                                       ),

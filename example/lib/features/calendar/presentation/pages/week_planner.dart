@@ -106,6 +106,7 @@ class _WeekPlannerState extends State<WeekPlanner<EventData>> {
 
         return !periodModel.isCustomeSlot;
       },
+   
       showNowIndicator: false,
       nowIndicatorColor: timeIndicatorColor,
       cornerBuilder: (DateTime current) => Container(
@@ -119,11 +120,10 @@ class _WeekPlannerState extends State<WeekPlanner<EventData>> {
       hourLabelBuilder: (Period period) => WeekHourLable(
           periodModel: period as PeriodModel, isMobile: widget.isMobile),
       isCellDraggable: (CalendarEvent<EventData> event) =>
-        CalendarUtils.   isCelldraggable(event),
+          CalendarUtils.isCelldraggable(event),
       controller: widget.timetableController,
       itemBuilder: (CalendarEvent<EventData> item, double width) => WeekEvent(
           item: item,
-          freeTimeBg: true,
           isMobile: widget.isMobile,
           periods: widget.customPeriods,
           cellHeight: widget.timetableController.cellHeight,

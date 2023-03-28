@@ -93,7 +93,7 @@ class _CalendarViewState extends State<CalendarView> {
   ValueNotifier<CalendarViewType> viewTypeNotifer =
       ValueNotifier<CalendarViewType>(CalendarViewType.weekView);
 
-  bool showAppbar = true;
+  bool showAppbar = false;
   bool isMobile = true;
 
   ///make this variable true if you want to show pink popup for the

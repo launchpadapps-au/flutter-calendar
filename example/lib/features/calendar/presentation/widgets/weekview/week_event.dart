@@ -100,7 +100,8 @@ class WeekEvent extends StatelessWidget {
                   height: breakHeight,
                   child: Center(
                       child: Text(item.eventData!.title,
-                          style: isMobile?context.subtitle: context.subtitle1)),
+                          style:
+                              isMobile ? context.subtitle : context.subtitle1)),
                 )
               : Column(
                   children: <Widget>[
@@ -133,7 +134,10 @@ class WeekEvent extends StatelessWidget {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: isMobile
-                                        ? context.eventTitleMobile
+                                        ? context.eventTitleMobile.copyWith(
+                                            fontSize: item.eventData!.isFreeTime
+                                                ? 10
+                                                : null)
                                         : context.eventTitleTablet,
                                   ),
                                 ),
@@ -151,6 +155,11 @@ class WeekEvent extends StatelessWidget {
                                           overflow: TextOverflow.ellipsis,
                                           style: isMobile
                                               ? context.eventDescriptionMobile
+                                                  .copyWith(
+                                                      fontSize: item.eventData!
+                                                              .isFreeTime
+                                                          ? 10
+                                                          : null)
                                               : context.eventDescriptionMobile,
                                         ),
                                       ),

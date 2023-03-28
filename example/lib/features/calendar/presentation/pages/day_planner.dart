@@ -159,11 +159,10 @@ class _DayPlannerState extends State<DayPlanner> {
           periodModel: period as PeriodModel, isMobile: widget.isMobile),
       controller: widget.timetableController,
       isCellDraggable: (CalendarEvent<EventData> event) =>
-        CalendarUtils.   isCelldraggable(event),
+          CalendarUtils.isCelldraggable(event),
       itemBuilder: (CalendarEvent<EventData> item, int index, int length,
               double width) =>
           DayEvent(
-            freeTimeBg: true,
             item: item,
             cellHeight: widget.timetableController.cellHeight,
             breakHeight: widget.timetableController.breakHeight,

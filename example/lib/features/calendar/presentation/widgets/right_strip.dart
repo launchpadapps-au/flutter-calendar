@@ -21,7 +21,8 @@ class RightStrip extends StatelessWidget {
   final double height;
 
   @override
-  Widget build(BuildContext context) => SizedBox(
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.only(top: 50),
         width: width,
         child: BlocConsumer<TimeTableCubit, TimeTableState>(
           listener: (BuildContext context, TimeTableState state) {},
@@ -32,13 +33,12 @@ class RightStrip extends StatelessWidget {
             final Term crTerm = cubit.term;
             return Column(
               children: <Widget>[
+                const Divider(height: 2.5, thickness: 2.5),
                 Expanded(
                     child: RightSideButton(
-                  title: S.of(context).todos,
+                  title: S.of(context).todo,
                   onTap: () {
-                   
-                      cubit.nativeCallBack.sendShowTodos();
-                    
+                    cubit.nativeCallBack.sendShowTodos();
                   },
                 )),
                 Expanded(

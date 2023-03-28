@@ -28,7 +28,12 @@
     "todos":"Todos",
     "@todos":{
         "description":"Todos"
-    } ,   "drive":"Drive",
+    } , 
+       "todo":"To Do",
+    "@todo":{
+        "description":"To Do"
+    } ,
+       "drive":"Drive",
     "@drive":{
         "description":"Drive"
     }

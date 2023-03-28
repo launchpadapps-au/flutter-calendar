@@ -12,7 +12,7 @@ extension TextThemes on BuildContext {
 
   ///textStyle for hour label in mobile
   TextStyle get hourLabelMobile => const TextStyle(
-      fontSize: 10, fontWeight: FontWeight.w500, color: textGrey);
+      fontSize: 14, fontWeight: FontWeight.w500, color: textGrey);
 
   ///textStyle for hour label in tablet
   TextStyle get hourLabelTablet => const TextStyle(
@@ -23,7 +23,7 @@ extension TextThemes on BuildContext {
 
   ///textStyle for day label in mobile
   TextStyle get headerDayTitlekMobile => const TextStyle(
-      fontSize: 10, fontWeight: FontWeight.w500, color: textGrey);
+      fontSize: 14, fontWeight: FontWeight.w500, color: textGrey);
 
   ///textStyle for day label in tablet
   TextStyle get headerDayTitleTablet => const TextStyle(
@@ -48,7 +48,7 @@ extension TextThemes on BuildContext {
 
   ///caption
   TextStyle get eventTitleMobile => const TextStyle(
-      fontSize: 10, fontWeight: FontWeight.w500, color: textBlack, height: 1.2);
+      fontSize: 14, fontWeight: FontWeight.w500, color: textBlack, height: 1.2);
 
   ///caption
   TextStyle get eventTitleTablet => const TextStyle(
@@ -56,7 +56,7 @@ extension TextThemes on BuildContext {
 
   ///event link mobile
   TextStyle get eventLinkMobile => const TextStyle(
-      fontSize: 10, fontWeight: FontWeight.w500, color: textBlack);
+      fontSize: 14, fontWeight: FontWeight.w500, color: textBlack);
 
   ///event link tablet
   TextStyle get eventLinkTablet => const TextStyle(
@@ -65,7 +65,7 @@ extension TextThemes on BuildContext {
   ///textStyle for hour label in mobile
   TextStyle get eventDescriptionMobile => const TextStyle(
       fontFamily: Fonts.sofiaPro,
-      fontSize: 10,
+      fontSize: 14,
       fontWeight: FontWeight.w500,
       color: textBlack);
 

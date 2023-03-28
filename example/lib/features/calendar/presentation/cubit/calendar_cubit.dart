@@ -96,8 +96,7 @@ class TimeTableCubit extends Cubit<TimeTableState> {
   );
 
   ///object of the native callback class
-  NativeCallBack nativeCallBack =
-      NativeCallBack(mockMethod: _standAlone ? mockObject : null);
+  NativeCallBack nativeCallBack = NativeCallBack();
 
   ///code related to native callback and data listener
 
@@ -527,7 +526,9 @@ class TimeTableCubit extends Cubit<TimeTableState> {
       startDate = term.startDate;
       endDate = term.endDate;
       currentDate = term.startDate;
-      nativeCallBack.sendFetchDataDatesToNativeApp(startDate, endDate);
+      nativeCallBack
+        ..sendVisibleDateChnged(startDate)
+        ..sendFetchDataDatesToNativeApp(startDate, endDate);
       viewType = CalendarViewType.termView;
       emit(TermsUpdated(periods, events, viewType, termModel));
     }

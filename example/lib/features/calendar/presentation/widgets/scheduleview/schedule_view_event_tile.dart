@@ -1,3 +1,4 @@
+import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/core/utils/utils.dart' as utils;
 import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
 import 'package:flutter/material.dart';
@@ -60,8 +61,7 @@ class ScheduleViewEventTile extends StatelessWidget {
                         item.eventData!.title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontSize: 10, fontWeight: FontWeight.w500),
+                        style: context.eventTitleMobile,
                       ),
                     ),
 
@@ -82,10 +82,7 @@ class ScheduleViewEventTile extends StatelessWidget {
                         item.eventData!.location ?? '',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            height: 1.2,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500),
+                        style: context.eventTitleMobile,
                       ),
                     ),
                   ],
@@ -103,15 +100,14 @@ class ScheduleViewEventTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 SizedBox(
-                  width: 100,
+                  width: 110,
                   child: Text(
                     utils.getFormattedTime(
                         Period(
                             startTime: TimeOfDay.fromDateTime(item.startTime),
                             endTime: TimeOfDay.fromDateTime(item.endTime)),
                         context),
-                    style: const TextStyle(
-                        height: 1.2, fontSize: 10, fontWeight: FontWeight.w500),
+                    style: context.eventTitleMobile.copyWith(fontSize: 12),
                   ),
                 ),
                 const SizedBox(
@@ -121,7 +117,7 @@ class ScheduleViewEventTile extends StatelessWidget {
                   transform: Matrix4.translationValues(-3, 0, 0),
                   child: Text(
                     item.eventData!.extraCurricular!,
-                    style: const TextStyle(fontSize: 14),
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ),
               ],

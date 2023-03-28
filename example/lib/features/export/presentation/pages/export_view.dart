@@ -310,7 +310,6 @@ class ExportView {
                                           item: i,
                                           cellHeight: cellHeight,
                                           breakHeight: breakHeight,
-                                          freeTimeBg: true,
                                           width: w,
                                           periods: timelines),
                               cellBuilder: (Period p, DateTime d) => ExportCell(
@@ -502,7 +501,6 @@ class ExportView {
                                     breakHeight:
                                         timetableController.breakHeight,
                                     width: width,
-                                    freeTimeBg: true,
                                     isMobile: isMobile,
                                   ),
                               cellBuilder: (Period p, DateTime d) => ExportCell(
