@@ -17,7 +17,7 @@ class NewSlDayView<T> extends StatefulWidget {
   const NewSlDayView({
     required this.timelines,
     required this.onWillAccept,
-    this.onWillAcceptForEvent,
+ this.onWillAcceptForEvent,
     this.backgroundColor = Colors.transparent,
     Key? key,
     this.size,
@@ -120,7 +120,8 @@ class NewSlDayView<T> extends StatefulWidget {
   /// Called when a piece of data enters the target. This will be followed by
   /// either [onAccept] and [onAcceptWithDetails], if the data is dropped, or
   /// [onLeave], if the drag leaves the target.
-  final Function(CalendarEvent<T>, DateTime, Period) onWillAccept;
+  final Function(CalendarEvent<T> event, DateTime dateTime, Period period)
+      onWillAccept;
 
   ///it will use to determine wether event will accept event or not
   /// Called to determine whether this widget is interested in receiving a given

@@ -113,8 +113,12 @@ class SlWeekView<T> extends StatefulWidget {
 
   ///return existing ,old and new event when used drag and drop
   ///the event on the existing event
-  final Function(CalendarEvent<T> existing, CalendarEvent<T> old,
-      CalendarEvent<T> newEvent, Period? periodModel)? onEventToEventDragged;
+  final Function(
+      CalendarEvent<T> existing,
+      CalendarEvent<T> old,
+      CalendarEvent<T> newEvent,
+      Period? periodModel,
+      DateTime dateTime)? onEventToEventDragged;
 
   /// Called to determine whether this widget is interested in receiving a given
   /// piece of data being dragged over this drag target.
@@ -122,7 +126,8 @@ class SlWeekView<T> extends StatefulWidget {
   /// Called when a piece of data enters the target. This will be followed by
   /// either [onAccept] and [onAcceptWithDetails], if the data is dropped, or
   /// [onLeave], if the drag leaves the target.
-  final bool Function(CalendarEvent<T>, Period) onWillAccept;
+  final bool Function(CalendarEvent<T> event, Period period, DateTime dateTime)
+      onWillAccept;
 
   ///it will use to determine wether event will accept event or not
   /// Called to determine whether this widget is interested in receiving a given
@@ -634,7 +639,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                             },
                             onWillAccept:
                                 (CalendarEvent<T>? data, Period period) =>
-                                    widget.onWillAccept(data!, period))
+                                    widget.onWillAccept(data!, period, date))
                     ],
                   ),
                   for (final List<CalendarEvent<T>> events in eventList)
@@ -687,7 +692,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                               eventNotifier.sink.add(items);
 
                               widget.onEventToEventDragged!(
-                                  event, details.data, myEvents, null);
+                                  event, details.data, myEvents, null, date);
                             },
                             onWillAccept: (CalendarEvent<T>? data) {
                               if (widget.onWillAcceptForEvent != null) {

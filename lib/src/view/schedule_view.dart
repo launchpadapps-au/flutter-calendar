@@ -1,4 +1,4 @@
-import 'dart:async'; 
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
@@ -113,7 +113,8 @@ class SlScheduleView<T> extends StatefulWidget {
   /// Called when a piece of data enters the target. This will be followed by
   /// either [onAccept] and [onAcceptWithDetails], if the data is dropped, or
   /// [onLeave], if the drag leaves the target.
-  final DragTargetWillAccept<CalendarEvent<T>> onWillAccept;
+
+  final bool Function(CalendarEvent<T>? event, DateTime dateTime) onWillAccept;
 
   ///function will handle if event is draggable
   final bool Function(CalendarEvent<T> event)? isCellDraggable;
@@ -453,7 +454,7 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
               title: events.isEmpty
                   ? DragTarget<CalendarEvent<T>>(
                       onWillAccept: (CalendarEvent<T>? data) =>
-                          widget.onWillAccept(data),
+                          widget.onWillAccept(data, date),
                       onAcceptWithDetails:
                           (DragTargetDetails<CalendarEvent<T>> details) {
                         final CalendarEvent<T> event = details.data;
@@ -491,7 +492,7 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
                           .map((CalendarEvent<T> e) => DragTarget<
                                   CalendarEvent<T>>(
                               onWillAccept: (CalendarEvent<T>? data) =>
-                                  widget.onWillAccept(data),
+                                  widget.onWillAccept(data,date),
                               onAcceptWithDetails:
                                   (DragTargetDetails<CalendarEvent<T>>
                                       details) {
