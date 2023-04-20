@@ -451,6 +451,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                           : PageView.builder(
                               controller: headerController,
                               itemCount: dateRange.length,
+                              physics: const NeverScrollableScrollPhysics(),
                               pageSnapping: widget.snapToDay,
                               onPageChanged: (int value) {
                                 if (widget.onDateChanged != null) {
