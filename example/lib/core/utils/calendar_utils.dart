@@ -1,4 +1,4 @@
-import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/planner/data/models/get_events_model.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 
 ///utils method for the calendar

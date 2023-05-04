@@ -1,9 +1,8 @@
- 
 import 'dart:io';
 
 import 'package:edgar_planner_calendar_flutter/core/logger.dart';
 import 'package:flutter/foundation.dart';
-import 'package:name_plus/name_plus.dart'; 
+import 'package:name_plus/name_plus.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// this class contain utility function for the file saving
@@ -47,7 +46,9 @@ class FileUtils {
     } on Exception catch (e) {
       return e.toString();
     }
-  }///it will return path based on the paltform
+  }
+
+  ///it will return path based on the paltform
 
   static Future<Directory?> getPath() async {
     final Directory? path = Platform.isAndroid
@@ -57,7 +58,8 @@ class FileUtils {
             : await getDownloadsDirectory();
     return path;
   }
-///it will delete file
+
+  ///it will delete file
   static bool deleteFile(String path) {
     try {
       final File file = File(path);
@@ -72,4 +74,3 @@ class FileUtils {
     }
   }
 }
- 

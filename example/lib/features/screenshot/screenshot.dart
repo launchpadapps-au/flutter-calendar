@@ -71,7 +71,8 @@ class ScreenshotController {
 
     return byteData!.buffer.asUint8List();
   }
-///capture image using thred
+
+  ///capture image using thred
   Future<Uint8List> captureFromWidgetThred(
     Widget widget, {
     Duration delay = const Duration(seconds: 1),
@@ -79,7 +80,6 @@ class ScreenshotController {
     BuildContext? context,
     Size? targetSize,
   }) async {
- 
     final ui.Image image = await widgetToUiImage(widget,
         delay: delay,
         pixelRatio: pixelRatio,
@@ -91,6 +91,7 @@ class ScreenshotController {
 
     return byteData!.buffer.asUint8List();
   }
+
   ///conver widhet to ui
   static Future<ui.Image> widgetToUiImage(
     Widget widget, {
@@ -222,7 +223,6 @@ class ScreenshotController {
       ///
       ///retry untill capture is successfull
       ///
-
     } while (isDirty && retryCounter >= 0);
     try {
       /// Dispose All widgets

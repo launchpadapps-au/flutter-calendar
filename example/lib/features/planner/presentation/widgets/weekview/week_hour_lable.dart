@@ -3,16 +3,11 @@ import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/features/planner/data/models/period_model.dart';
 import 'package:flutter/material.dart';
 
-///Export hour lable for the week view
-class ExportHourLable extends StatelessWidget {
+///hour lable for the week view
+class WeekHourLable extends StatelessWidget {
   ///initilize the widget
-  const ExportHourLable(
-      {required this.periodModel,
-      required this.timelineWidth,
-      required this.breakHeight,
-      required this.cellHeight,
-      required this.isMobile,
-      super.key});
+  const WeekHourLable(
+      {required this.periodModel, required this.isMobile, super.key});
 
   ///pass true if mobile
   final bool isMobile;
@@ -20,27 +15,13 @@ class ExportHourLable extends StatelessWidget {
   ///Period of the slot
   final PeriodModel periodModel;
 
-  ///width of the timeline
-  final double timelineWidth;
-
-  ///cell and break height
-  final double cellHeight, breakHeight;
-
   @override
   Widget build(BuildContext context) {
     final TimeOfDay start = periodModel.startTime;
 
     final TimeOfDay end = periodModel.endTime;
     return Container(
-      height: periodModel.isCustomeSlot ? breakHeight : cellHeight,
-      width: timelineWidth,
-      decoration: BoxDecoration(
-        color: white,
-        border: Border.all(
-          color: textGrey,
-          width: 0.5,
-        ),
-      ),
+      color: white,
       child: periodModel.isAfterSchool || periodModel.isBeforeSchool
           ? const SizedBox.shrink()
           : periodModel.isCustomeSlot

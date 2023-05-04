@@ -2,10 +2,10 @@ import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/features/planner/data/models/period_model.dart';
 import 'package:flutter/material.dart';
 
-///Export cell for the week view
-class ExportCell extends StatelessWidget {
+///week cell for the week view
+class WeekCell extends StatelessWidget {
   ///initilize the week view
-  const ExportCell(
+  const WeekCell(
       {required this.periodModel,
       required this.breakHeight,
       required this.cellHeight,
@@ -21,10 +21,7 @@ class ExportCell extends StatelessWidget {
   Widget build(BuildContext context) => Container(
       height: periodModel.isCustomeSlot ? breakHeight : cellHeight,
       decoration: BoxDecoration(
-          border: Border.all(
-            color: textGrey,
-            width: 0.25,
-          ),
+          border: Border.all(color: grey),
           color: periodModel.isAfterSchool || periodModel.isBeforeSchool
               ? Colors.transparent
               : periodModel.isCustomeSlot

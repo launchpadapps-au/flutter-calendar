@@ -56,11 +56,11 @@ extension TextThemes on BuildContext {
 
   ///event link mobile
   TextStyle get eventLinkMobile => const TextStyle(
-      fontSize: 14, fontWeight: FontWeight.w500, color: textBlack);
+      fontSize: 12, fontWeight: FontWeight.w500, color: textBlack);
 
   ///event link tablet
   TextStyle get eventLinkTablet => const TextStyle(
-      fontSize: 12, fontWeight: FontWeight.w500, color: textBlack);
+      fontSize: 14, fontWeight: FontWeight.w500, color: textBlack);
 
   ///textStyle for hour label in mobile
   TextStyle get eventDescriptionMobile => const TextStyle(

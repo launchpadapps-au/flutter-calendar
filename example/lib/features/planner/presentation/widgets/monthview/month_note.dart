@@ -1,14 +1,16 @@
+import 'package:aligned_dialog/aligned_dialog.dart';
 import 'package:edgar_planner_calendar_flutter/core/text_styles.dart';
 import 'package:edgar_planner_calendar_flutter/core/themes/assets_path.dart';
 import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/features/planner/data/models/get_notes.dart';
+import 'package:edgar_planner_calendar_flutter/features/planner/presentation/widgets/monthview/note_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 
-///it will render ui for notes for  exporitng month view
-class ExportMonthNote extends StatelessWidget {
+///it will render ui for notes in month view
+class MonthNote extends StatelessWidget {
   ///initilize the week event
-  const ExportMonthNote({
+  const MonthNote({
     required this.item,
     required this.cellHeight,
     required this.breakHeight,
@@ -46,9 +48,8 @@ class ExportMonthNote extends StatelessWidget {
   Widget build(BuildContext context) => item.isEmpty
       ? const SizedBox.shrink()
       : Builder(builder: (BuildContext context) {
-          const double tileHeight = 46;
           const int heightFraction = 30 + 8;
-          final int maxchild = (size.height - heightFraction) ~/ tileHeight;
+          final int maxchild = (size.height - heightFraction) ~/ 28;
           final List<CalendarEvent<Note>> showitem =
               item.take(maxchild).toList();
 
@@ -71,32 +72,63 @@ class ExportMonthNote extends StatelessWidget {
                   Column(
                     children: showitem
                         .map((CalendarEvent<Note> e) => SizedBox(
+                              height: showFullSize
+                                  ? size.height - heightFraction
+                                  : 28,
                               width: size.width,
                               child: showMore &&
                                       showitem.indexOf(e) == (maxchild - 1)
-                                  ? Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                  ? Row(
                                       children: <Widget>[
                                         Builder(
                                             builder: (BuildContext context) {
-                                          final double width = size.width - 8;
+                                          final double width =
+                                              size.width - heightFraction - 50;
                                           final int index = showitem.indexOf(e);
-                                          return SmallEventTile(
-                                            event: e,
-                                            calendarDay: calendarDay,
-                                            tileHeight: tileHeight,
-                                            crossAxisAlignment: showFullSize
-                                                ? CrossAxisAlignment.start
-                                                : CrossAxisAlignment.center,
-                                            onTap: onTap,
-                                            index: index,
-                                            width: width,
-                                          );
+                                          return width.isNegative
+                                              ? const SizedBox.shrink()
+                                              : SmallEventTile(
+                                                  event: e,
+                                                  calendarDay: calendarDay,
+                                                  crossAxisAlignment:
+                                                      showFullSize
+                                                          ? CrossAxisAlignment
+                                                              .start
+                                                          : CrossAxisAlignment
+                                                              .center,
+                                                  onTap: onTap,
+                                                  index: index,
+                                                  width: width,
+                                                );
                                         }),
-                                        Text(
-                                          ' +$moreCount more',
-                                          style: context.moreCount,
+                                        GestureDetector(
+                                          onTapDown: (TapDownDetails details) {
+                                            showAlignedDialog<dynamic>(
+                                                context: context,
+                                                avoidOverflow: true,
+                                                builder:
+                                                    (BuildContext context) =>
+                                                        NoteDialog(
+                                                          calendarDay:
+                                                              calendarDay,
+                                                          dateTime: item
+                                                              .first.startTime,
+                                                          notes: item,
+                                                          onTap: onTap,
+                                                        ),
+                                                barrierColor:
+                                                    Colors.transparent);
+                                          },
+                                          child: SizedBox(
+                                            width:
+                                                heightFraction.toDouble() - 8,
+                                            child: Center(
+                                              child: Text(
+                                                ' +$moreCount',
+                                                style: context.moreCount,
+                                              ),
+                                            ),
+                                          ),
                                         )
                                       ],
                                     )
@@ -108,7 +140,6 @@ class ExportMonthNote extends StatelessWidget {
                                           : CrossAxisAlignment.center,
                                       event: e,
                                       index: showitem.indexOf(e),
-                                      tileHeight: tileHeight,
                                       width: size.width - 8,
                                     ),
                             ))
@@ -184,45 +215,32 @@ class SmallEventTile extends StatelessWidget {
             height: tileHeight,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(4), color: blueGrey),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
+              crossAxisAlignment: crossAxisAlignment,
               children: <Widget>[
-                Row(
-                  crossAxisAlignment: crossAxisAlignment,
-                  children: <Widget>[
-                    Padding(
-                        padding: crossAxisAlignment == CrossAxisAlignment.start
-                            ? const EdgeInsets.only(top: 4)
-                            : EdgeInsets.zero,
-                        child: Image.asset(
-                          AssetPath.notes,
-                          width: 8,
-                          height: 8,
-                          errorBuilder: (BuildContext context, Object error,
-                                  StackTrace? stackTrace) =>
-                              const SizedBox.shrink(),
-                        )),
-                    const SizedBox(
-                      width: 4,
-                    ),
-                    Expanded(
-                      child: Text(
-                        event.eventData!.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.clip,
-                        style: const TextStyle(color: white, fontSize: 14),
-                      ),
-                    ),
-                  ],
+                Padding(
+                    padding: crossAxisAlignment == CrossAxisAlignment.start
+                        ? const EdgeInsets.only(top: 4)
+                        : EdgeInsets.zero,
+                    child: Image.asset(
+                      AssetPath.notes,
+                      width: 8,
+                      height: 8,
+                      errorBuilder: (BuildContext context, Object error,
+                              StackTrace? stackTrace) =>
+                          const SizedBox.shrink(),
+                    )),
+                const SizedBox(
+                  width: 4,
                 ),
-                Text(
-                  event.eventData!.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.clip,
-                  style: const TextStyle(
-                      color: white, fontSize: 14, fontWeight: FontWeight.w400),
-                )
+                Expanded(
+                  child: Text(
+                    event.eventData!.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.clip,
+                    style: const TextStyle(color: white, fontSize: 14),
+                  ),
+                ),
               ],
             ),
           ),

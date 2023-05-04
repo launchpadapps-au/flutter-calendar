@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
+import 'package:intl/intl.dart';
 
 /// period class for the calendar, it can be use for define custom timeslot in
 /// the calendar.period class must be impliment this class to user functionality
@@ -52,8 +53,8 @@ class Period {
   /// return json object
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'startTime': startTime.toString(),
-        'endTime': endTime.toString(),
+        'startTime': formatTimeOfDay(startTime),
+        'endTime': formatTimeOfDay(endTime),
         'title': title,
         'isBreak': isCustomeSlot
       };
@@ -62,4 +63,11 @@ class Period {
 //   DateTime now=DateTime.now();
 //  return DateTime(now.year, now.month, now.day, time.hour, time.minute);
 // }
+}
+
+///it will format the day
+String formatTimeOfDay(TimeOfDay tod) {
+  final DateTime now = DateTime.now();
+  return DateFormat('HH:mm:ss').format(DateTime(
+      now.year, now.month, now.day, tod.hour, tod.minute, 00)); //"6:00 AM"
 }

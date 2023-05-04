@@ -29,11 +29,10 @@
     "@todos":{
         "description":"Todos"
     } , 
-       "todo":"To Do",
+    "todo":"To-Do",
     "@todo":{
-        "description":"To Do"
-    } ,
-       "drive":"Drive",
+        "description":"To-Do"
+    } ,  "drive":"Drive",
     "@drive":{
         "description":"Drive"
     }

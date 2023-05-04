@@ -1,18 +1,20 @@
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'package:edgar_planner_calendar_flutter/core/logger.dart';
 import 'package:edgar_planner_calendar_flutter/core/themes/colors.dart';
 import 'package:edgar_planner_calendar_flutter/core/themes/constants.dart';
 import 'package:edgar_planner_calendar_flutter/core/utils/calendar_utils.dart';
 import 'package:edgar_planner_calendar_flutter/core/utils/utils.dart' as utils;
-import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_notes.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/callbacks.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/method_name.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/dayview/day_event.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/dead_cell.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/month_cell.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/monthview/month_hour_lable.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/widgets/weekview/week_event.dart';
+import 'package:edgar_planner_calendar_flutter/features/planner/data/models/get_events_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/planner/data/models/get_notes.dart';
+import 'package:edgar_planner_calendar_flutter/features/planner/data/models/period_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/planner/presentation/callbacks/method_name.dart';
+import 'package:edgar_planner_calendar_flutter/features/planner/presentation/callbacks/native_callbacks.dart';
+import 'package:edgar_planner_calendar_flutter/features/planner/presentation/widgets/dayview/day_event.dart';
+import 'package:edgar_planner_calendar_flutter/features/planner/presentation/widgets/monthview/dead_cell.dart';
+import 'package:edgar_planner_calendar_flutter/features/planner/presentation/widgets/monthview/month_cell.dart';
+import 'package:edgar_planner_calendar_flutter/features/planner/presentation/widgets/monthview/month_hour_lable.dart';
+import 'package:edgar_planner_calendar_flutter/features/planner/presentation/widgets/weekview/week_event.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/data/models/export_progress.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/data/models/export_settings.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/presentation/pages/fileutils.dart';
@@ -229,9 +231,10 @@ class ExportView {
                     .isAfter(startDate.subtract(const Duration(days: 1))) &&
                 element.eventData!.endDate
                     .isBefore(endDate.add(const Duration(days: 1))) &&
-                (element.eventData!.subject != null &&
-                    element.eventData!.subject!.id.toString() ==
-                        subjectId.toString()))
+                (element.eventData!.isDuty ||
+                    (element.eventData!.subject != null &&
+                        (element.eventData!.subject!.id.toString() ==
+                            subjectId.toString()))))
             .toList();
       }
       logPrety('No of Weeks: ${weeks.length}');
@@ -266,11 +269,11 @@ class ExportView {
                           child: SlWeekView<EventData>(
                               fullWeek: fullWeek,
                               onDateChanged: (DateTime dateTime) {},
-                              onEventToEventDragged:
-                                  (CalendarEvent<EventData> e,
-                                      CalendarEvent<EventData> old,
-                                      CalendarEvent<EventData> newEvent,
-                                      Period? periodModel) {},
+                              onEventToEventDragged: (CalendarEvent<EventData> e,
+                                  CalendarEvent<EventData> old,
+                                  CalendarEvent<EventData> newEvent,
+                                  Period? periodModel,
+                                  DateTime dateTime) {},
                               headerDivideThickness: 0,
                               columnWidth: cellWidth,
                               showNowIndicator: false,
@@ -282,12 +285,12 @@ class ExportView {
                               onTap: (DateTime date, Period period,
                                   CalendarEvent<EventData>? event) {},
                               onWillAccept: (CalendarEvent<EventData>? event,
-                                      Period p) =>
+                                      Period p, DateTime dateTime) =>
                                   true,
                               showActiveDateIndicator: false,
                               nowIndicatorColor: timeIndicatorColor,
-                              cornerBuilder:
-                                  (DateTime current) => const ExportCorner(),
+                              cornerBuilder: (DateTime current) =>
+                                  const ExportCorner(),
                               headerHeight: headerHeight,
                               headerCellBuilder: (DateTime date) =>
                                   ExportHeader(
@@ -299,14 +302,13 @@ class ExportView {
                                   cellHeight: cellHeight,
                                   timelineWidth: timeLineWidth,
                                   isMobile: isMobile),
-                              isCellDraggable:
-                                  (CalendarEvent<EventData> event) =>
-                                      CalendarUtils.isCelldraggable(event),
+                              isCellDraggable: (CalendarEvent<EventData> event) =>
+                                  CalendarUtils.isCelldraggable(event),
                               controller: simpleController,
                               itemBuilder:
                                   (CalendarEvent<EventData> i, double w) =>
                                       WeekEvent(
-                                        isMobile: false,
+                                          isMobile: false,
                                           item: i,
                                           cellHeight: cellHeight,
                                           breakHeight: breakHeight,
@@ -412,9 +414,10 @@ class ExportView {
                     .isAfter(startDate.subtract(const Duration(days: 1))) &&
                 element.eventData!.endDate
                     .isBefore(endDate.add(const Duration(days: 1))) &&
-                (element.eventData!.subject != null &&
-                    element.eventData!.subject!.id.toString() ==
-                        subjectId.toString()))
+                (element.eventData!.isDuty ||
+                    (element.eventData!.subject != null &&
+                        (element.eventData!.subject!.id.toString() ==
+                            subjectId.toString()))))
             .toList();
       }
       logPrety('Total Days Days: $dif');

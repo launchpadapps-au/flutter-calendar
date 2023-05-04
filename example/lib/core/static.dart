@@ -1,5 +1,5 @@
-import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/period_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/term_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/planner/data/models/period_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/planner/data/models/term_model.dart';
 import 'package:flutter/material.dart';
 
 ///custom timePeriods for the timetable
@@ -156,14 +156,14 @@ Map<String, dynamic>
     /// A map of string to dynamic.
     staticJsonForTheTerm = <String, dynamic>{
   'term': <String, dynamic>{
-    'id': 6,
-    'territory': 'New South Wales',
-    'term1': '02-01|23-01',
-    'term2': '26-01|07-07',
-    'term3': '10-07|29-09',
-    'term4': '02-10|29-12'
+    'id': 2,
+    'territory': 'Victoria',
+    'term1': '25-01|08-04',
+    'term2': '22-04|25-06',
+    'term3': '08-07|17-09',
+    'term4': '30-09|22-12'
   },
-  'id': '681ab18e-0ddd-4dda-94e8-0026f1d4c46f'
+  'id': 'd98105fc-0be8-4236-8afe-204e1de55f9c'
 };
 
 ///static term that derived from [staticJsonForTheTerm]
@@ -182,14 +182,14 @@ class DefaultDates {
   ///start date of the  month view in the calendar
 
   static DateTime get monthStartDate {
-   final DateTime now = DateTime.now();
+    final DateTime now = DateTime.now();
     return now.copyWith(year: now.year - 5);
   }
 
   ///start date of the  month view in the calendar
 
   static DateTime get monthEndate {
-  final  DateTime now = DateTime.now();
+    final DateTime now = DateTime.now();
     return now.copyWith(year: now.year + 5);
   }
 }

@@ -5,9 +5,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:edgar_planner_calendar_flutter/core/logger.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/data/models/get_events_model.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/calendar_cubit.dart';
-import 'package:edgar_planner_calendar_flutter/features/calendar/presentation/cubit/method_name.dart';
+import 'package:edgar_planner_calendar_flutter/features/planner/data/models/get_events_model.dart';
+import 'package:edgar_planner_calendar_flutter/features/planner/presentation/callbacks/method_name.dart';
+import 'package:edgar_planner_calendar_flutter/features/planner/presentation/cubit/planner_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/data/models/export_progress.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/presentation/pages/fileutils.dart';
 import 'package:edgar_planner_calendar_flutter/features/export/presentation/pages/pdf_utils.dart';
@@ -45,13 +45,14 @@ class _ExportSettingViewState extends State<ExportSettingView> {
 
   StreamController<ExportProgress> streamController =
       StreamController<ExportProgress>.broadcast();
+
   void sendData(dynamic data, BuildContext context) {
-    TimeTableCubit.mockObject
+    PlannerCubit.mockObject
         .invokeMethod(ReceiveMethods.generatePreview, jsonEncode(data));
   }
 
   void listenMockStream(BuildContext context) {
-    TimeTableCubit.mockObject.stream.listen((MethodCall event) {
+    PlannerCubit.mockObject.stream.listen((MethodCall event) {
       switch (event.method) {
         case SendMethods.previewProgress:
           exportProgres = ExportProgress.fromJson(event.arguments);
@@ -280,7 +281,7 @@ class _ExportSettingViewState extends State<ExportSettingView> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        TimeTableCubit.mockObject
+                        PlannerCubit.mockObject
                             .invokeMethod(ReceiveMethods.downloadPdf, null);
                       },
                       child: const Text('Download'),
@@ -288,7 +289,7 @@ class _ExportSettingViewState extends State<ExportSettingView> {
                     ElevatedButton(
                       onPressed: () async {
                         final Map<String, dynamic> data = <String, dynamic>{};
-                        TimeTableCubit.mockObject
+                        PlannerCubit.mockObject
                             .invokeMethod(ReceiveMethods.canclePreview, data);
                       },
                       child: const Text('Cancle'),

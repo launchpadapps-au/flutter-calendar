@@ -67,71 +67,70 @@ class PdfUtils {
             build: (Context context) => Container(
                   width: width,
                   height: height,
-                  child: Column(
-                      children: <Widget>[
-                        Container(
-                            height: 35,
-                            width: width,
-                            child: Row(
-                              children: <Widget>[
-                                SizedBox(
-                                  width: 30,
-                                ),
-                                Image(
-                                  titleLogo,
-                                  width: 56,
-                                  height: 10,
-                                ),
-                                SizedBox(
-                                  width: 8,
-                                ),
-                                Padding(
-                                    padding: const EdgeInsets.only(bottom: 2),
-                                    child: Text(
-                                      titles[data.index],
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          font: ttf,
-                                          fontSize: 10),
-                                    )),
-                                Spacer(),
-                                Image(
-                                  smallLogo,
-                                  width: 9,
-                                  height: 11,
-                                ),
-                                SizedBox(
-                                  width: 1,
-                                ),
-                                Text(
-                                  ' /${data.index + 1}',
+                  child: Column(children: <Widget>[
+                    Container(
+                        height: 35,
+                        width: width,
+                        child: Row(
+                          children: <Widget>[
+                            SizedBox(
+                              width: 30,
+                            ),
+                            Image(
+                              titleLogo,
+                              width: 56,
+                              height: 10,
+                            ),
+                            SizedBox(
+                              width: 8,
+                            ),
+                            Padding(
+                                padding: const EdgeInsets.only(bottom: 2),
+                                child: Text(
+                                  titles[data.index],
                                   style: TextStyle(
-                                      fontWeight: FontWeight.normal,
+                                      fontWeight: FontWeight.bold,
                                       font: ttf,
                                       fontSize: 10),
-                                ),
-                                SizedBox(
-                                  width: 35,
-                                ),
-                              ],
-                            )),
-                        Row(children: <Widget>[
-                          Container(
-                              width: width,
-                              height: height - 35,
-                              decoration: const BoxDecoration(),
-                              // margin: EdgeInsets.only(left: 10, bottom: 10),
-                              child: Image(
-                                MemoryImage(
-                                  data.item,
-                                  dpi: 500,
-                                  orientation: PdfImageOrientation.topRight,
-                                ),
-                                width: width,
-                                height: height - 35,
-                              ))
-                        ])
-                      ]),
+                                )),
+                            Spacer(),
+                            Image(
+                              smallLogo,
+                              width: 9,
+                              height: 11,
+                            ),
+                            SizedBox(
+                              width: 1,
+                            ),
+                            Text(
+                              ' /${data.index + 1}',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.normal,
+                                  font: ttf,
+                                  fontSize: 10),
+                            ),
+                            SizedBox(
+                              width: 35,
+                            ),
+                          ],
+                        )),
+                    Row(children: <Widget>[
+                      Container(
+                          width: width,
+                          height: height - 35,
+                          decoration: const BoxDecoration(),
+                          // margin: EdgeInsets.only(left: 10, bottom: 10),
+                          child: Image(
+                            MemoryImage(
+                              data.item,
+                              dpi: 500,
+                              orientation: PdfImageOrientation.topRight,
+                            ),
+                            width: width,
+                            height: height - 35,
+                          ))
+                    ])
+                  ]),
                 )));
 
       return pdf;
