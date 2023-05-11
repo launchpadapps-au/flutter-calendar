@@ -44,7 +44,7 @@ dependencies:
   flutter_bloc: ^8.1.1
   jiffy: ^5.0.0
   path_provider: ^2.0.11
-  intl: ^0.17.0
+  intl: ^0.18.0
   bloc: ^8.1.0
   pdf: ^3.8.4
   aligned_dialog: ^0.0.6

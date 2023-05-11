@@ -85,7 +85,7 @@ class _PlannerViewState extends State<PlannerView> {
   /// Used to display the current month in the app bar.
   DateTime dateTime = DateTime.now();
 
-  ValueNotifier<bool> rebuild = ValueNotifier(true);
+  ValueNotifier<bool> rebuild = ValueNotifier<bool>(true);
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -212,18 +212,17 @@ class _PlannerViewState extends State<PlannerView> {
                           child: ValueListenableBuilder<bool>(
                               valueListenable: rebuild,
                               builder: (BuildContext context, bool value,
-                                  Widget? child) {
-                                return ValueListenableBuilder<CalendarViewType>(
-                                    valueListenable: viewTypeNotifer,
-                                    builder: (BuildContext context,
-                                            CalendarViewType viewType,
-                                            Widget? child) =>
-                                        IndexedStack(
-                                          index:
-                                              CalendarUtils.getIndex(viewType),
-                                          children: getViewList(),
-                                        ));
-                              }),
+                                      Widget? child) =>
+                                  ValueListenableBuilder<CalendarViewType>(
+                                      valueListenable: viewTypeNotifer,
+                                      builder: (BuildContext context,
+                                              CalendarViewType viewType,
+                                              Widget? child) =>
+                                          IndexedStack(
+                                            index: CalendarUtils.getIndex(
+                                                viewType),
+                                            children: getViewList(),
+                                          ))),
                         ),
                       ],
                     )),
@@ -327,11 +326,9 @@ class _PlannerViewState extends State<PlannerView> {
         logInfo('removing events from calendar');
       } else if (event is TermsUpdated) {
         final Term term = BlocProvider.of<PlannerCubit>(context).term!;
-        if (term != null) {
-          logInfo('Current Term:$term');
-          termController.changeDate(term.startDate, term.endDate);
-          monthController.changeDate(term.startDate, term.endDate);
-        }
+        logInfo('Current Term:$term');
+        termController.changeDate(term.startDate, term.endDate);
+        monthController.changeDate(term.startDate, term.endDate);
       } else if (event is MonthUpdated) {
         logInfo('Month Updated');
         headerDateNotifier.value = event.startDate;
