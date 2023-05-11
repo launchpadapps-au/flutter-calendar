@@ -144,9 +144,9 @@ class _SettingDrawerState extends State<SettingDrawer> {
                       const SizedBox(
                         height: mainMargin,
                       ),
-                      const Row(
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
+                        children: const <Widget>[
                           Text('Calendar Dates'),
                         ],
                       ),

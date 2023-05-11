@@ -125,22 +125,23 @@ class ScreenshotController {
     }
 
     final RenderRepaintBoundary repaintBoundary = RenderRepaintBoundary();
-    final ui.FlutterView view = View.of(context!);
+
     final Size logicalSize = targetSize ??
-       view.physicalSize /view.devicePixelRatio; // Adapted
-    final Size imageSize = targetSize ??  view.physicalSize; // Adapted
+        ui.window.physicalSize / ui.window.devicePixelRatio; // Adapted
+    final Size imageSize = targetSize ?? ui.window.physicalSize; // Adapted
 
     assert(logicalSize.aspectRatio.toStringAsPrecision(5) ==
         imageSize.aspectRatio
             .toStringAsPrecision(5)); // Adapted (toPrecision was not available)
 
     final RenderView renderView = RenderView(
-        child: RenderPositionedBox(child: repaintBoundary),
-        configuration: ViewConfiguration(
-          size: logicalSize,
-          devicePixelRatio: pixelRatio ?? 1.0,
-        ),
-        view: view);
+      window: ui.window,
+      child: RenderPositionedBox(child: repaintBoundary),
+      configuration: ViewConfiguration(
+        size: logicalSize,
+        devicePixelRatio: pixelRatio ?? 1.0,
+      ),
+    );
 
     final PipelineOwner pipelineOwner = PipelineOwner();
     final BuildOwner buildOwner = BuildOwner(

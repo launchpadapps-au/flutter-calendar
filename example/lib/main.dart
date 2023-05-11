@@ -1,9 +1,11 @@
+import 'package:edgar_planner_calendar_flutter/core/logger.dart';
 import 'package:edgar_planner_calendar_flutter/core/themes/fonts.dart';
 import 'package:edgar_planner_calendar_flutter/features/planner/presentation/cubit/planner_cubit.dart';
 import 'package:edgar_planner_calendar_flutter/features/planner/presentation/pages/planner_view.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:logging/logging.dart';
 
@@ -16,7 +18,11 @@ void main() {
   Logger.root.level = Level.ALL; // defaults to Level.INFO
   Logger.root.onRecord.listen((LogRecord record) {
     debugPrint(record.message);
-  });
+  });  for (int i = 0; i < 23; i++) {
+    var time = TimeOfDay(hour: i, minute: 35);
+
+    logInfo(formatTimeOfDay(time));
+  }
   runApp(const MyApp());
 }
 
