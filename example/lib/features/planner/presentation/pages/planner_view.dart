@@ -95,7 +95,7 @@ class _PlannerViewState extends State<PlannerView> {
   ValueNotifier<CalendarViewType> viewTypeNotifer =
       ValueNotifier<CalendarViewType>(CalendarViewType.weekView);
 
-  bool showAppbar = false;
+  bool showAppbar = true;
   bool isMobile = true;
 
   ///make this variable true if you want to show pink popup for the
@@ -327,11 +327,9 @@ class _PlannerViewState extends State<PlannerView> {
         logInfo('removing events from calendar');
       } else if (event is TermsUpdated) {
         final Term term = BlocProvider.of<PlannerCubit>(context).term!;
-        if (term != null) {
-          logInfo('Current Term:$term');
-          termController.changeDate(term.startDate, term.endDate);
-          monthController.changeDate(term.startDate, term.endDate);
-        }
+        logInfo('Current Term:$term');
+        termController.changeDate(term.startDate, term.endDate);
+        monthController.changeDate(term.startDate, term.endDate);
       } else if (event is MonthUpdated) {
         logInfo('Month Updated');
         headerDateNotifier.value = event.startDate;
@@ -547,6 +545,8 @@ class _PlannerViewState extends State<PlannerView> {
           customPeriods: periods,
           timetableController: scheduleController,
           isMobile: isMobile,
+          onVisibleDateChanged: (dateTimeRange) =>
+              debugPrint(dateTimeRange.toString()),
           onDateChanged: (DateTime dateTime) {
             headerDateNotifier.value = dateTime;
             onDateChange(dateTime, CalendarViewType.scheduleView);

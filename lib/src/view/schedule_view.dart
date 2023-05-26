@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:flutter_calendar/src/core/app_log.dart';
 import 'package:flutter_calendar/src/core/constants.dart';
+import 'package:rect_getter/rect_getter.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 /// The [SlScheduleView] widget displays calendar like view of the events
@@ -18,6 +19,7 @@ class SlScheduleView<T> extends StatefulWidget {
     this.enableEmptyBuilder = false,
     this.emptyTodayTitle,
     this.onDateChanged,
+    this.onVisibleDateChanged,
     this.backgroundColor = Colors.transparent,
     Key? key,
     this.onEventDragged,
@@ -135,6 +137,10 @@ class SlScheduleView<T> extends StatefulWidget {
 
   final Function(DateTime dateTime)? onDateChanged;
 
+  ///provide callabck when date changed if type if infinite scrolling
+
+  final Function(DateTimeRange dateTimeRange)? onVisibleDateChanged;
+
   @override
   State<SlScheduleView<T>> createState() => _SlScheduleViewState<T>();
 }
@@ -162,13 +168,12 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
   DateTime dateTime = DateTime.now();
   IndexedScrollController indexdController =
       IndexedScrollController(initialIndex: 75);
-
+  late int diff;
   @override
   void initState() {
     controller = widget.controller ?? controller;
-
-    indexdController = IndexedScrollController(
-        initialIndex: controller.start.difference(dateTime).inDays);
+    diff = controller.start.difference(dateTime).inDays;
+    indexdController = IndexedScrollController(initialIndex: diff);
     setState(() {});
     indexdController.addListener(() {
       if (dateTime.year == dateForHeader.year &&
@@ -327,7 +332,11 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
   bool isSavingTimeTable = false;
   int? emptyIndex;
   bool isScrolling = false;
+  final Map<int, GlobalKey<RectGetterState>> _keys =
+      <int, GlobalKey<RectGetterState>>{};
 
+  /// Make the entire ListView have the ability to get rect.
+  GlobalKey<RectGetterState> listViewKey = RectGetter.createGlobalKey();
   @override
   Widget build(BuildContext context) => LayoutBuilder(
       key: _key,
@@ -367,72 +376,128 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
 
                               return buildView(date, events, isToday: isToday);
                             })
-                        : IndexedListView.separated(
-                            controller: indexdController,
-                            padding: EdgeInsets.zero,
-                            cacheExtent: widget.enableEmptyBuilder
-                                ? items.isEmpty
-                                    ? 15
-                                    : 0
-                                : 0,
-                            emptyItemBuilder:
-                                (BuildContext context, int index) {
-                              final DateTime date =
-                                  controller.start.add(Duration(days: index));
-                              emptyIndex ??= index;
-                              if (widget.enableEmptyBuilder) {
-                                if (widget.onDateChanged != null) {
-                                  widget.onDateChanged!(date);
-                                }
+                        : NotificationListener<ScrollNotification>(
+                            onNotification: (ScrollNotification scrollInfo) {
+                              if (scrollInfo.runtimeType.toString() ==
+                                  'ScrollEndNotification') {
+                                onScrollEndNotification();
                               }
-                              if (date.day == 1) {
-                                if (index != emptyIndex) {
-                                  emptyIndex = index;
-                                  return const SizedBox.shrink();
-                                } else if (widget.emptyMonthBuilder != null) {
-                                  emptyIndex = index;
-                                  return widget.emptyMonthBuilder!(date);
-                                }
-                              } else {
-                                return const SizedBox.shrink();
-                              }
-                              return null;
+
+                              return false;
                             },
-                            maxItemCount: widget.enableEmptyBuilder
-                                ? items.isEmpty
-                                    ? 0
-                                    : null
-                                : null,
-                            minItemCount: widget.enableEmptyBuilder
-                                ? items.isEmpty
-                                    ? 0
-                                    : null
-                                : null,
-                            physics: isSavingTimeTable
-                                ? const NeverScrollableScrollPhysics()
-                                : null,
-                            separatorBuilder:
-                                (BuildContext context, int index) =>
-                                    const SizedBox(
-                                      height: 3,
-                                    ),
-                            itemBuilder: (BuildContext context, int index) {
-                              final DateTime date =
-                                  controller.start.add(Duration(days: index));
-                              dateForHeader = date;
+                            child: RectGetter(
+                              key: listViewKey,
+                              child: IndexedListView.separated(
+                                  controller: indexdController,
+                                  padding: EdgeInsets.zero,
+                                  cacheExtent: widget.enableEmptyBuilder
+                                      ? items.isEmpty
+                                          ? 15
+                                          : 0
+                                      : 0,
+                                  emptyItemBuilder:
+                                      (BuildContext context, int index) {
+                                    final DateTime date = controller.start
+                                        .add(Duration(days: index));
+                                    emptyIndex ??= index;
+                                    if (widget.enableEmptyBuilder) {
+                                      if (widget.onDateChanged != null) {
+                                        widget.onDateChanged!(date);
+                                      }
+                                    }
+                                    if (date.day == 1) {
+                                      if (index != emptyIndex) {
+                                        emptyIndex = index;
+                                        return const SizedBox.shrink();
+                                      } else if (widget.emptyMonthBuilder !=
+                                          null) {
+                                        emptyIndex = index;
+                                        return widget.emptyMonthBuilder!(date);
+                                      }
+                                    } else {
+                                      return const SizedBox.shrink();
+                                    }
+                                    return null;
+                                  },
+                                  maxItemCount: widget.enableEmptyBuilder
+                                      ? items.isEmpty
+                                          ? 0
+                                          : null
+                                      : null,
+                                  minItemCount: widget.enableEmptyBuilder
+                                      ? items.isEmpty
+                                          ? 0
+                                          : null
+                                      : null,
+                                  physics: isSavingTimeTable
+                                      ? const NeverScrollableScrollPhysics()
+                                      : null,
+                                  separatorBuilder:
+                                      (BuildContext context, int index) =>
+                                          const SizedBox(
+                                            height: 3,
+                                          ),
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    final DateTime date = controller.start
+                                        .add(Duration(days: index));
+                                    dateForHeader = date;
 
-                              final bool isToday =
-                                  DateUtils.isSameDay(date, DateTime.now());
+                                    final bool isToday = DateUtils.isSameDay(
+                                        date, DateTime.now());
 
-                              final List<CalendarEvent<T>> events = items
-                                  .where((CalendarEvent<T> event) =>
-                                      DateUtils.isSameDay(
-                                          date, event.startTime))
-                                  .toList();
+                                    final List<CalendarEvent<T>> events = items
+                                        .where((CalendarEvent<T> event) =>
+                                            DateUtils.isSameDay(
+                                                date, event.startTime))
+                                        .toList();
 
-                              return buildView(date, events, isToday: isToday);
-                            })),
+                                    _keys[index] = RectGetter.createGlobalKey();
+                                    return RectGetter(
+                                      key: _keys[index]!,
+                                      child: buildView(date, events,
+                                          isToday: isToday),
+                                    );
+                                  }),
+                            ),
+                          )),
           ));
+
+  List<int> getVisible() {
+    /// First, get the rect of ListView, and then traver the _keys
+    /// get rect of each item by keys in _keys, and if this rect in the range of ListView's rect,
+    /// add the index into result list.
+    final Rect? rect = RectGetter.getRectFromKey(listViewKey);
+    final List<int> _items = <int>[];
+
+    _keys.forEach((dynamic index, dynamic key) {
+      final Rect? itemRect = RectGetter.getRectFromKey(key);
+      if (itemRect != null &&
+          !(itemRect.top > rect!.bottom || itemRect.bottom < rect.top)) {
+        _items.add(index + diff);
+      } else {
+        _items.remove(key);
+      }
+    });
+
+    /// so all visible item's index are in this _items.
+    _items.sort(
+      (int a, int b) => a.compareTo(b),
+    );
+
+    return _items;
+  }
+
+  void onScrollEndNotification() {
+    final List<int> index = getVisible();
+    final DateTime start = controller.start;
+
+    final DateTime s = start.add(Duration(days: index.first - diff));
+    final DateTime e = start.add(Duration(days: index.last - diff));
+    if (widget.onVisibleDateChanged != null) {
+      widget.onVisibleDateChanged!(DateTimeRange(start: s, end: e));
+    }
+  }
 
   Widget buildView(DateTime date, List<CalendarEvent<T>> events,
           {required bool isToday}) =>
@@ -492,7 +557,7 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
                           .map((CalendarEvent<T> e) => DragTarget<
                                   CalendarEvent<T>>(
                               onWillAccept: (CalendarEvent<T>? data) =>
-                                  widget.onWillAccept(data,date),
+                                  widget.onWillAccept(data, date),
                               onAcceptWithDetails:
                                   (DragTargetDetails<CalendarEvent<T>>
                                       details) {

@@ -17,6 +17,7 @@ class SchedulePlanner<T> extends StatefulWidget {
     required this.onDateChanged,
     required this.onWillAccept,
     this.onEventDragged,
+    required this.onVisibleDateChanged,
     this.onEventToEventDragged,
     Key? key,
     this.id,
@@ -44,6 +45,10 @@ class SchedulePlanner<T> extends StatefulWidget {
 
   ///give new day when day is scrolled
   final Function(DateTime dateTime) onDateChanged;
+
+  ///provide callabck when date changed if type if infinite scrolling
+
+  final Function(DateTimeRange dateTimeRange) onVisibleDateChanged;
 
   ///id that we will received from native ios
   final String? id;
@@ -87,6 +92,8 @@ class _SchedulePlannerState extends State<SchedulePlanner<EventData>> {
         nowIndicatorColor: timeIndicatorColor,
         fullWeek: true,
         cornerBuilder: (DateTime current) => const SizedBox.shrink(),
+        onVisibleDateChanged: (dateTimeRange) =>
+            widget.onVisibleDateChanged(dateTimeRange),
         onTap: (DateTime dateTime, List<CalendarEvent<EventData>>? p1) {
           if (p1 == null) {
             widget.onTap(dateTime, null, null);

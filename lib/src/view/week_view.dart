@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:flutter_calendar/src/core/constants.dart';
 import 'package:flutter_calendar/src/widgets/cell.dart';
@@ -9,6 +11,7 @@ import 'package:flutter_calendar/src/widgets/header_cell.dart';
 import 'package:flutter_calendar/src/widgets/hour_cell.dart';
 import 'package:flutter_calendar/src/widgets/time_indicator.dart';
 import 'package:flutter_calendar/src/widgets/timetable_event.dart';
+import 'package:rect_getter/rect_getter.dart';
 
 import '../core/app_log.dart';
 
@@ -21,6 +24,7 @@ class SlWeekView<T> extends StatefulWidget {
     required this.onWillAccept,
     this.onWillAcceptForEvent,
     this.onDateChanged,
+    this.onVisibleDateChanged,
     this.columnWidth,
     this.size,
     this.backgroundColor = Colors.transparent,
@@ -146,6 +150,10 @@ class SlWeekView<T> extends StatefulWidget {
 
   final Function(DateTime dateTime)? onDateChanged;
 
+  ///provide callabck when date changed
+
+  final Function(DateTimeRange dateTimeRange)? onVisibleDateChanged;
+
   ///background color
   final Color backgroundColor;
 
@@ -199,6 +207,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
           dateTime.day == dateForHeader.day) {
       } else {
         dateTime = dateForHeader;
+
         if (!isScrolling) {
           widget.onDateChanged!(dateTime);
         }
@@ -408,7 +417,11 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
 
   bool isDragEnable(CalendarEvent<T> event) =>
       widget.isCellDraggable == null || widget.isCellDraggable!(event);
+  final Map<int, GlobalKey<RectGetterState>> _keys =
+      <int, GlobalKey<RectGetterState>>{};
 
+  /// Make the entire ListView have the ability to get rect.
+  GlobalKey<RectGetterState> listViewKey = RectGetter.createGlobalKey();
   @override
   Widget build(BuildContext context) => LayoutBuilder(
       key: _key,
@@ -512,9 +525,23 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                             child: NotificationListener<ScrollNotification>(
                               onNotification:
                                   (ScrollNotification notification) {
+                                if (notification.runtimeType.toString() ==
+                                    'ScrollEndNotification') {
+                                  if (dayScrolController
+                                          .position.userScrollDirection ==
+                                      ScrollDirection.reverse) {
+                                    onScrollEndNotification();
+                                  } else {
+                                    if (dayScrolController
+                                            .position.userScrollDirection ==
+                                        ScrollDirection.forward) {
+                                      onScrollEndNotification(
+                                          scrollingRight: false);
+                                    }
+                                  }
+                                }
                                 headerController
                                     .jumpTo(notification.metrics.pixels);
-
                                 return false;
                               },
                               child: widget.columnWidth != null
@@ -536,36 +563,45 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
                                             showIndicator: showIndicator);
                                       },
                                     )
-                                  : PageView.builder(
-                                      itemCount: dateRange.length,
-                                      controller: dayScrolController,
-                                      pageSnapping: widget.snapToDay,
-                                      onPageChanged: (int value) {
-                                        if (widget.onDateChanged != null) {
-                                          final int dif = isMobile ? 1 : 2;
-                                          if (value > currentPage) {
-                                            dateForHeader =
-                                                dateRange[value + dif];
-                                          } else {
-                                            dateForHeader =
-                                                dateRange[value - dif];
+                                  : RectGetter(
+                                      key: listViewKey,
+                                      child: PageView.builder(
+                                        itemCount: dateRange.length,
+                                        controller: dayScrolController,
+                                        pageSnapping: widget.snapToDay,
+                                        onPageChanged: (int value) {
+                                          if (widget.onDateChanged != null) {
+                                            final int dif = isMobile ? 1 : 2;
+                                            if (value > currentPage) {
+                                              dateForHeader =
+                                                  dateRange[value + dif];
+                                            } else {
+                                              dateForHeader =
+                                                  dateRange[value - dif];
+                                            }
+                                            currentPage = value;
+                                            onDateChange(dateForHeader);
                                           }
-                                          currentPage = value;
-                                          onDateChange(dateForHeader);
-                                        }
-                                      },
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        final DateTime date = dateRange[index];
-                                        final DateTime now = DateTime.now();
-                                        final bool isToday =
-                                            DateUtils.isSameDay(date, now);
-                                        final bool showIndicator =
-                                            widget.showNowIndicator && isToday;
-
-                                        return buildView(date,
-                                            showIndicator: showIndicator);
-                                      },
+                                        },
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          final DateTime date =
+                                              dateRange[index];
+                                          final DateTime now = DateTime.now();
+                                          final bool isToday =
+                                              DateUtils.isSameDay(date, now);
+                                          final bool showIndicator =
+                                              widget.showNowIndicator &&
+                                                  isToday;
+                                          _keys[index] =
+                                              RectGetter.createGlobalKey();
+                                          return RectGetter(
+                                            key: _keys[index]!,
+                                            child: buildView(date,
+                                                showIndicator: showIndicator),
+                                          );
+                                        },
+                                      ),
                                     ),
                             ),
                           ),
@@ -730,6 +766,54 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
             );
           });
 
+  List<int> getVisible() {
+    /// First, get the rect of ListView, and then traver the _keys
+    /// get rect of each item by keys in _keys, and if this rect in the range of ListView's rect,
+    /// add the index into result list.
+    final Rect? rect = RectGetter.getRectFromKey(listViewKey);
+    final List<int> _items = <int>[];
+    log(rect.toString());
+    _keys.forEach((dynamic index, dynamic key) {
+      final Rect? itemRect = RectGetter.getRectFromKey(key);
+      if (itemRect != null &&
+          !(itemRect.left > rect!.right || itemRect.right < rect.left)) {
+        if (itemRect.left.round() >= rect.left &&
+            itemRect.right.round() <= rect.right) {
+          _items.add(index);
+        }
+      } else {
+        _items.remove(key);
+      }
+    });
+
+    /// so all visible item's index are in this _items.
+    _items.sort(
+      (int a, int b) => a.compareTo(b),
+    );
+
+    for (final int element in _items) {
+      log(RectGetter.getRectFromKey(_keys[element]!).toString());
+    }
+    return _items;
+  }
+
+  void onScrollEndNotification({bool scrollingRight = true}) {
+    final List<int> index = getVisible(); 
+    log(index.toString());
+    final DateTime s = dateRange[index.first];
+    final DateTime e = dateRange[index.last];
+    log(DateTimeRange(start: s, end: e).toString());
+    // if (scrollingRight) {
+    //   e = e.subtract(const Duration(days: 1));
+    // }
+    // if (!scrollingRight) {
+    //   s = s.add(const Duration(days: 1));
+    // }
+    if (widget.onVisibleDateChanged != null) {
+      widget.onVisibleDateChanged!(DateTimeRange(start: s, end: e));
+    }
+  }
+
   ///jump to given date
   Future<dynamic> _jumpTo(DateTime date) async {
     if (dayScrolController.hasClients) {
@@ -750,8 +834,8 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
           if (dateRange.contains(dateOnly)) {
             isScrolling = true;
             final int index = dateRange.indexOf(dateOnly);
-            await (dayScrolController.animateToPage(index,
-                    curve: animationCurve, duration: animationDuration))
+            await dayScrolController.animateToPage(index,
+                    curve: animationCurve, duration: animationDuration)
                 .then((dynamic value) {
               isScrolling = false;
             });

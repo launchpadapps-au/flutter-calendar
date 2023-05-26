@@ -98,6 +98,8 @@ class SlTermView<T> extends StatefulWidget {
   ///return current month when user swipe and month changed
   final Function(Month) onMonthChanged;
 
+  
+
   /// Called to determine whether this widget is interested in receiving a given
   /// piece of data being dragged over this drag target.
   ///

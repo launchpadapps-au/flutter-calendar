@@ -69,5 +69,5 @@ class Period {
 String formatTimeOfDay(TimeOfDay tod) {
   final DateTime now = DateTime.now();
   return DateFormat('HH:mm:ss').format(DateTime(
-      now.year, now.month, now.day, tod.hour, tod.minute, 00)); //"6:00 AM"
+      now.year, now.month, now.day, tod.hour, tod.minute)); //"6:00 AM"
 }
