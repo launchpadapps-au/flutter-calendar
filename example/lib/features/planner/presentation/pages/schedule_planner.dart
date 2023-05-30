@@ -200,8 +200,14 @@ class _SchedulePlannerState extends State<SchedulePlanner<EventData>> {
           item: item,
           cellHeight: cellHeight,
         ),
+        separatorBuilder: (first, end) => SizedBox(
+          height: 16,
+        ),
+        eventSeparator: SizedBox(height: 4,),
         cellBuilder: (DateTime period) => Container(
           height: cellHeight,
+          margin: EdgeInsets.zero,
+          padding: EdgeInsets.zero,
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(6),
               border:

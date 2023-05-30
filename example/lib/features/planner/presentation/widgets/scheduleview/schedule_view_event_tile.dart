@@ -23,7 +23,7 @@ class ScheduleViewEventTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width - 82;
     return Container(
-      margin: const EdgeInsets.all(4),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
       height: 60,
       width: width,

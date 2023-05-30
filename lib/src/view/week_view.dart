@@ -779,6 +779,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
           !(itemRect.left > rect!.right || itemRect.right < rect.left)) {
         if (itemRect.left.round() >= rect.left &&
             itemRect.right.round() <= rect.right) {
+          log(itemRect.toString());
           _items.add(index);
         }
       } else {
@@ -798,7 +799,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
   }
 
   void onScrollEndNotification({bool scrollingRight = true}) {
-    final List<int> index = getVisible(); 
+    final List<int> index = getVisible();
     log(index.toString());
     final DateTime s = dateRange[index.first];
     final DateTime e = dateRange[index.last];
@@ -834,7 +835,8 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
           if (dateRange.contains(dateOnly)) {
             isScrolling = true;
             final int index = dateRange.indexOf(dateOnly);
-            await dayScrolController.animateToPage(index,
+            await dayScrolController
+                .animateToPage(index,
                     curve: animationCurve, duration: animationDuration)
                 .then((dynamic value) {
               isScrolling = false;

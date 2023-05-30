@@ -149,6 +149,7 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
 
   ///get initial list of dates
   void initDate() {
+    debugPrint("Showing month${controller.start} to ${controller.end}");
     monthRange = getMonthRange(controller.start, controller.end);
     dateForHeader = monthRange.first.firstDay;
     setState(() {});
@@ -257,8 +258,7 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
                     itemCount: monthRange.length,
                     itemBuilder: (BuildContext context, int index) {
                       final Month month = monthRange[index];
-                      final List<CalendarDay> dates =
-                          getMonthDates(month);
+                      final List<CalendarDay> dates = getMonthDates(month);
 
                       return StreamBuilder<List<CalendarEvent<T>>>(
                           stream: eventNotifier.stream,
@@ -355,6 +355,7 @@ class _SlMonthViewState<T> extends State<SlMonthView<T>> {
           element.month == date.month && element.year == date.year);
       await pageController.animateToPage(monthRange.indexOf(month),
           duration: _animationDuration, curve: _animationCurve);
+
       return true;
     } on StateError catch (e) {
       debugPrint(e.toString());
