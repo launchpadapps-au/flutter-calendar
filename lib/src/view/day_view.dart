@@ -320,7 +320,7 @@ class _SlDayViewState<T> extends State<SlDayView<T>> {
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             primary: isSavingTimeTable,
-            child: Screenshot<Widget>(
+            child: Screenshot(
               controller: screenshotController,
               child: SizedBox(
                 width: isSavingTimeTable

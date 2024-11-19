@@ -297,7 +297,7 @@ class _SlScheduleViewState<T> extends State<SlScheduleView<T>> {
         adjustColumnWidth();
         return SingleChildScrollView(
           primary: isSavingTimeTable,
-          child: Screenshot<Widget>(
+          child: Screenshot(
             controller: screenshotController,
             child: Container(
               color: widget.backgroundColor,

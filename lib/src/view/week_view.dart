@@ -322,7 +322,7 @@ class _SlWeekViewState<T> extends State<SlWeekView<T>> {
         final Size size = widget.size ?? MediaQuery.of(context).size;
         log('render box size $size');
 
-        return Screenshot<Widget>(
+        return Screenshot(
           controller: screenshotController,
           child: Container(
             color: widget.backgroundColor,
