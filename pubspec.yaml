@@ -5,15 +5,14 @@ homepage:
 publish_to: none
 
 environment:
-  sdk: '>=2.18.0 <3.0.0'
-  flutter: ">=1.17.0"
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  intl: ^0.17.0  
+  intl: ^0.20.0
   scrollable_positioned_list: ^0.3.5
- 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
